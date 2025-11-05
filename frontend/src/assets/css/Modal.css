@@ -1,0 +1,21 @@
+/* src/assets/css/modal.css */
+@import url('./Variables.css');
+
+.modal-content {
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  background-color: var(--color-warning);
+  color: var(--text-color);
+}
+
+.modal-title {
+  font-weight: 600;
+}
+
+.modal-footer button {
+  min-width: 100px;
+}

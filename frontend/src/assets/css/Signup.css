@@ -1,0 +1,15 @@
+/* src/pages/Auth/Signup.css */
+
+.signup-container {
+  background: linear-gradient(135deg, #6610f2, #007bff);
+  min-height: 100vh;
+}
+
+.card {
+  border: none;
+}
+
+.card h3 {
+  font-weight: 600;
+  color: #333;
+}

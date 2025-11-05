@@ -1,0 +1,40 @@
+/* src/assets/css/_variables.css */
+
+:root {
+  /* 🎨 Primary theme colors */
+  --color-primary: #0d6efd;    /* Bootstrap primary blue */
+  --color-secondary: #6c757d;
+  --color-success: #198754;
+  --color-danger: #dc3545;
+  --color-warning: #ffc107;
+
+  /* 🖋 Text and background */
+  --text-color: #212529;
+  --text-muted: #6c757d;
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+
+  /* 💡 Custom for your dashboard */
+  --sidebar-bg: #1e1f26;
+  --sidebar-text: #f1f1f1;
+  --topbar-bg: #ffffff;
+  --topbar-border: #dee2e6;
+}
+
+.capitalize_text::placeholder,
+.uppercase_text::placeholder,
+.lowercase_text::placeholder {
+  text-transform: none;
+}
+
+.capitalize_text {
+  text-transform: capitalize;
+}
+
+.uppercase_text {
+  text-transform: uppercase;
+}
+
+.lowercase_text {
+  text-transform: lowercase;
+}
