@@ -6,6 +6,9 @@ import Signup from "../../pages/auth/Signup";
 
 import AdminLayout from "../layouts/AdminLayout";
 import Dashboard from "../../pages/dashboard/Dashboard";
+
+import { InquiryProvider } from '../../context/InquiryContext/InquiryContext';
+import { AuthProvider } from "../../context/AuthContext/AuthContext";
 import Inquiry from "../../pages/inquiry/Inquiry";
 
 import ProtectedRoute from "./ProtectedRoute";
@@ -14,37 +17,44 @@ import PublicRoute from "./PublicRoute";
 export default function AppRoutes() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public routes */}
-        <Route
-          path="/"
-          element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <PublicRoute>
-              <Signup />
-            </PublicRoute>
-          }
-        />
+      <AuthProvider>
+        <Routes>
+          {/* Public routes */}
+          <Route
+            path="/"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <PublicRoute>
+                <Signup />
+              </PublicRoute>
+            }
+          />
 
-        {/* Protected routes inside AdminLayout */}
-        <Route
-          element={
-            <ProtectedRoute>
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/inquiry" element={<Inquiry />} />
-        </Route>
-      </Routes>
+          {/* Protected routes inside AdminLayout */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/inquiry" 
+              element={
+                        <InquiryProvider>
+                          <Inquiry />
+                        </InquiryProvider>
+                      } />
+          </Route>
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

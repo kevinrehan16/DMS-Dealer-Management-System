@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { TextField, Button } from '@mui/material';
+import { useAuth } from '../../context/AuthContext/AuthContext';
 import axios from 'axios';
 import '../../assets/css/Login.css';
 
 const Login = () => {
+  const { setUser } = useAuth();
+
   const navigate = useNavigate();
   const API_URL = process.env.REACT_APP_API_URL;
 
@@ -20,9 +23,10 @@ const Login = () => {
 
     try {
       const response = await axios.post(`${API_URL}/users/login`, form);
-      console.log('Login successful:', response.data);
+      // console.log('Login successful:', response.data);
       localStorage.setItem("token", response.data.token);
       navigate("/dashboard");
+      setUser(response.data.user);
     } catch (error) {
       console.error('Login failed:', error);
       alert('Login failed!');

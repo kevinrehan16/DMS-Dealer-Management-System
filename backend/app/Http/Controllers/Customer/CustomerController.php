@@ -33,7 +33,7 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'customerid' => 'required|string|max:30',
+            'customer_id' => 'required|string|max:30',
             'firstName' => 'required|string|max:60',
             'lastName' => 'required|string|max:60',
             'middleName' => 'required|string|max:60',
@@ -45,7 +45,7 @@ class CustomerController extends Controller
         ]);
 
         $customer = Customer::create([
-            'customerid' => strtoupper($validated['customerid']),
+            'customer_id' => strtoupper($validated['customer_id']),
             'firstName' => ucwords(strtolower($validated['firstName'])),
             'lastName' => ucwords(strtolower($validated['lastName'])),
             'middleName' => ucwords(strtolower($validated['middleName'])),

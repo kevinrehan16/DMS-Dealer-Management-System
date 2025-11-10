@@ -1,13 +1,17 @@
-// src/pages/inquiry/Inquiry.jsx
 import React, { useEffect, useState } from "react";
+import { useInquiry } from '../../context/InquiryContext/InquiryContext';
 import { Row, Col, Form, Button, InputGroup, Table } from "react-bootstrap";
-import { FaUserPlus, FaSearch, FaEdit, FaUserCheck, FaIdCard, FaSave, FaTimes } from "react-icons/fa";
+import { FaUserPlus, FaSearch, FaEdit, FaUserCheck, FaIdCard, FaSave, FaTimes, FaEye, FaTrash } from "react-icons/fa";
 import "../../assets/css/Inquiry.css";
 import GlobalModal from "../../components/common/GlobalModal";
 import ModalInquiry from "../../components/common/ModalInquiry";
+import { formatAmount } from '../../utils/formatters';
+
 import axios from "axios";
 
 export default function Inquiry() {
+  const { handleCustomerSelect } = useInquiry();
+
   const API_URL = process.env.REACT_APP_API_URL;
   const token = localStorage.getItem('token');
 
@@ -31,6 +35,7 @@ export default function Inquiry() {
 
   // Dummy customer data
   const [customers, setCustomers] = useState();
+  const [inquiries, setInquiries] = useState();
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -97,15 +102,25 @@ export default function Inquiry() {
       });
       setCustomers(response.data.customers);
 
-      // console.log("Fetched customers:", response.data.customers);
+      // console.log("Fetched inquiries:", response.data.inquiries);
     } catch (error) {
       console.error("Error fetching customers:", error);
     }
   };
 
-  const handleSaveInquiry = () => {
-    console.log("Inquiry saved!");
-    handleClose();
+  const fetchInquiries = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/inquiries`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      setInquiries(response.data.inquiries);
+    } catch (error) {
+      console.error("Error fetching inquiries:", error);
+    }
   };
 
   const formatMobile = (value) => {
@@ -131,6 +146,7 @@ export default function Inquiry() {
 
   useEffect(() => {
     fetchCustomers();
+    fetchInquiries();
   }, []);
 
   return (
@@ -218,15 +234,39 @@ export default function Inquiry() {
           <Table striped bordered hover responsive>
             <thead>
               <tr>
-                <th>#</th>
-                <th>Customer Name</th>
-                <th>Branch</th>
-                <th>Inquiry</th>
-                <th>Date</th>
+                <th width='9%'>Inquiry ID</th>
+                <th width='15%'>Customer Name</th>
+                <th width='17%'>Address</th>
+                <th width='12%'>Mobile #</th>
+                <th width='20%'>Brand/Model/Color</th>
+                <th width='8%'>Cash Price</th>
+                <th width='12%'>Mo. Installment</th>
+                <th width='7%'>Actions</th>
               </tr>
             </thead>
             <tbody>
-              
+              {inquiries && inquiries.map((inquiry, index) => (
+                <tr key={inquiry.id}>
+                  <td>{inquiry.inquiry_id}</td>
+                  <td>{inquiry.customer.firstName} {inquiry.customer.lastName}</td>
+                  <td>{inquiry.customer.addresssbrgy ? inquiry.customer.addresssbrgy + ', ' : ''} {inquiry.customer.addressscity ? inquiry.customer.addressscity : ''}</td>
+                  <td>{inquiry.customer.mobile}</td>
+                  <td>{inquiry.motorBrand} / {inquiry.motorModel} / {inquiry.motorColor}</td>
+                  <td className="text-end">{formatAmount(inquiry.motorCashprice)}</td>
+                  <td className="text-end">{formatAmount(inquiry.motorMonthlyinstallment)}</td>
+                  <td className="d-flex align-content-center gap-1">
+                    <Button variant="info" size="sm" className="d-flex align-content-center justify-content-center text-white">
+                      <FaEye />
+                    </Button>
+                    <Button variant="warning" size="sm" className="d-flex align-content-center justify-content-center text-white">
+                      <FaEdit />
+                    </Button>
+                    <Button variant="danger" size="sm" className="d-flex align-content-center justify-content-center text-white">
+                      <FaTrash />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </Table>
         </div>
@@ -239,6 +279,7 @@ export default function Inquiry() {
         handleClose={handleCloseInquiry}
         title="New Inquiry"
         onOpenGlobalModal={handleShow}
+        refreshInquiries={fetchInquiries}
       />
 
       {/* 🔹 Customers' modal */}
@@ -247,7 +288,7 @@ export default function Inquiry() {
         handleClose={handleClose}
         onSave=""
         title="Select Customer"
-        size="lg"
+        size="md"
         footer={
           <>
             <Button variant="danger" onClick={handleClose} className="d-flex align-items-center justify-content-evenly">
@@ -284,18 +325,20 @@ export default function Inquiry() {
           <Table striped bordered hover responsive>
             <thead>
               <tr>
-                <th width="20%">Customer ID</th>
-                <th width="60%">Customer Name</th>
+                <th width="30%">Customer ID</th>
+                <th width="50%">Customer Name</th>
                 <th width="20%">Actions</th>
               </tr>
             </thead>
             <tbody>
               {customers && customers.map((customer, index) => (
                 <tr key={customer.id}>
-                  <td>{customer.customerid}</td>
+                  <td>{customer.customer_id}</td>
                   <td>{customer.firstName} {customer.lastName}</td>
                   <td className="d-flex gap-2">
-                    <Button variant="success" size="sm" className="align-items-center justify-content-center" title="Select this customer">
+                    <Button variant="success" size="sm" className="align-items-center justify-content-center" 
+                    onClick={() => { handleCustomerSelect(customer); handleClose(); }}
+                    title="Select this customer">
                       <FaUserCheck />
                     </Button>
                     <Button variant="info" size="sm" className="align-items-center justify-content-center" title="View this customer">

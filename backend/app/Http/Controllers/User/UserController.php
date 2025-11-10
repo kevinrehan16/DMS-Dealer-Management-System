@@ -12,7 +12,8 @@ class UserController extends Controller
 {
     public function index()
     {
-        return response()->json(['message' => 'Hello'], 201);
+        $users = User::all();
+        return response()->json(['users' => $users], 200);
     }
 
     public function login(Request $request)
