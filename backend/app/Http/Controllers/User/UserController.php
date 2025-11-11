@@ -41,7 +41,6 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'userid' => 'required|string|max:30',
             'firstName' => 'required|string|max:60',
             'lastName' => 'required|string|max:60',
             'email' => 'required|email|unique:users',
@@ -53,7 +52,7 @@ class UserController extends Controller
 
         try{
             $user = User::create([
-                'userid' => $validated['userid'],
+                // 'userid' => $validated['userid'], // Auto-generated in Model Trait
                 'firstName' => $validated['firstName'],
                 'lastName' => $validated['lastName'],
                 'email' => $validated['email'],

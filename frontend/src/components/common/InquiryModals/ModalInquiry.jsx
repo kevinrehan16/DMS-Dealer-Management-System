@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { useInquiry } from '../../context/InquiryContext/InquiryContext';
+import { useInquiry } from '../../../context/InquiryContext/InquiryContext';
 
 import { Modal, Button, Row, Col, Form, InputGroup } from 'react-bootstrap'
 import { FaSave, FaTimes, FaSearch } from "react-icons/fa";
-import "../../assets/css/Modal.css";
+import "../../../assets/css/Modal.css";
+import ModalMotors from './ModalMotors';
 
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useAuth } from '../../../context/AuthContext/AuthContext';
 import axios from 'axios';
 
 const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInquiries }) => {
@@ -47,6 +48,16 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
     motorMonthlyuid: '',
     motorCustomertype: '',
   });
+
+  const [showMotorModal, setShowMotorModal] = useState(false);
+
+  const handleMotorList = () => {
+    setShowMotorModal(true);
+  }
+
+  const handleCloseMotorModal = () => {
+    setShowMotorModal(false);
+  }
 
   useEffect(() => {
     if (selectedCustomer) {
@@ -298,6 +309,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                       name="motorBrand"
                       value={formData.motorBrand}
                       onChange={handleInputCustomerChange}
+                      onClick={handleMotorList}
                       required
                     />
                   </Col>
@@ -655,6 +667,16 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
           </Button>
         </Modal.Footer>
       </Modal>
+
+
+      <ModalMotors
+        // Pass necessary props here
+        show={showMotorModal}
+        handleClose={handleCloseMotorModal}
+      >
+
+      </ModalMotors>
+
     </div>
   )
 }

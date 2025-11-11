@@ -49,3 +49,28 @@
   font-weight: 500;
   text-transform: uppercase;
 }
+
+button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-evenly !important;
+}
+
+.cardHeader {
+  background-color: var(--sidebar-bg) !important;
+  color: var(--color-warning) !important;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.cardList .list-group-item:hover {
+  background-color: var(--text-muted) !important;
+  color: var(--card-bg) !important;
+  cursor: pointer !important;
+}
+
+.list-group-item.active {
+  background-color: var(--text-muted) !important;
+  border-color: var(--text-muted) !important;
+  color: var(--card-bg) !important;
+}

@@ -4,7 +4,7 @@ import { Row, Col, Form, Button, InputGroup, Table } from "react-bootstrap";
 import { FaUserPlus, FaSearch, FaEdit, FaUserCheck, FaIdCard, FaSave, FaTimes, FaEye, FaTrash } from "react-icons/fa";
 import "../../assets/css/Inquiry.css";
 import GlobalModal from "../../components/common/GlobalModal";
-import ModalInquiry from "../../components/common/ModalInquiry";
+import ModalInquiry from "../../components/common/InquiryModals/ModalInquiry";
 import { formatAmount } from '../../utils/formatters';
 
 import axios from "axios";

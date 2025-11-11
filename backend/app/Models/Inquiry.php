@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\GeneratesCustomId;
 
 class Inquiry extends Model
 {
-    use HasFactory;
+    use HasFactory, GeneratesCustomId;
 
     protected $fillable = [
         'customer_id',
@@ -36,6 +37,10 @@ class Inquiry extends Model
         'motorMonthlyuid',
         'motorCustomertype'
     ];
+
+    protected $customIdPrefix = 'INQ-';
+    protected $customIdColumn = 'inquiry_id';
+
 
     public function customer()
     {

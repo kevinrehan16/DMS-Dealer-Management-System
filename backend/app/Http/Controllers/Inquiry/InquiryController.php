@@ -38,7 +38,6 @@ class InquiryController extends Controller
         $validated = request()->validate([
             // Validation rules here
             'customer_id' => 'required|integer|max:30',
-            'inquiry_id' => 'required|string|max:30',
             'sourceInquiry' => 'required|string|max:30',
             'salesPersonid' => 'required|string|max:30',
             'employmentStatus' => 'required|string|max:30',
@@ -66,7 +65,7 @@ class InquiryController extends Controller
 
         $inquiry = Inquiry::create([
             'customer_id' => $validated['customer_id'],
-            'inquiry_id' => $validated['inquiry_id'],
+            // 'inquiry_id' => $validated['inquiry_id'], //!! Auto-generated in the model
             'sourceInquiry' => ucwords(strtolower($validated['sourceInquiry'])),
             'salesPersonid' => $validated['salesPersonid'],
             'employmentStatus' => ucwords(strtolower($validated['employmentStatus'])),
