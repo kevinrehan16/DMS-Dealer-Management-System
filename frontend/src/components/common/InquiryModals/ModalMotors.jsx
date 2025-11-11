@@ -1,19 +1,73 @@
-import React, { useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { Modal, Button, Row, Col, Card, ListGroup } from 'react-bootstrap'
-import { FaSave, FaTimes, FaSearch } from "react-icons/fa";
+import { FaCheck, FaTimes } from "react-icons/fa";
+import axios from 'axios';
 
-const ModalMotors = ({ show, handleClose }) => {
+const ModalMotors = ({ show, handleClose, onSelect }) => {
+  const API_URL = process.env.REACT_APP_API_URL;
+  const token = localStorage.getItem('token');
+
+  const [brands, setBrands] = useState([]);
+  const [models, setModels] = useState([]);
+  const [colors, setColors] = useState([]);
+
+  const fetchBrands = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/motors/motorbrands`,{
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        }
+      });
+      setBrands(response.data.brandMotor);
+      // console.log('Fetched brands:', response.data.listItemMotors);
+    } catch (error) {
+      console.error('Error fetching brands:', error);
+    }
+  }
+
+  const fetchModelsByBrand = async (brand) => {
+    try {
+      handleItemClick("brands", brand);
+      const response = await axios.get(`${API_URL}/motors/motormodels/${brand}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        }
+      });
+      setModels(response.data.models);
+      // console.log('Fetched models:', response.data.models);
+    } catch (error) {
+      console.error('Error fetching models:', error);
+    }
+  };
+
+  const fetchColorsByModel = async (model) => {
+    try {
+      handleItemClick("models", model);
+      const response = await axios.get(`${API_URL}/motors/motorcolors/${model}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      setColors(response.data.colors);
+
+    } catch (error) {
+      console.error('Error fetching colors:', error);
+    }
+  }
+
   const [selectedItems, setSelectedItems] = useState({
-    brands: null,
     models: null,
     colors: null,
     chassis: null,
   });
 
   const listItemMotors = {
-    brands: ["Kawasaki", "Yamaha", "Honda"],
-    models: ["Kawasaki Ninja", "Yamaha R1", "Honda CBR"],
-    colors: ["Red", "Green", "Blue"],
     chassis: ["65456", "65457", "65458"],
   };
 
@@ -51,6 +105,10 @@ const ModalMotors = ({ show, handleClose }) => {
     });
   };
 
+  useEffect(() => {
+    fetchBrands();
+  }, []);
+
   return (
     <div>
       <Modal show={show} onHide={handleClose} size='xl' backdrop="static" keyboard={false}>
@@ -63,8 +121,8 @@ const ModalMotors = ({ show, handleClose }) => {
               <Card>
                 <Card.Header className='cardHeader'>Brands</Card.Header>
                 <ListGroup variant="flush" className='cardList'>
-                  {listItemMotors.brands.map((brand, index) => (
-                    <ListGroup.Item key={index} active={selectedItems.brands === brand} onClick={() => handleItemClick("brands", brand)}>{brand}</ListGroup.Item>
+                  {brands.map((brand, index) => (
+                    <ListGroup.Item key={index} active={selectedItems.brands === brand} onClick={() => { fetchModelsByBrand(brand); }}>{brand}</ListGroup.Item>
                   ))}
                 </ListGroup>
               </Card>
@@ -74,8 +132,8 @@ const ModalMotors = ({ show, handleClose }) => {
                 <Card.Header className='cardHeader'>Models</Card.Header>
                 <ListGroup variant="flush" className='cardList'>
                   {
-                    listItemMotors.models.map((model, index) => (
-                      <ListGroup.Item key={index} active={selectedItems.models === model} onClick={() => handleItemClick("models", model)}>{model}</ListGroup.Item>
+                    models.map((model, index) => (
+                      <ListGroup.Item key={index} active={selectedItems.models === model} onClick={() => fetchColorsByModel(model)}>{model}</ListGroup.Item>
                     ))
                   }
                 </ListGroup>
@@ -85,7 +143,7 @@ const ModalMotors = ({ show, handleClose }) => {
               <Card>
                 <Card.Header className='cardHeader'>Colors</Card.Header>
                 <ListGroup variant="flush" className='cardList'>
-                  {listItemMotors.colors.map((color, index) => (
+                  {colors.map((color, index) => (
                     <ListGroup.Item key={index} active={selectedItems.colors === color} onClick={() => handleItemClick("colors", color)}>{color}</ListGroup.Item>
                   ))}
                 </ListGroup>
@@ -104,6 +162,7 @@ const ModalMotors = ({ show, handleClose }) => {
           </Row>
         </Modal.Body>
         <Modal.Footer>
+          <Button variant='success' onClick={() => onSelect(selectedItems)}><FaCheck />  Done</Button>
           <Button variant="danger" onClick={handleClose}><FaTimes /> Close</Button>
         </Modal.Footer>
       </Modal>

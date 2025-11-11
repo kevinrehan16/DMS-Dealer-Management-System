@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useInquiry } from '../../../context/InquiryContext/InquiryContext';
 
 import { Modal, Button, Row, Col, Form, InputGroup } from 'react-bootstrap'
-import { FaSave, FaTimes, FaSearch } from "react-icons/fa";
+import { FaSave, FaTimes, FaUserCog, FaMotorcycle  } from "react-icons/fa";
 import "../../../assets/css/Modal.css";
 import ModalMotors from './ModalMotors';
 
@@ -56,6 +56,18 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
   }
 
   const handleCloseMotorModal = () => {
+    setShowMotorModal(false);
+  }
+
+  const handleSendMotorInfo = (selectedItems) => {
+    // console.log('Motor info received from Motors: ' + JSON.stringify(selectedItems));
+    setFormData((prev) => ({
+      ...prev,
+      motorBrand: selectedItems.brands !== null ? selectedItems.brands : '',
+      motorModel: selectedItems.models !== null ? selectedItems.models : '',
+      motorColor: selectedItems.colors !== null ? selectedItems.colors : '',
+      motorChassis: selectedItems.chassis !== null ? selectedItems.chassis : '',
+    }));
     setShowMotorModal(false);
   }
 
@@ -175,7 +187,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                         readOnly
                       />
                       <InputGroup.Text>
-                        <FaSearch />
+                        <FaUserCog />
                       </InputGroup.Text>
                     </InputGroup>
                   </Col>
@@ -303,15 +315,20 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                     <Form.Label className="mb-0">Brand</Form.Label>
                   </Col>
                   <Col xs={8}>
-                    <Form.Control
-                      type="text"
-                      className="capitalize_text"
-                      name="motorBrand"
-                      value={formData.motorBrand}
-                      onChange={handleInputCustomerChange}
-                      onClick={handleMotorList}
-                      required
-                    />
+                    <InputGroup className='input-search-cursor' onClick={handleMotorList}>
+                      <Form.Control
+                        type="text"
+                        className="capitalize_text input-search-cursor"
+                        name="motorBrand"
+                        value={formData.motorBrand}
+                        onChange={handleInputCustomerChange}
+                        required
+                        readOnly
+                      />
+                      <InputGroup.Text>
+                        <FaMotorcycle />
+                      </InputGroup.Text>
+                    </InputGroup>
                   </Col>
                 </Row>
               </Form.Group>
@@ -328,23 +345,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                       value={formData.motorModel}
                       onChange={handleInputCustomerChange}
                       required
-                    />
-                  </Col>
-                </Row>
-              </Form.Group>
-              <Form.Group controlId="formSeries" className="mb-2">
-                <Row>
-                  <Col xs={4}>
-                    <Form.Label className="mb-0">Series</Form.Label>
-                  </Col>
-                  <Col xs={8}>
-                    <Form.Control
-                      type="text"
-                      className="capitalize_text"
-                      name="motorSeries"
-                      value={formData.motorSeries}
-                      onChange={handleInputCustomerChange}
-                      required
+                      disabled
                     />
                   </Col>
                 </Row>
@@ -362,6 +363,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                       value={formData.motorColor}
                       onChange={handleInputCustomerChange}
                       required
+                      disabled
                     />
                   </Col>
                 </Row>
@@ -377,6 +379,24 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                       className="capitalize_text"
                       name="motorChassis"
                       value={formData.motorChassis}
+                      onChange={handleInputCustomerChange}
+                      required
+                      disabled
+                    />
+                  </Col>
+                </Row>
+              </Form.Group>
+              <Form.Group controlId="formSeries" className="mb-2">
+                <Row>
+                  <Col xs={4}>
+                    <Form.Label className="mb-0">Series</Form.Label>
+                  </Col>
+                  <Col xs={8}>
+                    <Form.Control
+                      type="text"
+                      className="capitalize_text"
+                      name="motorSeries"
+                      value={formData.motorSeries}
                       onChange={handleInputCustomerChange}
                       required
                     />
@@ -673,6 +693,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
         // Pass necessary props here
         show={showMotorModal}
         handleClose={handleCloseMotorModal}
+        onSelect={handleSendMotorInfo}
       >
 
       </ModalMotors>

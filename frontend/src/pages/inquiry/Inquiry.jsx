@@ -34,8 +34,8 @@ export default function Inquiry() {
   const [dateTo, setDateTo] = useState("");
 
   // Dummy customer data
-  const [customers, setCustomers] = useState();
-  const [inquiries, setInquiries] = useState();
+  const [customers, setCustomers] = useState([]);
+  const [inquiries, setInquiries] = useState([]);
 
   const handleSearch = (e) => {
     e.preventDefault();
