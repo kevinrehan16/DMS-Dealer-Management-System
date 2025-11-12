@@ -60,6 +60,7 @@ Route::prefix('motors')->controller(MotorController::class)->group(function () {
         Route::get('/motorbrands', 'getBrands'); // GET /api/motors/motorbrands
         Route::get('/motormodels/{brand}', 'getModelsByBrand'); // GET /api/motors/models/{brand}
         Route::get('/motorcolors/{model}', 'getColorsByModel'); // GET /api/motors/colors/{model}
+        Route::get('/motorchassis/{color}', 'getChassisByColor'); // GET /api/motors/chassis/{color}
         Route::post('/', 'store'); // POST /api/motors
         Route::get('/{id}', 'show'); // GET /api/motors/{id}
         Route::put('/{id}', 'update'); // PUT /api/motors/{id}

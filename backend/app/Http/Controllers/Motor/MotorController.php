@@ -51,6 +51,18 @@ class MotorController extends Controller
         ]);
     }
 
+    public function getChassisByColor($color){
+        $chassis = ItemList::where('color', $color)
+            ->orderBy('chassis', 'asc')
+            ->select('chassis', 'series', 'interest', 'cashPrice', 'srpValue')
+            ->distinct()
+            ->get();
+
+        return response()->json([
+            'chassis' => $chassis,
+        ]);
+    }
+
     public function show($id)
     {
         //

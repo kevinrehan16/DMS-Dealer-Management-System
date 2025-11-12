@@ -5,6 +5,8 @@ import { Modal, Button, Row, Col, Form, InputGroup } from 'react-bootstrap'
 import { FaSave, FaTimes, FaUserCog, FaMotorcycle  } from "react-icons/fa";
 import "../../../assets/css/Modal.css";
 import ModalMotors from './ModalMotors';
+import { formatAmount, handleAmountBlur, handleAmountFocus, cleanToDouble } from '../../../utils/formatters';
+import { computeMotorFinance } from '../../../utils/computations';
 
 import { useAuth } from '../../../context/AuthContext/AuthContext';
 import axios from 'axios';
@@ -19,7 +21,6 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
   const [formData, setFormData] = useState({
     fullName: '',
     customer_id: '',
-    inquiry_id: '',
     address: '',
     email: '',
     mobile: '',
@@ -32,20 +33,20 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
     motorSeries: '',
     motorColor: '',
     motorChassis: '',
-    motorLcp: '',
-    motorCashprice: '',
-    motorRate: '',
-    motorDiscount: '',
-    motorPromnote: '',
+    motorLcp: "0.00",
+    motorCashprice: "0.00",
+    motorRate: "0.00",
+    motorDiscount: "0.00",
+    motorPromnote: "0.00",
     motorBranchcode: '',
-    motorInstallmentterm: '',
-    motorDownpayment: '',
-    motorReservation: '',
-    motorSubsidy: '',
-    motorMonthlyinstallment: '',
-    motorInstallmentPrice: '',
-    motorAmountfinance: '',
-    motorMonthlyuid: '',
+    motorInstallmentterm: "0.00",
+    motorDownpayment: "0.00",
+    motorReservation: "0.00",
+    motorSubsidy: "0.00",
+    motorMonthlyinstallment: "0.00",
+    motorInstallmentPrice: "0.00",
+    motorAmountfinance: "0.00",
+    motorMonthlyuid: "0.00",
     motorCustomertype: '',
   });
 
@@ -66,7 +67,11 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
       motorBrand: selectedItems.brands !== null ? selectedItems.brands : '',
       motorModel: selectedItems.models !== null ? selectedItems.models : '',
       motorColor: selectedItems.colors !== null ? selectedItems.colors : '',
-      motorChassis: selectedItems.chassis !== null ? selectedItems.chassis : '',
+      motorChassis: selectedItems.chassis.chassis !== null ? selectedItems.chassis.chassis : '',
+      motorSeries: selectedItems.chassis.series !== null ? selectedItems.chassis.series : '',
+      motorLcp: selectedItems.chassis.interest !== null ? selectedItems.chassis.interest : '',
+      motorCashprice: selectedItems.chassis.cashPrice !== null ? formatAmount(selectedItems.chassis.cashPrice) : 0.00,
+      motorInstallmentPrice: selectedItems.chassis.srpValue !== null ? formatAmount(selectedItems.chassis.srpValue) : 0,
     }));
     setShowMotorModal(false);
   }
@@ -86,16 +91,44 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
       setFormData((prev) => ({
         ...prev,
         customer_id: selectedCustomer.id || '',
-        inquiry_id: `INQ-${Date.now()}`,
         fullName: `${selectedCustomer.firstName} ${selectedCustomer.lastName}`,
-        address: finalAddress,
-        email: selectedCustomer.email || '',
-        mobile: selectedCustomer.mobile || '',
+        address: finalAddress || 'N/A',
+        email: selectedCustomer.email || 'N/A',
+        mobile: selectedCustomer.mobile || 'N/A',
         telephone: selectedCustomer.telephone || 'N/A',
       }));
 
     }
   }, [selectedCustomer]);
+
+  useEffect(() => {
+    const motorAmountfinance = computeMotorFinance({
+      motorInstallmentPrice: formData.motorInstallmentPrice,
+      motorLcp: formData.motorLcp,
+      motorDownpayment: formData.motorDownpayment,
+      motorSubsidy: formData.motorSubsidy,
+      motorReservation: formData.motorReservation,
+      motorRate: formData.motorRate,
+      motorInstallmentterm: formData.motorInstallmentterm,
+    });
+
+    setFormData((prev) => ({
+      ...prev,
+      motorAmountfinance: formatAmount(motorAmountfinance.totalFinance),
+      motorMonthlyinstallment: formatAmount(motorAmountfinance.monthlyInstallment),
+      motorPromnote: formatAmount(motorAmountfinance.promissoryNote),
+      motorMonthlyuid: formatAmount(motorAmountfinance.uid),
+    }));
+  }, [
+    formData.motorDownpayment,
+    formData.motorInstallmentPrice,
+    formData.motorLcp,
+    formData.motorSubsidy,
+    formData.motorReservation,
+    formData.motorRate,
+    formData.motorInstallmentterm
+  ]);
+
 
   const handleInputCustomerChange = (e) => {
     setFormData({
@@ -103,23 +136,38 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
     })
   }
 
-  const saveInquiry = () => {
+  const saveInquiry = async () => {
     // Implement save inquiry logic here
-    const response = axios.post(`${API_URL}/inquiries`, formData, {
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-    })
-    .then((res) => {
+    const cleanedFormData = { 
+      ...formData,
+      motorLcp: cleanToDouble(formData.motorLcp),
+      motorCashprice: cleanToDouble(formData.motorCashprice),
+      motorRate: cleanToDouble(formData.motorRate),
+      motorDiscount: cleanToDouble(formData.motorDiscount),
+      motorPromnote: cleanToDouble(formData.motorPromnote),
+      motorDownpayment: cleanToDouble(formData.motorDownpayment),
+      motorReservation: cleanToDouble(formData.motorReservation),
+      motorSubsidy: cleanToDouble(formData.motorSubsidy),
+      motorMonthlyinstallment: cleanToDouble(formData.motorMonthlyinstallment),
+      motorInstallmentPrice: cleanToDouble(formData.motorInstallmentPrice),
+      motorAmountfinance: cleanToDouble(formData.motorAmountfinance),
+      motorMonthlyuid: cleanToDouble(formData.motorMonthlyuid),
+    };
+
+    try {
+      const response = await axios.post(`${API_URL}/inquiries`, cleanedFormData, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+      });
       refreshInquiries();
-      console.log('Inquiry saved successfully:', res.data);
+      console.log('Inquiry saved successfully:', response.data);
       handleClose();
-    })
-    .catch((error) => {
+    } catch (error) {
       console.error('Error saving inquiry:', error);
-    }); 
+    } 
   }
 
   return (
@@ -141,15 +189,6 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                 className="capitalize_text"
                 name="customer_id"
                 value={formData.customer_id}
-                onChange={handleInputCustomerChange}
-                required
-              />
-              <Form.Control
-                type="hidden"
-                placeholder='Inquiry ID'
-                className="capitalize_text"
-                name="inquiry_id"
-                value={formData.inquiry_id}
                 onChange={handleInputCustomerChange}
                 required
               />
@@ -411,10 +450,12 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className="capitalize_text text-end"
                       name="motorLcp"
                       value={formData.motorLcp}
                       onChange={handleInputCustomerChange}
+                      readOnly
+                      disabled
                       required
                     />
                   </Col>
@@ -428,10 +469,12 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className="capitalize_text text-end"
                       name="motorCashprice"
                       value={formData.motorCashprice}
                       onChange={handleInputCustomerChange}
+                      readOnly
+                      disabled
                       required
                     />
                   </Col>
@@ -451,12 +494,12 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                       required
                     >
                       <option value="0">-- Select Rate --</option>
-                      <option value="1.12">R1</option>
-                      <option value="1.24">R2</option>
-                      <option value="1.36">R3</option>
-                      <option value="1.48">R4</option>
-                      <option value="1.60">R5</option>
-                      <option value="1.72">R6</option>
+                      <option value="1.12">R1 - (1.12)</option>
+                      <option value="1.24">R2 - (1.24)</option>
+                      <option value="1.36">R3 - (1.36)</option>
+                      <option value="1.48">R4 - (1.48)</option>
+                      <option value="1.60">R5 - (1.60)</option>
+                      <option value="1.72">R6 - (1.72)</option>
                     </Form.Select>
                   </Col>
                 </Row>
@@ -469,10 +512,12 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className="capitalize_text text-end"
                       name="motorDiscount"
                       value={formData.motorDiscount}
                       onChange={handleInputCustomerChange}
+                      onBlur={(e) => handleAmountBlur(e, setFormData, 'motorDiscount')}
+                      onFocus={(e) => handleAmountFocus(e, setFormData, 'motorDiscount')}
                       required
                     />
                   </Col>
@@ -486,10 +531,12 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className="capitalize_text text-end"
                       name="motorPromnote"
                       value={formData.motorPromnote}
                       onChange={handleInputCustomerChange}
+                      readOnly
+                      disabled
                       required
                     />
                   </Col>
@@ -545,10 +592,12 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className="capitalize_text text-end"
                       name="motorDownpayment"
                       value={formData.motorDownpayment}
                       onChange={handleInputCustomerChange}
+                      onBlur={(e) => handleAmountBlur(e, setFormData, 'motorDownpayment')}
+                      onFocus={(e) => handleAmountFocus(e, setFormData, 'motorDownpayment')}
                       required
                     />
                   </Col>
@@ -562,10 +611,12 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className="capitalize_text text-end"
                       name="motorReservation"
                       value={formData.motorReservation}
                       onChange={handleInputCustomerChange}
+                      onBlur={(e) => handleAmountBlur(e, setFormData, 'motorReservation')}
+                      onFocus={(e) => handleAmountFocus(e, setFormData, 'motorReservation')}
                       required
                     />
                   </Col>
@@ -579,10 +630,12 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className="capitalize_text text-end"
                       name="motorSubsidy"
                       value={formData.motorSubsidy}
                       onChange={handleInputCustomerChange}
+                      onBlur={(e) => handleAmountBlur(e, setFormData, 'motorSubsidy')}
+                      onFocus={(e) => handleAmountFocus(e, setFormData, 'motorSubsidy')}
                       required
                     />
                   </Col>
@@ -596,10 +649,12 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className="capitalize_text text-end"
                       name="motorMonthlyinstallment"
                       value={formData.motorMonthlyinstallment}
                       onChange={handleInputCustomerChange}
+                      readOnly
+                      disabled
                       required
                     />
                   </Col>
@@ -613,10 +668,12 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className="capitalize_text text-end"
                       name="motorInstallmentPrice"
                       value={formData.motorInstallmentPrice}
                       onChange={handleInputCustomerChange}
+                      readOnly
+                      disabled
                       required
                     />
                   </Col>
@@ -630,10 +687,12 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className="capitalize_text text-end"
                       name="motorAmountfinance"
                       value={formData.motorAmountfinance}
                       onChange={handleInputCustomerChange}
+                      readOnly
+                      disabled
                       required
                     />
                   </Col>
@@ -647,10 +706,12 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className="capitalize_text text-end"
                       name="motorMonthlyuid"
                       value={formData.motorMonthlyuid}
                       onChange={handleInputCustomerChange}
+                      readOnly
+                      disabled
                       required
                     />
                   </Col>
@@ -662,14 +723,11 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                     <Form.Label className="mb-0">Customer Type</Form.Label>
                   </Col>
                   <Col xs={8}>
-                    <Form.Control
-                      type="text"
-                      className="capitalize_text"
-                      name="motorCustomertype"
-                      value={formData.motorCustomertype}
-                      onChange={handleInputCustomerChange}
-                      required
-                    />
+                    <Form.Select name="motorCustomertype" value={formData.motorCustomertype} onChange={handleInputCustomerChange} required>
+                      <option value="">-- Select Customer Type --</option>
+                      <option value="Regular">Regular</option>
+                      <option value="Employee">Employee</option>
+                    </Form.Select>
                   </Col>
                 </Row>
               </Form.Group>
