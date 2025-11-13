@@ -172,7 +172,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
 
   return (
     <div>
-      <Modal show={show} onHide={handleClose} centered size="xl" backdrop="static" keyboard={false}>
+      <Modal show={show} onHide={handleClose} size="xl" backdrop="static" keyboard={false}>
         <Modal.Header closeButton>
           <Modal.Title>{title}</Modal.Title>
         </Modal.Header>
@@ -259,11 +259,21 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                     <Form.Label className="mb-0">Sales Person</Form.Label>
                   </Col>
                   <Col xs={8}>
+                    {/* PWEDE NATONG ALISIN */}
                     <Form.Control
-                      type="text"
+                      type="hidden"
                       className="capitalize_text"
                       name="salesPersonid"
                       value={formData.salesPersonid}
+                      readOnly
+                      disabled
+                      required
+                    />
+                    {/* END PWEDE NATONG ALISIN */}
+                    <Form.Control
+                      type="text"
+                      className="capitalize_text"
+                      value={`${user.firstName} ${user.lastName}`}
                       readOnly
                       disabled
                       required

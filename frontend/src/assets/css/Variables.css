@@ -43,6 +43,26 @@
   cursor: pointer;
 }
 
+.table-section table {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table-section th {
+  background-color: #343a40;
+  color: white;
+}
+
+.table-section tbody tr {
+  padding: 0 !important;
+}
+
+.table-section tbody tr:hover {
+  background-color: #f1f3f5;
+  transition: 0.2s ease;
+}
+
 .table thead tr th {
   background-color: var(--sidebar-bg) !important;
   color: var(--color-warning) !important;
@@ -73,4 +93,13 @@ button {
   background-color: var(--text-muted) !important;
   border-color: var(--text-muted) !important;
   color: var(--card-bg) !important;
+}
+
+.custom-modal {
+  max-width: 90% !important;
+}
+
+.custom-modal .modal-body {
+  max-height: 70vh !important;
+  overflow-y: auto !important;
 }

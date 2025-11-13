@@ -6,6 +6,15 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Inquiry\InquiryController;
 use App\Http\Controllers\Motor\MotorController;
+use App\Http\Controllers\CreditApplication\CreditApplicationAttachmentsController;
+use App\Http\Controllers\CreditApplication\CreditApplicationIncomeController;
+use App\Http\Controllers\CreditApplication\CreditApplicationPreferencesController;
+use App\Http\Controllers\CreditApplication\CreditApplicationPrimaryController;
+use App\Http\Controllers\CreditApplication\CreditApplicationPropertiesController;
+use App\Http\Controllers\CreditApplication\CreditApplicationReferencesController;
+use App\Http\Controllers\CreditApplication\CreditApplicationBatchController;
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -66,4 +75,18 @@ Route::prefix('motors')->controller(MotorController::class)->group(function () {
         Route::put('/{id}', 'update'); // PUT /api/motors/{id}
         Route::delete('/{id}', 'destroy'); // DELETE /api/motors/{id}
     });
+});
+
+Route::prefix('credit-application')->middleware('auth:sanctum')->group(function () {
+
+    // Individual sections
+    Route::post('/primary', [CreditApplicationPrimaryController::class, 'store']);
+    Route::post('/preferences', [CreditApplicationPreferencesController::class, 'store']);
+    Route::post('/references', [CreditApplicationReferencesController::class, 'store']);
+    Route::post('/income', [CreditApplicationIncomeController::class, 'store']);
+    Route::post('/properties', [CreditApplicationPropertiesController::class, 'store']);
+    Route::post('/attachments', [CreditApplicationAttachmentsController::class, 'store']);
+
+    // Batch save
+    Route::post('/save-all', [CreditApplicationBatchController::class, 'store']);
 });

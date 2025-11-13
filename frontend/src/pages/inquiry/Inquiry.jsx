@@ -4,18 +4,21 @@ import { Row, Col, Form, Button, InputGroup, Table } from "react-bootstrap";
 import { FaUserPlus, FaSearch, FaEdit, FaUserCheck, FaIdCard, FaSave, FaTimes, FaEye, FaTrash } from "react-icons/fa";
 import "../../assets/css/Inquiry.css";
 import GlobalModal from "../../components/common/GlobalModal";
+import ModalCreditApplication from "../../components/common/InquiryModals/ModalCreditApplication";
 import ModalInquiry from "../../components/common/InquiryModals/ModalInquiry";
+
 import { formatAmount } from '../../utils/formatters';
 
 import axios from "axios";
 
 export default function Inquiry() {
   const { handleCustomerSelect } = useInquiry();
+  const [selectedCustomerId, setSelectedCustomerId] = useState(null);
 
   const API_URL = process.env.REACT_APP_API_URL;
   const token = localStorage.getItem('token');
 
-  const [ShowModalInquiry, setShowModalInquiry] = useState(false);
+  const [showModalInquiry, setShowModalInquiry] = useState(false);
   const handleShowInquiry = () => setShowModalInquiry(true);
   const handleCloseInquiry = () => setShowModalInquiry(false);
 
@@ -26,6 +29,13 @@ export default function Inquiry() {
   const [showModalNewCustomer, setShowModalNewCustomer] = useState(false);
   const handleShowNewCustomer = () => setShowModalNewCustomer(true);
   const handleCloseNewCustomer = () => setShowModalNewCustomer(false);
+
+  const [showModalCreditApplication, setshowModalCreditApplication] = useState(false);
+  const handleShowModalCreditApplication = (customer_id) => {
+    setSelectedCustomerId(customer_id);
+    setshowModalCreditApplication(true);
+  } 
+  const handleCloseModalCreditApplication = () => setshowModalCreditApplication(false);
 
   const [search, setSearch] = useState("");
   const [branch, setBranch] = useState("");
@@ -258,7 +268,7 @@ export default function Inquiry() {
                     <Button variant="info" size="sm" className="d-flex align-content-center justify-content-center text-white">
                       <FaEye />
                     </Button>
-                    <Button variant="warning" size="sm" className="d-flex align-content-center justify-content-center text-white">
+                    <Button variant="warning" size="sm" className="d-flex align-content-center justify-content-center text-white" onClick={()=>handleShowModalCreditApplication(inquiry.id)}>
                       <FaEdit />
                     </Button>
                     <Button variant="danger" size="sm" className="d-flex align-content-center justify-content-center text-white">
@@ -274,8 +284,14 @@ export default function Inquiry() {
 
       {/* 🔹 Global reusable modal */}
       {/* 🔹 Inquiry's modal */}
+      <ModalCreditApplication
+        show={showModalCreditApplication}
+        handleClose={handleCloseModalCreditApplication}
+        customerId={selectedCustomerId}
+      />
+
       <ModalInquiry
-        show={ShowModalInquiry}
+        show={showModalInquiry}
         handleClose={handleCloseInquiry}
         title="New Inquiry"
         onOpenGlobalModal={handleShow}
@@ -300,13 +316,13 @@ export default function Inquiry() {
       >
         {/* Modal content goes here */}
         <Row>
-          <Col md={9} sm={9}>
+          <Col md={8} sm={8}>
             <Form>
               <Form.Group className="mb-3 position-relative">
                 <InputGroup>
                   <Form.Control
                     type="text"
-                    placeholder="Search customer information..."
+                    placeholder="Search information..."
                   />
                   <InputGroup.Text>
                     <FaSearch />
@@ -315,7 +331,7 @@ export default function Inquiry() {
               </Form.Group>
             </Form>
           </Col>
-          <Col md={3} sm={3}>
+          <Col md={4} sm={4}>
             <Button variant="success" className="d-flex align-items-center justify-content-center gap-1 w-100" onClick={handleShowNewCustomer}>
               <FaUserPlus /> Customer
             </Button>

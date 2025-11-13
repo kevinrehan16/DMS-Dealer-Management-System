@@ -187,7 +187,7 @@ const ModalMotors = ({ show, handleClose, onSelect }) => {
           </Row>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant='success' onClick={() => onSelect(selectedItems)}><FaCheck />  Done</Button>
+          <Button variant='success' onClick={() => onSelect(selectedItems)}><FaCheck /> Done</Button>
           <Button variant="danger" onClick={handleClose}><FaTimes /> Close</Button>
         </Modal.Footer>
       </Modal>

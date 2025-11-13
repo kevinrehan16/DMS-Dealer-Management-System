@@ -1,0 +1,97 @@
+{
+	"primary": {
+		"customer_id": 1,
+		"creditApp_id": "APP-0000002",
+		"lastName": "Macandog",
+		"firstName": "Mico",
+		"middleName": "Francisco",
+		"birthdate": "1997-12-23",
+		"age": 30,
+		"gender": "Male",
+		"civilStatus": "Single",
+		"education": "College",
+		"spouseName": "Jynelle Natad",
+		"spouseBirthDate": "1996-01-23",
+		"spouseAge": "29",
+		"numChildren": 0,
+		"numStudying": 0,
+		"otherDependetn": 0,
+		"presentAddress": "Muntinlupa",
+		"mobile": "09153169518"
+	},
+	"preferences": [
+    {
+      "customer_id": 1,
+      "creditAppPref_id": "PREF-0000006",
+      "creditAppPrimary_id": "APP-0000006",
+      "prefCreditor": "BDO Philippines",
+      "prefAddress": "Muntinlupa City",
+      "prefDateGranted": "2025-01-23",
+      "prefOrigBal": 500500.00,
+      "prefPresBal": 250100.00,
+      "prefMonInstallment": 120000.00
+    },
+    {
+      "customer_id": 1,
+      "creditAppPref_id": "PREF-0000007",
+      "creditAppPrimary_id": "APP-0000006",
+      "prefCreditor": "BPI Philippines",
+      "prefAddress": "Pasig City",
+      "prefDateGranted": "2023-11-18",
+      "prefOrigBal": 210800.00,
+      "prefPresBal": 50400.00,
+      "prefMonInstallment": 25000.00
+    }
+  ],
+	"references": [
+		{
+			"customer_id": 1,
+			"creditAppRef_id": "REF-0000002",
+			"creditAppPrimary_id": "APP-0000002",
+			"refFullName": "Valerie Barbacion",
+			"refAddress": "Laguna City",
+			"refContact": "09124289941",
+			"refRelation": "Friend"
+		}
+	],
+	"income": [
+    {
+      "customer_id": 1,
+      "creditAppInc_id": "INC-0000004",
+      "creditAppPrimary_id": "APP-0000004",
+      "incNature": "Business",
+      "incAddress": "Sucat"
+    },
+    {
+      "customer_id": 1,
+      "creditAppInc_id": "INC-0000005",
+      "creditAppPrimary_id": "APP-0000004",
+      "incNature": "Freelance",
+      "incAddress": "Online"
+    }
+  ],
+	"properties": [
+		{
+			"customer_id": 1,
+			"creditAppProps_id": "PRO-0000002",
+			"creditAppPrimary_id": "APP-0000002",
+			"propsKind": "House and Lot",
+			"propsLocation": "Ayala Alabang",
+			"propsValue": 80000000.00,
+			"propsImbursement": 50000000.00
+		}
+	],
+	"attachments": [
+		{
+			"customer_id": 1,
+			"creditAppAttachments_id": "ATT-0000002",
+			"credit_application_primary_id": "APP-0000002",
+			"creditAppPrimary_id": "APP-0000001",
+			"attModule": "COE",
+			"attReq": "CA",
+			"attFileName": "COE.jpg",
+			"attFileType": "jpg",
+			"attFileSize": 71189
+		}
+	]
+}
