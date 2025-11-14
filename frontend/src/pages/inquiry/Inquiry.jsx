@@ -248,10 +248,10 @@ export default function Inquiry() {
                 <th width='15%'>Customer Name</th>
                 <th width='17%'>Address</th>
                 <th width='12%'>Mobile #</th>
-                <th width='20%'>Brand/Model/Color</th>
+                <th width='17%'>Brand/Model/Color</th>
                 <th width='8%'>Cash Price</th>
                 <th width='12%'>Mo. Installment</th>
-                <th width='7%'>Actions</th>
+                <th width='10%'>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -264,14 +264,14 @@ export default function Inquiry() {
                   <td>{inquiry.motorBrand} / {inquiry.motorModel} / {inquiry.motorColor}</td>
                   <td className="text-end">{formatAmount(inquiry.motorCashprice)}</td>
                   <td className="text-end">{formatAmount(inquiry.motorMonthlyinstallment)}</td>
-                  <td className="d-flex align-content-center gap-1">
-                    <Button variant="info" size="sm" className="d-flex align-content-center justify-content-center text-white">
+                  <td className="text-center">
+                    <Button variant="info" size="sm" className="d-inline-block me-1 text-white">
                       <FaEye />
                     </Button>
-                    <Button variant="warning" size="sm" className="d-flex align-content-center justify-content-center text-white" onClick={()=>handleShowModalCreditApplication(inquiry.id)}>
+                    <Button variant="warning" size="sm" className="d-inline-block me-1 text-white" onClick={()=>handleShowModalCreditApplication(inquiry.id)}>
                       <FaEdit />
                     </Button>
-                    <Button variant="danger" size="sm" className="d-flex align-content-center justify-content-center text-white">
+                    <Button variant="danger" size="sm" className="d-inline-block me-1 text-white">
                       <FaTrash />
                     </Button>
                   </td>

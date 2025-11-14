@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\GeneratesCustomId;
 
 class CreditApplicationProperties extends Model
 {
-    use HasFactory;
+    use HasFactory, GeneratesCustomId;
 
     protected $fillable = [
         'credit_application_primary_id',
@@ -19,4 +20,7 @@ class CreditApplicationProperties extends Model
         'propsValue',
         'propsImbursement'
     ];
+
+    protected $customIdPrefix = 'PRO-';
+    protected $customIdColumn = 'creditAppProps_id';
 }

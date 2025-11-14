@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Modal, Button, Row, Col, Card, Table, Form } from 'react-bootstrap'
+import { Modal, Button, Row, Col, Card, Table, Form, FormControl } from 'react-bootstrap'
 import { FaCheck, FaTimes, FaPlus, FaTrash } from "react-icons/fa";
 import axios from 'axios';
 
@@ -110,7 +110,15 @@ function ModalCreditApplication({show, handleClose, customerId}) {
       refContact: '',
       refRelation: ''
     }
-])
+  ]);
+  const [propertyRows, setPropertyRows] = useState([
+    {
+      propsKind: '',
+      propsLocation: '',
+      propsValue: '',
+      propsImbursement: ''
+    }
+  ]);
 
   const [primary, setprimary] = useState({
     customer_id: 0,
@@ -155,7 +163,14 @@ function ModalCreditApplication({show, handleClose, customerId}) {
         refAddress: row.refAddress,
         refContact: row.refContact,
         refRelation: row.refRelation
-      }))
+      })),
+      properties: propertyRows.map((row, index) => ({
+        customer_id: primary.customer_id,
+        propsKind: row.propsKind,
+        propsLocation: row.propsLocation,
+        propsValue: row.propsValue,
+        propsImbursement: row.propsImbursement
+      })),
     };
 
     try {
@@ -212,6 +227,19 @@ function ModalCreditApplication({show, handleClose, customerId}) {
 
   const handleRemoveRefRow = (indexToRemove) => {
     setReferenceRows(referenceRows.filter((_, i) => i !== indexToRemove));
+  }
+
+  const handAddProRow = () => {
+    setPropertyRows([...propertyRows, {
+      propsKind: '',
+      propsLocation: '',
+      propsValue: '',
+      propsImbursement: ''
+    }]);
+  }
+
+  const handleRemoveProRow = (indexToRemove) => {
+    setPropertyRows(propertyRows.filter((_, i) => i !== indexToRemove));
   }
 
   useEffect(() => {
@@ -564,8 +592,9 @@ function ModalCreditApplication({show, handleClose, customerId}) {
                                 </td>
                                 <td className="text-center">
                                   <Button
+                                    className='mx-auto'
                                     variant="danger"
-                                    size="sm"
+                                    size="lg"
                                     onClick={() => handleRemoveIncRow(index)}
                                   >
                                     <FaTrash />
@@ -684,8 +713,9 @@ function ModalCreditApplication({show, handleClose, customerId}) {
                                 </td>
                                 <td>
                                   <Button
+                                    className='mx-auto'
                                     variant="danger"
-                                    size="sm"
+                                    size="lg"
                                     onClick={() => handleRemovePrefRow(index)}
                                   >
                                     <FaTrash />
@@ -768,8 +798,9 @@ function ModalCreditApplication({show, handleClose, customerId}) {
                                 </td>
                                 <td>
                                   <Button
+                                    className='mx-auto'
                                     variant="danger"
-                                    size="sm"
+                                    size="lg"
                                     onClick={() => handleRemoveRefRow(index)}
                                   >
                                     <FaTrash />
@@ -787,6 +818,98 @@ function ModalCreditApplication({show, handleClose, customerId}) {
             </Col>
           </Row>  
           {/* END REFERENCES INFORMATION */}
+
+          {/* OTHER INFORMATION */}
+          <Row className='mt-3'>
+            <Col md={12}>
+              <Card>
+                <Card.Header className='pt-3'>
+                  <Card.Title className='text-bold'>Other Information</Card.Title>
+                </Card.Header>
+                <Card.Body>
+                  <Row>
+                    <Col md={12}>
+                      <div className="table-section">
+                        <h5 className='text-warning'>Real and/or Personal Properties Owned</h5>
+                        <Table striped bordered hover responsive>
+                          <thead>
+                            <tr>
+                              <th width='30%'>Kind</th>
+                              <th width='31%'>Location</th>
+                              <th width='17%'>Value</th>
+                              <th width='17%'>Imbursement</th>
+                              <th width='5%'>
+                                <Button size="sm" className='d-flex align-content-center justify-content-center text-white mx-auto' onClick={handAddProRow}>
+                                  <FaPlus />
+                                </Button>
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {
+                              propertyRows.map((row, index) => (
+                                <tr key={index}>
+                                  <td>
+                                    <Form.Control 
+                                      type='text'
+                                      value={row.propsKind}
+                                      onChange={(e) => {
+                                        let updated = [...propertyRows];
+                                        updated[index].propsKind = e.target.value;
+                                        setPropertyRows(updated);
+                                      }}
+                                    />  
+                                  </td>
+                                  <td>
+                                    <Form.Control 
+                                      type='text'
+                                      value={row.propsLocation}
+                                      onChange={(e) => {
+                                        let updated = [...propertyRows];
+                                        updated[index].propsLocation = e.target.value;
+                                        setPropertyRows(updated);
+                                      }}
+                                    />
+                                  </td>
+                                  <td>
+                                    <Form.Control 
+                                      value={row.propsValue}
+                                      onChange={(e) => {
+                                        let updated = [...propertyRows];
+                                        updated[index].propsValue = e.target.value;
+                                        setPropertyRows(updated);
+                                      }}
+                                    />
+                                  </td>
+                                  <td>
+                                    <Form.Control 
+                                      value={row.propsImbursement}
+                                      onChange={(e) => {
+                                        let updated = [...propertyRows];
+                                        updated[index].propsImbursement = e.target.value;
+                                        setPropertyRows(updated);
+                                      }}
+                                    />
+                                  </td>
+                                  <td>
+                                    <Button className='mx-auto' variant='danger' size='lg' 
+                                    onClick={() => handleRemoveProRow(index)}>
+                                      <FaTrash />
+                                    </Button>
+                                  </td>
+                                </tr>
+                              ))
+                            }
+                          </tbody>
+                        </Table>
+                      </div>
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>  
+          {/* END OTHER INFORMATION */}
 
         </Modal.Body>
         <Modal.Footer>

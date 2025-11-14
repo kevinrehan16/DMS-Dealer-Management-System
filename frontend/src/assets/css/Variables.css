@@ -43,15 +43,31 @@
   cursor: pointer;
 }
 
-.table-section table {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
+.table-section .table-responsive {
+  max-height: 480px;
+  overflow-y: auto;
 }
 
-.table-section th {
-  background-color: #343a40;
+/* sticky header fix */
+.table-section .table-responsive thead th {
+  position: sticky;
+  top: 0;
+  background: #343a40 !important;
   color: white;
+  z-index: 10;
+}
+
+.table-section::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-section::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.table-section table {
+  background: white;
 }
 
 .table-section tbody tr {

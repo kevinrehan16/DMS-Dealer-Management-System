@@ -76,12 +76,15 @@ class CreditApplicationBatchController extends Controller
                 ));
             }
 
-            // foreach ($request->input('properties', []) as $property) {
-            //     CreditApplicationProperties::create(array_merge(
-            //         $property,
-            //         ['credit_application_primary_id' => $primaryId]
-            //     ));
-            // }
+            foreach ($request->input('properties', []) as $property) {
+                CreditApplicationProperties::create(array_merge(
+                    $property,
+                    [
+                        'credit_application_primary_id' => $primaryId,
+                        'creditAppPrimary_id' => $creditAppId
+                    ]
+                ));
+            }
 
             // foreach ($request->input('attachments', []) as $attachment) {
             //     CreditApplicationAttachments::create(array_merge(
