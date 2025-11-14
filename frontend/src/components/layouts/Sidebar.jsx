@@ -1,7 +1,7 @@
 // src/components/layout/Sidebar.jsx
 import React from "react";
 import { Nav } from "react-bootstrap";
-import { FaAppStore } from "react-icons/fa";
+import { FaAppStore, FaChartPie, FaUser, FaFileAlt, FaCog } from "react-icons/fa";
 import { useLocation, Link } from "react-router-dom";
 import "../../assets/css/Sidebar.css";
 
@@ -15,30 +15,30 @@ export default function Sidebar() {
         <Nav.Link
           as={Link}
           to="/dashboard"
-          className={location.pathname === "/dashboard" ? "active" : ""}
+          className={`d-flex align-items-center gap-2 ${location.pathname === "/dashboard" ? "active" : ""}`}
         >
-          Dashboard
+          <FaChartPie /> Dashboard
         </Nav.Link>
         <Nav.Link
           as={Link}
           to="/inquiry"
-          className={location.pathname === "/inquiry" ? "active" : ""}
+          className={`d-flex align-items-center gap-2 ${location.pathname === "/inquiry" ? "active" : ""}`}
         >
-          Inquiry
+          <FaUser /> Inquiry
         </Nav.Link>
         <Nav.Link
           as={Link}
           to="#"
-          className={location.pathname === "/reports" ? "active" : ""}
+          className={`d-flex align-items-center gap-2 ${location.pathname === "/reports" ? "active" : ""}`}
         >
-          Reports
+         <FaFileAlt /> Reports
         </Nav.Link>
         <Nav.Link
           as={Link}
           to="#"
-          className={location.pathname === "/settings" ? "active" : ""}
+          className={`d-flex align-items-center gap-2 ${location.pathname.pathname === "/settings" ? "active" : ""}`}
         >
-          Settings
+         <FaCog /> Settings
         </Nav.Link>
       </Nav>
     </div>

@@ -18,8 +18,8 @@
 .sidebar-title {
   display: flex;
   align-items: center;
-  justify-content: left;
-  gap: 2px;
+  justify-content: flex-start;
+  gap: 8px;
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 30px;
