@@ -119,7 +119,6 @@ function ModalCreditApplication({show, handleClose, customerId}) {
       propsImbursement: ''
     }
   ]);
-
   const [primary, setprimary] = useState({
     customer_id: 0,
     lastName: "",
@@ -139,53 +138,84 @@ function ModalCreditApplication({show, handleClose, customerId}) {
     presentAddress: "",
     mobile: ""
   });
+  const [attachments, setAttachments] = useState([
+    {
+      attModule: '',
+      attReq: '',
+      file: null      
+    }
+  ]);
 
   const handleSubmit = async () => {
-    const fixedPayload = {
-      primary: primary,
-      income: incomeRows.map((row, index) => ({
-        customer_id: primary.customer_id,
-        incNature: row.incNature,
-        incAddress: row.incAddress
-      })),
-      preferences: preferenceRows.map((row, index) => ({
-        customer_id: primary.customer_id,
-        prefCreditor: row.prefCreditor,
-        prefAddress: row.prefAddress,
-        prefDateGranted: row.prefDateGranted,
-        prefOrigBal: row.prefOrigBal,
-        prefPresBal: row.prefPresBal,
-        prefMonInstallment: row.prefMonInstallment
-      })),
-      references: referenceRows.map((row, index) => ({
-        customer_id: primary.customer_id,
-        refFullName: row.refFullName,
-        refAddress: row.refAddress,
-        refContact: row.refContact,
-        refRelation: row.refRelation
-      })),
-      properties: propertyRows.map((row, index) => ({
-        customer_id: primary.customer_id,
-        propsKind: row.propsKind,
-        propsLocation: row.propsLocation,
-        propsValue: row.propsValue,
-        propsImbursement: row.propsImbursement
-      })),
-    };
+    const formData = new FormData();
+
+    // Primary
+    Object.keys(primary).forEach(key => {
+      formData.append(`primary[${key}]`, primary[key]);
+    });
+
+    // Income
+    incomeRows.forEach((row, idx) => {
+      formData.append(`income[${idx}][customer_id]`, primary.customer_id);
+      formData.append(`income[${idx}][incNature]`, row.incNature);
+      formData.append(`income[${idx}][incAddress]`, row.incAddress);
+    });
+
+    // Preferences
+    preferenceRows.forEach((row, idx) => {
+      formData.append(`preferences[${idx}][customer_id]`, primary.customer_id);
+      formData.append(`preferences[${idx}][prefCreditor]`, row.prefCreditor);
+      formData.append(`preferences[${idx}][prefAddress]`, row.prefAddress);
+      formData.append(`preferences[${idx}][prefDateGranted]`, row.prefDateGranted);
+      formData.append(`preferences[${idx}][prefOrigBal]`, row.prefOrigBal);
+      formData.append(`preferences[${idx}][prefPresBal]`, row.prefPresBal);
+      formData.append(`preferences[${idx}][prefMonInstallment]`, row.prefMonInstallment);
+    });
+
+    // References
+    referenceRows.forEach((row, idx) => {
+      formData.append(`references[${idx}][customer_id]`, primary.customer_id);
+      formData.append(`references[${idx}][refFullName]`, row.refFullName);
+      formData.append(`references[${idx}][refAddress]`, row.refAddress);
+      formData.append(`references[${idx}][refContact]`, row.refContact);
+      formData.append(`references[${idx}][refRelation]`, row.refRelation);
+    });
+
+    // Properties
+    propertyRows.forEach((row, idx) => {
+      formData.append(`properties[${idx}][customer_id]`, primary.customer_id);
+      formData.append(`properties[${idx}][propsKind]`, row.propsKind);
+      formData.append(`properties[${idx}][propsLocation]`, row.propsLocation);
+      formData.append(`properties[${idx}][propsValue]`, row.propsValue);
+      formData.append(`properties[${idx}][propsImbursement]`, row.propsImbursement);
+    });
+
+    // 🔥 ATTACHMENTS (NEW PART)
+    attachments.forEach((att, idx) => {
+      formData.append(`attachments_meta[${idx}][customer_id]`, primary.customer_id);
+      formData.append(`attachments_meta[${idx}][attModule]`, att.attModule);
+      formData.append(`attachments_meta[${idx}][attReq]`, att.attReq);
+
+      if (att.file) {
+        formData.append(`attachments[${idx}]`, att.file);
+      }
+    });
 
     try {
-      const response = await axios.post(`${API_URL}/credit-application/save-all`, fixedPayload, {
+      const response = await axios.post(`${API_URL}/credit-application/save-all`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
+          Accept: "application/json",
+          "Content-Type": "multipart/form-data"
         }
       });
-      console.log('Saved:', response.data);
+
+      console.log("Saved:", response.data);
     } catch (error) {
-      console.error('Error:', error.response?.data || error.message);
+      console.error("Error:", error.response?.data || error.message);
     }
   };
+
 
   const handleChangePrimaryInfo = (e) => {
     setprimary({
@@ -229,7 +259,7 @@ function ModalCreditApplication({show, handleClose, customerId}) {
     setReferenceRows(referenceRows.filter((_, i) => i !== indexToRemove));
   }
 
-  const handAddProRow = () => {
+  const handleAddProRow = () => {
     setPropertyRows([...propertyRows, {
       propsKind: '',
       propsLocation: '',
@@ -242,9 +272,51 @@ function ModalCreditApplication({show, handleClose, customerId}) {
     setPropertyRows(propertyRows.filter((_, i) => i !== indexToRemove));
   }
 
+  const handleChangeAtt = (index, field, value) => {
+    const copy = [...attachments];
+    copy[index][field] = value;
+    setAttachments(copy);
+  };
+
+  const handleFile = (index, file) => {
+    const copy = [...attachments];
+    copy[index].file = file;
+    setAttachments(copy);
+  };
+
+  const removeRowAtt = (index) => {
+  const copy = attachments.filter((_, i) => i !== index);
+  setAttachments(copy);
+  };
+
+  const getRequirements = async () => {
+    try {
+      const dataRequirements = await axios.get(`${API_URL}/requirements`, {
+        headers:{
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        }
+      });
+      // Add file property to each item
+      const dataWithFiles = dataRequirements.data.data.map(r => ({
+        attModule: r.module,   // map module
+        attReq: r.reqName + " ("+r.reqShortName+")" ,     // map reqName
+        file: null
+      }));
+      setAttachments(dataWithFiles);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   useEffect(() => {
     setprimary({...primary, customer_id: customerId});
   }, [customerId])
+
+  useEffect(() => {
+    getRequirements();
+  }, [])
 
   return (
     <div>
@@ -839,7 +911,7 @@ function ModalCreditApplication({show, handleClose, customerId}) {
                               <th width='17%'>Value</th>
                               <th width='17%'>Imbursement</th>
                               <th width='5%'>
-                                <Button size="sm" className='d-flex align-content-center justify-content-center text-white mx-auto' onClick={handAddProRow}>
+                                <Button size="sm" className='d-flex align-content-center justify-content-center text-white mx-auto' onClick={handleAddProRow}>
                                   <FaPlus />
                                 </Button>
                               </th>
@@ -900,6 +972,73 @@ function ModalCreditApplication({show, handleClose, customerId}) {
                                 </tr>
                               ))
                             }
+                          </tbody>
+                        </Table>
+                      </div>
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>  
+          {/* END OTHER INFORMATION */}
+
+          {/* OTHER INFORMATION */}
+          <Row className='mt-3'>
+            <Col md={12}>
+              <Card>
+                <Card.Header className='pt-3'>
+                  <Card.Title className='text-bold'>Attachments Information</Card.Title>
+                </Card.Header>
+                <Card.Body>
+                  <Row>
+                    <Col md={12}>
+                      <div className="table-section">
+                        <h5 className='text-warning'>Real and/or Personal Properties Owned</h5>
+                        <Table striped bordered hover responsive>
+                          <thead>
+                            <tr>
+                              <th width='20%' className='d-none'>Module</th>
+                              <th width='75%'>File name</th>
+                              <th width='20%'>Select File</th>
+                              <th width='5%'>
+                                {/* <Button size="sm" className='d-flex align-content-center justify-content-center text-white mx-auto' onClick={handleAddRowAtt}>
+                                  <FaPlus />
+                                </Button> */}
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {attachments.map((row, index) => (
+                              <tr key={index}>
+                                <td className='d-none'>
+                                  <input
+                                    className="border p-1 w-100 rounded-lg"
+                                    value={row.attModule}
+                                    onChange={(e) => handleChangeAtt(index, "attModule", e.target.value)}
+                                    />
+                                </td>
+                                <td className="border p-2">
+                                  <input
+                                    className="border p-1 w-100 rounded-lg"
+                                    value={row.attReq}
+                                    onChange={(e) => handleChangeAtt(index, "attReq", e.target.value)}
+                                  />
+                                </td>
+                                <td className="border p-2">
+                                  <input
+                                    type="file"
+                                    onChange={(e) => handleFile(index, e.target.files[0])}
+                                  />
+                                </td>
+                                <td className="border p-2 text-center">
+                                  <Button className='mx-auto' variant='danger' size='lg' 
+                                  onClick={() => removeRowAtt(index)}>
+                                    <FaTrash />
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))}
                           </tbody>
                         </Table>
                       </div>

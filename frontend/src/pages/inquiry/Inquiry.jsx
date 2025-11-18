@@ -125,6 +125,10 @@ export default function Inquiry() {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',
           'Content-Type': 'application/json'
+        },
+        params: {
+          search: search,
+          filterBy: filterBy // send search query to backend
         }
       });
       setInquiries(response.data.inquiries);
@@ -156,8 +160,11 @@ export default function Inquiry() {
 
   useEffect(() => {
     fetchCustomers();
-    fetchInquiries();
   }, []);
+
+  useEffect(() => {
+    fetchInquiries();
+  }, [search, filterBy]);
 
   return (
     <div>
@@ -204,9 +211,9 @@ export default function Inquiry() {
                     <Form.Label>Filter By</Form.Label>
                     <Form.Select value={filterBy} onChange={(e) => setFilterBy(e.target.value)}>
                       <option value="">All</option>
-                      <option value="walkin">Walk-In</option>
+                      <option value="walk-in">Walk-In</option>
                       <option value="referral">Referral</option>
-                      <option value="hth Type">HTH</option>
+                      <option value="hth">HTH</option>
                       <option value="advertisement">Advertisement</option>
                     </Form.Select>
                   </Form.Group>
@@ -268,7 +275,7 @@ export default function Inquiry() {
                     <Button variant="info" size="sm" className="d-inline-block me-1 text-white">
                       <FaEye />
                     </Button>
-                    <Button variant="warning" size="sm" className="d-inline-block me-1 text-white" onClick={()=>handleShowModalCreditApplication(inquiry.id)}>
+                    <Button variant="warning" size="sm" className="d-inline-block me-1 text-white" onClick={()=>handleShowModalCreditApplication(inquiry.customer.id)}>
                       <FaEdit />
                     </Button>
                     <Button variant="danger" size="sm" className="d-inline-block me-1 text-white">

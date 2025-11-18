@@ -13,6 +13,7 @@ use App\Http\Controllers\CreditApplication\CreditApplicationPrimaryController;
 use App\Http\Controllers\CreditApplication\CreditApplicationPropertiesController;
 use App\Http\Controllers\CreditApplication\CreditApplicationReferencesController;
 use App\Http\Controllers\CreditApplication\CreditApplicationBatchController;
+use App\Http\Controllers\Settings\Referentials\RequirementController;
 
 
 /*
@@ -89,4 +90,11 @@ Route::prefix('credit-application')->middleware('auth:sanctum')->group(function 
 
     // Batch save
     Route::post('/save-all', [CreditApplicationBatchController::class, 'store']);
+});
+
+Route::prefix('requirements')->controller(RequirementController::class)->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/', 'index'); // GET /api/requirements
+        Route::post('/', 'store');  // POST /api/requirements
+    });
 });

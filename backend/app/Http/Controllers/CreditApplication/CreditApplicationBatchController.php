@@ -86,12 +86,38 @@ class CreditApplicationBatchController extends Controller
                 ));
             }
 
-            // foreach ($request->input('attachments', []) as $attachment) {
-            //     CreditApplicationAttachments::create(array_merge(
-            //         $attachment,
-            //         ['credit_application_primary_id' => $primaryId]
-            //     ));
-            // }
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $index => $file) {
+
+                    // Get module name from metadata
+                    $moduleName = $request->input("attachments_meta.$index.attReq");
+
+                    // Sanitize module name for filesystem
+                    $moduleNameSafe = preg_replace('/[^A-Za-z0-9_\-]/', '_', $moduleName);
+
+                    // Get original file extension
+                    $extension = $file->getClientOriginalExtension();
+
+                    // Make filename: ModuleName_TIMESTAMP.ext to avoid duplicates
+                    $filename = $moduleNameSafe . '.' . $extension;
+
+                    // Store file in storage/app/public/credit_attachments
+                    $path = $file->storeAs("credit_attachments/{$creditAppId}", $filename, 'public');
+
+                    // Save to database
+                    CreditApplicationAttachments::create([
+                        'credit_application_primary_id' => $primaryId,
+                        'customer_id'                   => $request->input("attachments_meta.$index.customer_id"),
+                        'creditAppPrimary_id'           => $creditAppId,
+                        'attModule'                     => $moduleName,
+                        'attReq'                        => $request->input("attachments_meta.$index.attReq"),
+                        'attFileName'                   => $path,
+                        'attFileType'                   => $file->getMimeType(),
+                        'attFileSize'                   => $file->getSize(),
+                    ]);
+                }
+            }
+
 
 
             DB::commit();

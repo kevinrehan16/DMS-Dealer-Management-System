@@ -11,15 +11,34 @@ class InquiryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //!! TO JOIN TWO TABLES, USE BELONGTO IN THE INQUIRY MODEL TO FETCH CUSTOMER DATA
-        $inquiry = Inquiry::with('customer')->orderBy('id', 'desc')->get();
+        $search = $request->input('search', '');
+        $filterBy = $request->input('filterBy', ''); // e.g., sourceInquiry filter
+
+        $inquiry = Inquiry::with('customer')
+            ->where(function ($query) use ($search) {
+                if ($search) {
+                    $query->whereRaw('inquiry_id ILIKE ?', ["%{$search}%"])
+                        ->orWhereHas('customer', function ($q) use ($search) {
+                            $q->whereRaw("\"firstName\" ILIKE ?", ["%{$search}%"])
+                                ->orWhereRaw("\"lastName\" ILIKE ?", ["%{$search}%"]);
+                        });
+                }
+            })
+            ->when($filterBy, function ($query, $filterBy) {
+                $query->whereRaw('"sourceInquiry" ILIKE ?', ["%{$filterBy}%"]);
+            })
+            ->orderBy('id', 'desc')
+            ->get();
+
 
         return response()->json([
             'inquiries' => $inquiry,
         ], 200);
     }
+
+
 
     /**
      * Show the form for creating a new resource.
