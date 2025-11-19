@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useInquiry } from '../../context/InquiryContext/InquiryContext';
-import { Row, Col, Form, Button, InputGroup, Table } from "react-bootstrap";
+import { Row, Col, Form, Button, InputGroup, Table, Spinner } from "react-bootstrap";
 import { FaUserPlus, FaSearch, FaEdit, FaUserCheck, FaIdCard, FaSave, FaTimes, FaEye, FaTrash } from "react-icons/fa";
 import "../../assets/css/Inquiry.css";
 import GlobalModal from "../../components/common/GlobalModal";
@@ -46,6 +46,7 @@ export default function Inquiry() {
   // Dummy customer data
   const [customers, setCustomers] = useState([]);
   const [inquiries, setInquiries] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -120,6 +121,7 @@ export default function Inquiry() {
 
   const fetchInquiries = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(`${API_URL}/inquiries`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -134,6 +136,8 @@ export default function Inquiry() {
       setInquiries(response.data.inquiries);
     } catch (error) {
       console.error("Error fetching inquiries:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -262,28 +266,38 @@ export default function Inquiry() {
               </tr>
             </thead>
             <tbody>
-              {inquiries && inquiries.map((inquiry, index) => (
-                <tr key={inquiry.id}>
-                  <td>{inquiry.inquiry_id}</td>
-                  <td>{inquiry.customer.firstName} {inquiry.customer.lastName}</td>
-                  <td>{inquiry.customer.addresssbrgy ? inquiry.customer.addresssbrgy + ', ' : ''} {inquiry.customer.addressscity ? inquiry.customer.addressscity : ''}</td>
-                  <td>{inquiry.customer.mobile}</td>
-                  <td>{inquiry.motorBrand} / {inquiry.motorModel} / {inquiry.motorColor}</td>
-                  <td className="text-end">{formatAmount(inquiry.motorCashprice)}</td>
-                  <td className="text-end">{formatAmount(inquiry.motorMonthlyinstallment)}</td>
-                  <td className="text-center">
-                    <Button variant="info" size="sm" className="d-inline-block me-1 text-white">
-                      <FaEye />
-                    </Button>
-                    <Button variant="warning" size="sm" className="d-inline-block me-1 text-white" onClick={()=>handleShowModalCreditApplication(inquiry.customer.id)}>
-                      <FaEdit />
-                    </Button>
-                    <Button variant="danger" size="sm" className="d-inline-block me-1 text-white">
-                      <FaTrash />
-                    </Button>
+              {loading ? (
+                <tr>
+                  <td colSpan="8" className="text-center">
+                    <Spinner animation="border" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </Spinner>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                inquiries && inquiries.map((inquiry, index) => (
+                  <tr key={index}>
+                    <td>{inquiry.inquiry_id}</td>
+                    <td>{inquiry.customer.firstName} {inquiry.customer.lastName}</td>
+                    <td>{inquiry.customer.addresssbrgy ? inquiry.customer.addresssbrgy + ', ' : ''} {inquiry.customer.addressscity ? inquiry.customer.addressscity : ''}</td>
+                    <td>{inquiry.customer.mobile}</td>
+                    <td>{inquiry.motorBrand} / {inquiry.motorModel} / {inquiry.motorColor}</td>
+                    <td className="text-end">{formatAmount(inquiry.motorCashprice)}</td>
+                    <td className="text-end">{formatAmount(inquiry.motorMonthlyinstallment)}</td>
+                    <td className="text-center">
+                      <Button variant="info" size="sm" className="d-inline-block me-1 text-white">
+                        <FaEye />
+                      </Button>
+                      <Button variant="warning" size="sm" className="d-inline-block me-1 text-white" onClick={()=>handleShowModalCreditApplication(inquiry.customer.id)}>
+                        <FaEdit />
+                      </Button>
+                      <Button variant="danger" size="sm" className="d-inline-block me-1 text-white">
+                        <FaTrash />
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </Table>
         </div>

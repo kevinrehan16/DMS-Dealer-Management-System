@@ -1,7 +1,7 @@
 // src/components/layout/Sidebar.jsx
 import React from "react";
 import { Nav } from "react-bootstrap";
-import { FaAppStore, FaChartPie, FaUser, FaFileAlt, FaCog } from "react-icons/fa";
+import { FaAppStore, FaChartPie, FaUser, FaFileAlt, FaCog, FaUserSecret } from "react-icons/fa";
 import { useLocation, Link } from "react-router-dom";
 import "../../assets/css/Sidebar.css";
 
@@ -25,6 +25,13 @@ export default function Sidebar() {
           className={`d-flex align-items-center gap-2 ${location.pathname === "/inquiry" ? "active" : ""}`}
         >
           <FaUser /> Inquiry
+        </Nav.Link>
+        <Nav.Link
+          as={Link}
+          to="/creditinvestigation"
+          className={`d-flex align-items-center gap-2 ${location.pathname === "/creditinvestigation" ? "active" : ""}`}
+        >
+          <FaUserSecret /> Credit Investigation
         </Nav.Link>
         <Nav.Link
           as={Link}

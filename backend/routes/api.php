@@ -80,8 +80,11 @@ Route::prefix('motors')->controller(MotorController::class)->group(function () {
 
 Route::prefix('credit-application')->middleware('auth:sanctum')->group(function () {
 
-    // Individual sections
+    // Credit Application Primary
+    Route::get('/primary', [CreditApplicationPrimaryController::class, 'index']);
     Route::post('/primary', [CreditApplicationPrimaryController::class, 'store']);
+    // END Credit Application Primary
+
     Route::post('/preferences', [CreditApplicationPreferencesController::class, 'store']);
     Route::post('/references', [CreditApplicationReferencesController::class, 'store']);
     Route::post('/income', [CreditApplicationIncomeController::class, 'store']);
