@@ -363,8 +363,8 @@ export default function Inquiry() {
             <thead>
               <tr>
                 <th width="30%">Customer ID</th>
-                <th width="50%">Customer Name</th>
-                <th width="20%">Actions</th>
+                <th width="35%">Customer Name</th>
+                <th width="25%">Actions</th>
               </tr>
             </thead>
             <tbody>

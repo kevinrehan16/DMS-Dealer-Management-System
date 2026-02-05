@@ -44,7 +44,7 @@ export const InquiryProvider = ({ children }) => {
   }, [])
 
   return (
-    <InquiryContext.Provider value={{ selectedCustomer, handleCustomerSelect, inquiriesContext, loading }}>
+    <InquiryContext.Provider value={{ selectedCustomer, handleCustomerSelect, inquiriesContext, loading, getInquiriesContext }}>
       {children}
     </InquiryContext.Provider>
   );

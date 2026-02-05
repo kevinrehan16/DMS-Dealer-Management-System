@@ -28,3 +28,18 @@ export const cleanToDouble = (val) => {
   const num = parseFloat(val?.toString().replace(/,/g, ''));
   return isNaN(num) ? '0.00' : num.toFixed(2); // returns string like "25500.00"
 };
+
+export const dateFormat = (isDate) => {
+  const months = ["Jan.", "Feb.", "Mar.", "Apr.", "May.", "Jun.", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."];
+  const [year, month, day] = isDate.split("-");
+  const dayFormatted = day.padStart(2, "0"); // ensures 01, 02, ... 09
+  return `${months[parseInt(month, 10) - 1]} ${dayFormatted}, ${year}`;
+}
+
+export const timeFormat = (isTime) => {
+  let [hour, minute, second] = isTime.split(":").map(Number);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12;
+  hour = hour ? hour : 12; // 0 → 12
+  return `${hour.toString().padStart(2,"0")}:${minute.toString().padStart(2, "0")} ${ampm}`;
+}

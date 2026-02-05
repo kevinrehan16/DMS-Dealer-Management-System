@@ -13,6 +13,8 @@ use App\Http\Controllers\CreditApplication\CreditApplicationPrimaryController;
 use App\Http\Controllers\CreditApplication\CreditApplicationPropertiesController;
 use App\Http\Controllers\CreditApplication\CreditApplicationReferencesController;
 use App\Http\Controllers\CreditApplication\CreditApplicationBatchController;
+use App\Http\Controllers\CreditInvestigation\CreditInvestigationBatchController;
+use App\Http\Controllers\CreditInvestigation\CreditInvestigationPrimaryController;
 use App\Http\Controllers\Settings\Referentials\RequirementController;
 
 
@@ -61,6 +63,8 @@ Route::prefix('inquiries')->controller(InquiryController::class)->group(function
         Route::get('/{id}', 'show'); // GET /api/inquiries/{id}
         Route::put('/{id}', 'update'); // PUT /api/inquiries/{id}
         Route::delete('/{id}', 'destroy'); // DELETE /api/inquiries/{id}
+
+        Route::patch('/assignschedule', 'assignschedule');
     });
 });
 
@@ -93,6 +97,15 @@ Route::prefix('credit-application')->middleware('auth:sanctum')->group(function 
 
     // Batch save
     Route::post('/save-all', [CreditApplicationBatchController::class, 'store']);
+});
+
+Route::prefix('credit-investigation')->middleware('auth:sanctum')->group(function () {
+    // Credit Investigation Primary
+    Route::get('/contactinfo', [CreditInvestigationPrimaryController::class, 'index']);
+    Route::post('/contactinfo', [CreditInvestigationPrimaryController::class, 'store']);
+
+    // Batch save
+    Route::post('/save-all', [CreditInvestigationBatchController::class, 'store']);
 });
 
 Route::prefix('requirements')->controller(RequirementController::class)->group(function () {

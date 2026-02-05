@@ -9,8 +9,9 @@ import Dashboard from "../../pages/dashboard/Dashboard";
 
 import { InquiryProvider } from '../../context/InquiryContext/InquiryContext';
 import { AuthProvider } from "../../context/AuthContext/AuthContext";
-import CreditInvestigation from "../../pages/CreditInvestigation/CreditInvestigation";
 import Inquiry from "../../pages/Inquiry/Inquiry";
+import AdminEvaluation from "../../pages/AdminEvaluation/AdminEvaluation";
+import CreditInvestigation from "../../pages/CreditInvestigation/CreditInvestigation";
 
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
@@ -58,7 +59,8 @@ export default function AppRoutes() {
                         <InquiryProvider>
                           <CreditInvestigation />
                         </InquiryProvider>
-                      } />                      
+                      } />
+            <Route path="/adminevaluation" element={<AdminEvaluation />} />
           </Route>
         </Routes>
       </AuthProvider>

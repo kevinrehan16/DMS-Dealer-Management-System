@@ -1,22 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\CreditApplication;
+namespace App\Http\Controllers\CreditInvestigation;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreCreditInvestigationPrimaryRequest;
+use App\Models\CreditInvestigationPrimary;
 
-// Add these
-use App\Http\Requests\StoreCreditApplicationPrimaryRequest;
-use App\Models\CreditApplicationPrimary;
-
-class CreditApplicationPrimaryController extends Controller
+class CreditInvestigationPrimaryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        return response()->json(['message' => 'Hello Credit Investigation.']);
     }
 
     /**
@@ -30,16 +28,15 @@ class CreditApplicationPrimaryController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCreditApplicationPrimaryRequest $request)
+    public function store(StoreCreditInvestigationPrimaryRequest $request)
     {
         // TO USE OR ADD THE VALIDATE(), GO TO:
-        // Controllers/Requests/StoreCreditApplicationPrimaryRequest
-        $primary = CreditApplicationPrimary::create($request->validated());
+        // Controllers/Requests/StoreCreditInvestigationPrimaryRequest
+        $contactInfo = CreditInvestigationPrimary::create($request->validate());
         return response()->json([
             'message' => 'Primary application saved successfully.',
-            'data' => $primary
+            'data' => $contactInfo
         ]);
-
     }
 
     /**

@@ -79,6 +79,10 @@
   transition: 0.2s ease;
 }
 
+.table {
+  table-layout: fixed;
+}
+
 .table thead tr th {
   background-color: var(--sidebar-bg) !important;
   color: var(--color-warning) !important;

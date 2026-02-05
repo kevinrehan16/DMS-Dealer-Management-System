@@ -147,4 +147,25 @@ class InquiryController extends Controller
     {
         //
     }
+
+    public function assignschedule(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'required|array',
+            'schedule.date_schedule' => 'required|date',
+            'schedule.time_schedule' => 'required'
+        ]);
+
+        // Update all selected inquiry IDs
+        Inquiry::whereIn('id', $validated['id'])
+            ->update([
+                'date_creditinvestigation' => $validated['schedule']['date_schedule'],
+                'time_creditinvestigation' => $validated['schedule']['time_schedule'],
+            ]);
+
+        return response()->json([
+            'message' => 'Schedule updated successfully.'
+        ], 200);
+    }
+
 }

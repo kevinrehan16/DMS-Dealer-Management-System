@@ -6,16 +6,37 @@ import { FaSearch, FaCalendarDay , FaTrash, FaEdit, FaTimes, FaSave } from 'reac
 import { useInquiry } from '../../context/InquiryContext/InquiryContext'
 
 import GlobalModal from '../../components/common/GlobalModal'
+import ModalCreditInvestigation from '../../components/common/CreditInvestigationModals/ModalCreditInvestigation'
+
+import { dateFormat, timeFormat } from '../../utils/formatters'
+import axios from 'axios'
 
 
 function CreditInvestigation() {
-  const { inquiriesContext, loading } = useInquiry();
+  const API_URL = process.env.REACT_APP_API_URL;
+  const token = localStorage.getItem('token');
+
+  const [thisInquiryid, setThisInquiryid] = useState(0);
+  const [showModalCreditInvestigation, setShowModalCreditInvestigation] = useState(false);
+
+  const { inquiriesContext, loading, getInquiriesContext } = useInquiry();
   const [selectedIds, setSelectedIds] = useState([]);
+  const [assignSchedule, setAssignSchedule] = useState({
+    date_schedule: '',
+    time_schedule: ''
+  });
 
   const [scheduleCi, setScheduleCi] = useState(false);
 
   const handleShowScheduleCi = () => setScheduleCi(true);
   const handleCloseScheduleCi = () => setScheduleCi(false);
+
+  const handleShowModalCreditInvestigation = (inquiryid) => {
+    setThisInquiryid(inquiryid);
+    setShowModalCreditInvestigation(true); 
+  }
+
+  const handleCloseModalCreditInvestigation = () => setShowModalCreditInvestigation(false);
 
   const toggleSelectAll = (e) => {
     if (e.target.checked) {
@@ -32,11 +53,59 @@ function CreditInvestigation() {
   };
 
   const handleSave = () => {
-    const selectedUsers = inquiriesContext.filter(user => selectedIds.includes(user.id));
-    console.log('Saving:', selectedUsers);
-    // Replace with API call: axios.post('/api/save', selectedUsers)
+    const selectedInquiries = inquiriesContext.filter(user => selectedIds.includes(user.id));
+    console.log('Saving:', selectedInquiries);
+    // Replace with API call: axios.post('/api/save', selectedInquiries)
   };
 
+  const saveAssignSchedule = async () => {
+    const selectedInquiries = inquiriesContext.filter(user =>
+      selectedIds.includes(user.id)
+    );
+
+    if (selectedInquiries.length === 0) {
+      alert("Please select at least one inquiry.");
+      return;
+    }
+
+    if (!assignSchedule.date_schedule || !assignSchedule.time_schedule) {
+      alert("Please select Date and Time.");
+      return;
+    }
+
+    const forScheduleInquiries = {
+      id: selectedIds,
+      schedule: {
+        date_schedule: assignSchedule.date_schedule,
+        time_schedule: assignSchedule.time_schedule
+      }
+    };
+
+    try {
+      const res = await axios.patch(`${API_URL}/inquiries/assignschedule`, forScheduleInquiries, {
+        headers:{
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      // console.log(res.data);
+      alert("Schedule assigned successfully!");
+
+      getInquiriesContext();
+      setSelectedIds([]);
+      setAssignSchedule({ date_schedule: '', time_schedule: '' });
+      handleCloseScheduleCi();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const handleAssignSchedule = (e) => {
+    setAssignSchedule({
+      ...assignSchedule, [e.target.name]: e.target.value
+    });
+  }
 
   useEffect(() => {
 
@@ -71,12 +140,17 @@ function CreditInvestigation() {
               </Row>
             </Form>
           </Col>
+          <Col md="1" className='d-flex justify-content-end'>
+            <Button variant="info" size="md" className="mt-auto d-flex align-items-center gap-1 text-white" onClick={handleShowScheduleCi}>
+              <FaCalendarDay /> Assign
+            </Button>
+          </Col>
         </Row>
         <div className="table-section mt-4">
           <Table striped bordered hover responsive>
             <thead>
               <tr>
-                <th>
+                <th width='3%' className='text-center'>
                   <Form>
                     <Form.Check
                       type="checkbox"
@@ -85,13 +159,13 @@ function CreditInvestigation() {
                     />
                   </Form>
                 </th>
-                <th width='10%'>Inquiry ID</th>
+                <th width='9%'>Inquiry ID</th>
                 <th width='17%'>Customer Name</th>
                 <th width='22%'>Brand/Model/Color</th>
-                <th width='10%'>Terms</th>
+                <th width='9%'>Terms</th>
                 <th width='17%'>Investigator</th>
-                <th width='12%'>Date & Time</th>
-                <th width='10%'>Actions</th>
+                <th width='15%'>Schedule</th>
+                <th width='8%'>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -104,7 +178,7 @@ function CreditInvestigation() {
               ) : (
                 inquiriesContext.map((row, index) => (
                   <tr key={index}>
-                    <td>
+                    <td className='text-center'>
                       <Form>
                         <Form.Check
                           type="checkbox"
@@ -118,12 +192,16 @@ function CreditInvestigation() {
                     <td>{row.motorBrand} / {row.motorModel} / {row.motorColor}</td>
                     <td>{row.motorInstallmentterm} Month(s)</td>
                     <td>Investigator</td>
-                    <td>Date & Time</td>
+                    <td>{row.date_creditinvestigation && row.time_creditinvestigation ? `${dateFormat(row.date_creditinvestigation)} | ${timeFormat(row.time_creditinvestigation)}` : ''}</td>
                     <td className='text-center'>
-                      <Button variant="info" size="sm" className="d-inline-block me-1 text-white" onClick={handleShowScheduleCi}>
+                      {/* <Button variant="info" size="sm" className="d-inline-block me-1 text-white" onClick={handleShowScheduleCi}>
                         <FaCalendarDay />
-                      </Button>
-                      <Button variant="warning" size="sm" className="d-inline-block me-1 text-white">
+                      </Button> */}
+                      <Button 
+                        onClick={()=> handleShowModalCreditInvestigation(row.id)}
+                        variant="warning" 
+                        size="sm" 
+                        className="d-inline-block me-1 text-white">
                         <FaEdit />
                       </Button>
                       <Button variant="danger" size="sm" className="d-inline-block me-1 text-white">
@@ -145,7 +223,7 @@ function CreditInvestigation() {
         size="sm"
         footer={
           <>
-            <Button variant="primary" className="d-flex align-items-center justify-content-evenly">
+            <Button variant="primary" className="d-flex align-items-center justify-content-evenly" onClick={()=>saveAssignSchedule()}>
               <FaSave /> Save
             </Button>
             <Button variant="danger" onClick={handleCloseScheduleCi} className="d-flex align-items-center justify-content-evenly">
@@ -165,8 +243,9 @@ function CreditInvestigation() {
                   <Col xs={9}>
                     <Form.Control
                       type="date"
-                      className="uppercase_text"
                       name="date_schedule"
+                      value={assignSchedule.date_schedule}
+                      onChange={handleAssignSchedule}
                       required
                     />
                   </Col>
@@ -178,8 +257,9 @@ function CreditInvestigation() {
                   <Col xs={9}>
                     <Form.Control
                       type="time"
-                      className="uppercase_text"
-                      name="date_schedule"
+                      name="time_schedule"
+                      value={assignSchedule.time_schedule}
+                      onChange={handleAssignSchedule}
                       required
                     />
                   </Col>
@@ -190,6 +270,11 @@ function CreditInvestigation() {
         </Row>
       </GlobalModal>
 
+      <ModalCreditInvestigation 
+        inquiryId = {thisInquiryid}
+        show={showModalCreditInvestigation} 
+        handleClose={handleCloseModalCreditInvestigation} 
+      />
 
 
     </div>
