@@ -19,6 +19,9 @@
   --sidebar-text: #f1f1f1;
   --topbar-bg: #ffffff;
   --topbar-border: #dee2e6;
+
+
+  --text-color: #ffffff;
 }
 
 .capitalize_text::placeholder,
@@ -122,4 +125,12 @@ button {
 .custom-modal .modal-body {
   max-height: 70vh !important;
   overflow-y: auto !important;
+}
+
+.tbl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color);
+  margin: auto;
 }

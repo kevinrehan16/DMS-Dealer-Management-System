@@ -551,7 +551,7 @@ function ModalCreditApplication({show, handleClose, customerId}) {
                               <th width='40%'>Nature</th>
                               <th width='50%'>Address</th>
                               <th width='10%'>
-                                <Button size="sm" className='d-flex align-content-center justify-content-center text-white mx-auto' onClick={handleAddIncomeRow}>
+                                <Button size="sm" className='tbl-btn' onClick={handleAddIncomeRow}>
                                   <FaPlus />
                                 </Button>
                               </th>
@@ -627,7 +627,7 @@ function ModalCreditApplication({show, handleClose, customerId}) {
                               <th width='11%'>Pres. Balance</th>
                               <th width='12%'>Mo. Installment</th>
                               <th width='5%'>
-                                <Button size="sm" className='d-flex align-content-center justify-content-center text-white mx-auto' onClick={handleAddPrefRow}>
+                                <Button size="sm" className='tbl-btn' onClick={handleAddPrefRow}>
                                   <FaPlus />
                                 </Button>
                               </th>
@@ -735,7 +735,7 @@ function ModalCreditApplication({show, handleClose, customerId}) {
                               <th width='18%'>Contact #</th>
                               <th width='17%'>Relation</th>
                               <th width='5%'>
-                                <Button size="sm" className='d-flex align-content-center justify-content-center text-white mx-auto' onClick={handleAddRefRow}>
+                                <Button size="sm" className='tbl-btn' onClick={handleAddRefRow}>
                                   <FaPlus />
                                 </Button>
                               </th>
@@ -831,7 +831,7 @@ function ModalCreditApplication({show, handleClose, customerId}) {
                               <th width='17%'>Value</th>
                               <th width='17%'>Imbursement</th>
                               <th width='5%'>
-                                <Button size="sm" className='d-flex align-content-center justify-content-center text-white mx-auto' onClick={handleAddProRow}>
+                                <Button size="sm" className='tbl-btn' onClick={handleAddProRow}>
                                   <FaPlus />
                                 </Button>
                               </th>
@@ -922,7 +922,7 @@ function ModalCreditApplication({show, handleClose, customerId}) {
                               <th width='75%'>File name</th>
                               <th width='20%'>Select File</th>
                               <th width='5%'>
-                                {/* <Button size="sm" className='d-flex align-content-center justify-content-center text-white mx-auto' onClick={handleAddRowAtt}>
+                                {/* <Button size="sm" className='tbl-btn' onClick={handleAddRowAtt}>
                                   <FaPlus />
                                 </Button> */}
                               </th>

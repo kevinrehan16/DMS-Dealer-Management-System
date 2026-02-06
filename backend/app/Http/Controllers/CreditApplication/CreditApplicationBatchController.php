@@ -101,8 +101,8 @@ class CreditApplicationBatchController extends Controller
                     // Make filename: ModuleName_TIMESTAMP.ext to avoid duplicates
                     $filename = $moduleNameSafe . '.' . $extension;
 
-                    // Store file in storage/app/public/credit_attachments
-                    $path = $file->storeAs("credit_attachments/{$creditAppId}", $filename, 'public');
+                    // Store file in storage/app/public/credit_app_attachments
+                    $path = $file->storeAs("credit_app_attachments/{$creditAppId}", $filename, 'public');
 
                     // Save to database
                     CreditApplicationAttachments::create([

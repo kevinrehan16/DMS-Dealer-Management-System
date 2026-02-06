@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\CreditInvestigationPrimary;
+use App\Models\CreditInvestigationOtherSourceIncome;
+use App\Models\CreditInvestigationCreditReferences;
 
 class CreditInvestigationBatchController extends Controller
 {
@@ -28,6 +30,26 @@ class CreditInvestigationBatchController extends Controller
 
         try{
             $contactInfo = CreditInvestigationPrimary::create($request->input('contactinfo'));
+            $inquiryID = $contactInfo->inquiry_id;
+
+            foreach ($request->input('sourceofincome', []) as $soi) {
+                CreditInvestigationOtherSourceIncome::create(array_merge(
+                    $soi,
+                    [
+                        'inquiry_id' => $inquiryID
+                    ]
+                ));
+            }
+
+            foreach ($request->input('creditreferences', []) as $cr) {
+                CreditInvestigationCreditReferences::create(array_merge(
+                    $cr,
+                    [
+                        'inquiry_id' => $inquiryID
+                    ]
+                ));
+            }
+
 
             DB::commit();
             return response()->json(['ContactInformations' => $contactInfo]);
