@@ -4,13 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\GeneratesCustomId;
 
 class Customer extends Model
 {
-    use HasFactory;
+    use HasFactory, GeneratesCustomId;
 
     protected $fillable = [
-        'customerid',
+        'customer_id',
         'firstName',
         'lastName',
         'middleName',
@@ -20,4 +21,7 @@ class Customer extends Model
         'mobile',
         'title',
     ];
+
+    protected $customIdPrefix = 'C-';
+    protected $customIdColumn = 'customer_id';
 }

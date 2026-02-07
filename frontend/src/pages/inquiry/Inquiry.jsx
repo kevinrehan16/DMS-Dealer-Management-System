@@ -18,6 +18,8 @@ export default function Inquiry() {
   const API_URL = process.env.REACT_APP_API_URL;
   const token = localStorage.getItem('token');
 
+  const [error, setError] = useState({});
+
   const [showModalInquiry, setShowModalInquiry] = useState(false);
   const handleShowInquiry = () => setShowModalInquiry(true);
   const handleCloseInquiry = () => setShowModalInquiry(false);
@@ -28,7 +30,11 @@ export default function Inquiry() {
 
   const [showModalNewCustomer, setShowModalNewCustomer] = useState(false);
   const handleShowNewCustomer = () => setShowModalNewCustomer(true);
-  const handleCloseNewCustomer = () => setShowModalNewCustomer(false);
+  const handleCloseNewCustomer = () => {
+    clearFormCustomerData();
+    setError({});
+    setShowModalNewCustomer(false);
+  }
 
   const [showModalCreditApplication, setshowModalCreditApplication] = useState(false);
   const handleShowModalCreditApplication = (customer_id) => {
@@ -54,7 +60,6 @@ export default function Inquiry() {
   };
 
   const [formCustomerData, setFormCustomerData] = useState({
-    customerid: '',
     title: '',
     firstName: '',
     lastName: '',
@@ -67,7 +72,6 @@ export default function Inquiry() {
 
   const clearFormCustomerData = () => {
     setFormCustomerData({
-      customerid: '',
       title: '',
       firstName: '',
       lastName: '',
@@ -94,10 +98,14 @@ export default function Inquiry() {
           'Content-Type': 'application/json'
         }
       });
-      clearFormCustomerData();
       fetchCustomers();
+      clearFormCustomerData();
+      setError({});
       console.log("New customer saved:", response.data);
     } catch (error) {
+      if (error.response && error.response.data && error.response.data.errors) {
+        setError(error.response.data.errors);
+      }
       console.error("Error saving new customer:", error);
     }
   }
@@ -224,21 +232,30 @@ export default function Inquiry() {
                 </Col>
 
                 <Col md={4}>
-                  <Form.Label>Date Range</Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      type="date"
-                      value={dateFrom}
-                      onChange={(e) => setDateFrom(e.target.value)}
-                      max={new Date().toISOString().split("T")[0]}
-                    />
-                    <Form.Control
-                      type="date"
-                      value={dateTo}
-                      onChange={(e) => setDateTo(e.target.value)}
-                      max={new Date().toISOString().split("T")[0]}
-                    />
-                  </InputGroup>
+                  <Row>
+                    <Col>
+                      <Form.Group controlId="dateFrom">
+                        <Form.Label>From</Form.Label>
+                        <Form.Control
+                          type="date"
+                          value={dateFrom}
+                          onChange={(e) => setDateFrom(e.target.value)}
+                          max={new Date().toISOString().split("T")[0]}
+                        />
+                      </Form.Group>
+                    </Col>
+                    <Col>
+                      <Form.Group controlId="dateTo">
+                        <Form.Label>To</Form.Label>
+                        <Form.Control
+                          type="date"
+                          value={dateTo}
+                          onChange={(e) => setDateTo(e.target.value)}
+                          max={new Date().toISOString().split("T")[0]}
+                        />
+                      </Form.Group>
+                    </Col>
+                  </Row>
                 </Col>
 
               </Row>
@@ -413,23 +430,6 @@ export default function Inquiry() {
         <Row>
           <Col>
             <Form>
-              <Form.Group controlId="formCustomerid" className="mb-2">
-                <Row>
-                  <Col xs={3} className="d-flex align-items-center">
-                    <Form.Label className="mb-0">Customer ID</Form.Label>
-                  </Col>
-                  <Col xs={9}>
-                    <Form.Control
-                      type="text"
-                      className="uppercase_text"
-                      name="customerid"
-                      value={formCustomerData.customerid}
-                      onChange={handleInputCustomerChange}
-                      required
-                    />
-                  </Col>
-                </Row>
-              </Form.Group>
               <Form.Group controlId="formTitle" className="mb-2">
                 <Row>
                   <Col xs={3} className="d-flex align-items-center">
@@ -441,6 +441,7 @@ export default function Inquiry() {
                       name='title' 
                       value={formCustomerData.title} 
                       onChange={handleInputCustomerChange} 
+                      className={error.title ? 'is-invalid' : ''}
                       required
                     >
                       <option value=''>Select Title</option>
@@ -459,7 +460,7 @@ export default function Inquiry() {
                   <Col xs={9}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className={`capitalize_text ${error.firstName ? 'is-invalid' : ''}`}
                       name="firstName"
                       value={formCustomerData.firstName}
                       onChange={handleInputCustomerChange}
@@ -476,7 +477,7 @@ export default function Inquiry() {
                   <Col xs={9}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className={`capitalize_text ${error.lastName ? 'is-invalid' : ''}`}
                       name="lastName"
                       value={formCustomerData.lastName}
                       onChange={handleInputCustomerChange}
@@ -493,7 +494,7 @@ export default function Inquiry() {
                   <Col xs={9}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className={`capitalize_text ${error.middleName ? 'is-invalid' : ''}`}
                       name="middleName"
                       value={formCustomerData.middleName}
                       onChange={handleInputCustomerChange}
@@ -510,7 +511,7 @@ export default function Inquiry() {
                   <Col xs={9}>
                     <Form.Control
                       type="email"
-                      className="lowercase_text"
+                      className={`lowercase_text ${error.email ? 'is-invalid' : ''}`}
                       name="email"
                       value={formCustomerData.email}
                       onChange={handleInputCustomerChange}
@@ -530,6 +531,7 @@ export default function Inquiry() {
                       name='gender' 
                       value={formCustomerData.gender} 
                       onChange={handleInputCustomerChange}
+                      className={`${error.gender ? 'is-invalid' : ''}`}
                       required
                     >
                       <option value=''>Select Gender</option>
@@ -548,7 +550,7 @@ export default function Inquiry() {
                     <Form.Control
                       type="date"
                       name="birthdate"
-                      className="uppercase_text"
+                      className={`uppercase_text ${error.birthdate ? 'is-invalid' : ''}`}
                       max={new Date().toISOString().split("T")[0]}
                       value={formCustomerData.birthdate}
                       onChange={handleInputCustomerChange}
@@ -571,6 +573,7 @@ export default function Inquiry() {
                         const formatted = formatMobile(e.target.value);
                         setFormCustomerData({ ...formCustomerData, mobile: formatted });
                       }}
+                      className={`${error.mobile ? 'is-invalid' : ''}`}
                       required
                     />
                   </Col>

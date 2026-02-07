@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Customer;
+use App\Http\Requests\StoreCustomerRequest;
 
 class CustomerController extends Controller
 {
@@ -30,22 +31,11 @@ class CustomerController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCustomerRequest $request)
     {
-        $validated = $request->validate([
-            'customer_id' => 'required|string|max:30',
-            'firstName' => 'required|string|max:60',
-            'lastName' => 'required|string|max:60',
-            'middleName' => 'required|string|max:60',
-            'email' => 'required|email|unique:customers',
-            'gender' => 'required|string|max:10',
-            'birthdate' => 'required|date|max:20',
-            'mobile' => ['required','string','max:20','regex:/^\+?[0-9\-\s]+$/'],
-            'title' => 'required|string|max:5',
-        ]);
+        $validated = $request->validated();
 
         $customer = Customer::create([
-            'customer_id' => strtoupper($validated['customer_id']),
             'firstName' => ucwords(strtolower($validated['firstName'])),
             'lastName' => ucwords(strtolower($validated['lastName'])),
             'middleName' => ucwords(strtolower($validated['middleName'])),
