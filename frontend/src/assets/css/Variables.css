@@ -93,7 +93,7 @@
   text-transform: uppercase;
 }
 
-button {
+.MuiButton-root button {
   display: flex !important;
   align-items: center !important;
   justify-content: space-evenly !important;
@@ -133,4 +133,14 @@ button {
   justify-content: center;
   color: var(--text-color);
   margin: auto;
+}
+
+input[type="number"] {
+  text-align: right;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

@@ -43,3 +43,24 @@ export const timeFormat = (isTime) => {
   hour = hour ? hour : 12; // 0 → 12
   return `${hour.toString().padStart(2,"0")}:${minute.toString().padStart(2, "0")} ${ampm}`;
 }
+
+export const formatMobile = (value) => {
+  const digits = value.replace(/\D/g, '');
+
+    // Strip known prefixes
+    let normalized = digits;
+    if (normalized.startsWith('63')) normalized = normalized.slice(2);
+    else if (normalized.startsWith('0')) normalized = normalized.slice(1);
+
+    // Format into chunks
+    const part1 = normalized.slice(0, 3); // e.g. 915
+    const part2 = normalized.slice(3, 6); // e.g. 316
+    const part3 = normalized.slice(6, 10); // e.g. 9518
+
+    let formatted = '+63';
+    if (part1) formatted += '-' + part1;
+    if (part2) formatted += '-' + part2;
+    if (part3) formatted += '-' + part3;
+
+    return formatted;
+};

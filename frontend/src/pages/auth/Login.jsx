@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { TextField, Button } from '@mui/material';
 import { useAuth } from '../../context/AuthContext/AuthContext';
+import { FaSignInAlt } from "react-icons/fa";
 import axios from 'axios';
 import '../../assets/css/Login.css';
+import Swal from 'sweetalert2'
 
 const Login = () => {
   const { setUser } = useAuth();
+  const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
   const API_URL = process.env.REACT_APP_API_URL;
@@ -28,8 +31,14 @@ const Login = () => {
       navigate("/dashboard");
       setUser(response.data.user);
     } catch (error) {
-      console.error('Login failed:', error);
-      alert('Login failed!');
+      // console.error('Login failed:', error);
+      setErrors(error.response?.data?.errors || {});
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error.response?.data?.message || 'Login failed!',
+        footer: 'An error occurred during login. Please try again.'
+      });
     }
   };
 
@@ -48,6 +57,8 @@ const Login = () => {
                 value={form.email}
                 onChange={handleChange}
                 className="mb-3"
+                error={!!errors.email}
+                helperText={errors.email}
               />
               <TextField
                 fullWidth
@@ -58,6 +69,8 @@ const Login = () => {
                 value={form.password}
                 onChange={handleChange}
                 className="mb-4"
+                error={!!errors.password}
+                helperText={errors.password}
               />
               <Button
                 variant="contained"
@@ -66,7 +79,7 @@ const Login = () => {
                 fullWidth
                 size="large"
               >
-                Login
+               <FaSignInAlt className="me-2" /> Login
               </Button>
             </form>
             <p className="text-center mt-3">

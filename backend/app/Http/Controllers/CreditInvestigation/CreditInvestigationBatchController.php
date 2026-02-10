@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\CreditInvestigationPrimary;
 use App\Models\CreditInvestigationOtherSourceIncome;
 use App\Models\CreditInvestigationCreditReferences;
+use App\Models\CreditInvestigationPersonalReference;
+use App\Models\CreditInvestigationPersonalProperty;
 
 class CreditInvestigationBatchController extends Controller
 {
@@ -50,6 +52,23 @@ class CreditInvestigationBatchController extends Controller
                 ));
             }
 
+            foreach ($request->input('personalreferences', []) as $pr) {
+                CreditInvestigationPersonalReference::create(array_merge(
+                    $pr,
+                    [
+                        'inquiry_id' => $inquiryID
+                    ]
+                ));
+            }
+
+            foreach ($request->input('personalproperties', []) as $pp) {
+                CreditInvestigationPersonalProperty::create(array_merge(
+                    $pp,
+                    [
+                        'inquiry_id' => $inquiryID
+                    ]
+                ));
+            }
 
             DB::commit();
             return response()->json(['ContactInformations' => $contactInfo]);

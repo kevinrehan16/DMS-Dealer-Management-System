@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Table, Row, Col, Form, Card, InputGroup, Button } from 'react-bootstrap'
-import { FaTimes, FaSave, FaPlus, FaTrash } from 'react-icons/fa'
+import { FaTimes, FaSave, FaPlusCircle, FaTrash } from 'react-icons/fa'
 import axios from 'axios'
+import { calculateAge, computeTotalIncome, computeTotalExpenses } from '../../../utils/computations';
 
 const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
   const API_URL = process.env.REACT_APP_API_URL;
@@ -22,22 +23,22 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
       cieducation: '',
       citinNumber: '',
       cimobile: '',
-      cidependentChildren: 0,
-      cistudyingChildren: 0,
-      ciotherDependents: 0,
+      cidependentChildren: '',
+      cistudyingChildren: '',
+      ciotherDependents: '',
       ciPresAddress: '',
-      ciPresAddrLenStay: 0,
+      ciPresAddrLenStay: '',
       ciPresAddrMonStay: '',
       ciPresAddrType: '',
-      ciPresAddrRentFee: 0.00,
+      ciPresAddrRentFee: '',
       ciPrevAddress: '',
-      ciPrevAddrLenStay: 0,
+      ciPrevAddrLenStay: '',
       ciPrevAddrMonStay: '',
       ciProvAddress: '',
       ciEmployedBy: '',
       ciEmpAddrEmp: '',
       ciEmpAddrLenStay: '',
-      ciEmpAddrMonStay: 0,
+      ciEmpAddrMonStay: '',
       ciEmpStatus: '',
       ciEmpDesignation: '',
       ciEmpTelNo: '',
@@ -47,20 +48,20 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
       ciEmpSpouseEmpAddr: '',
       ciEmpSpousePosition: '',
       ciEmpPrevTelNo: '',
-      ciIncomeSalaryNet: 0.00,
-      ciSpouseIncome: 0.00,
-      ciRentalIncome: 0.00,
-      ciBusinessNet: 0.00,
-      ciOthers: 0.00,
-      ciTotalIncome: 0.00,
-      ciExpenseLiving: 0.00,
-      ciExpenseRent: 0.00,
-      ciExpenseSchooling: 0.00,
-      ciExpenseInsurance: 0.00,
-      ciExpenseElectWat: 0.00,
-      ciExpenseObligation: 0.00,
-      ciExpenseLoan: 0.00,
-      ciExpenseTotal: 0.00,
+      ciIncomeSalaryNet: '',
+      ciSpouseIncome: '',
+      ciRentalIncome: '',
+      ciBusinessNet: '',
+      ciOthers: '',
+      ciTotalIncome: '',
+      ciExpenseLiving: '',
+      ciExpenseRent: '',
+      ciExpenseSchooling: '',
+      ciExpenseInsurance: '',
+      ciExpenseElectWat: '',
+      ciExpenseObligation: '',
+      ciExpenseLoan: '',
+      ciExpenseTotal: '',
       ciCheckingAccount: '',
       ciCAAddrr: '',
       ciSavingsAccount: '',
@@ -71,7 +72,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
   const [otherSourceOfIncome, setOtherSourceOfIncome] = useState([
     { 
       osisource: '', 
-      osiamount: 0.00 
+      osiamount: '' 
     }
   ]);
 
@@ -84,7 +85,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
   const handleAddSourceOfIncomeChange = () => {
     setOtherSourceOfIncome([...otherSourceOfIncome, { 
        osisource: '',
-       osiamount: 0.00 
+       osiamount: '' 
     }]);
   }
 
@@ -99,9 +100,9 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
       crcreditor: '', 
       craddress: '',
       crdategranted: '',
-      crorigbalance: 0.00,
-      crpresbalance: 0.00,
-      crmoinstallment: 0.00 
+      crorigbalance: '',
+      crpresbalance: '',
+      crmoinstallment: '' 
     }
   ]);
 
@@ -116,9 +117,9 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
       crcreditor: '',
       craddress: '',
       crdategranted: '',
-      crorigbalance: 0.00,
-      crpresbalance: 0.00,
-      crmoinstallment: 0.00 
+      crorigbalance: '',
+      crpresbalance: '',
+      crmoinstallment: '' 
     }]);
   }
 
@@ -130,10 +131,87 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
 
   const handleCustomerInformationChange = (e) => {
     const { name, value } = e.target;
-    setCreditCustomerInformation((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+
+    const ageMapping = {
+      cibirthday: 'cicpage',
+      cispouseBirthday: 'cisage'
+    };
+
+    setCreditCustomerInformation(prev => {
+      const updated = { ...prev, [name]: value };
+
+      // Handle birthday → age
+      if (ageMapping[name]) {
+        updated[ageMapping[name]] = calculateAge(value);
+      }
+
+      // Compute total income
+      updated.ciTotalIncome = computeTotalIncome(updated);
+      updated.ciExpenseTotal = computeTotalExpenses(updated);
+
+      return updated;
+    });
+  };
+
+
+  const [personalReferences, setPersonalReferences] = useState([
+    {
+      prname: '',
+      praddress: '',
+      prcontact: '',
+      prrelation: ''
+    }
+  ]);
+
+  const handlePersonalReferenceInputChange = (index, field, value) => {
+    const list = [...personalReferences];
+    list[index][field] = value;
+    setPersonalReferences(list);
+  }
+
+  const handleAddPersonalReferenceChange = () => {
+    setPersonalReferences([...personalReferences, { 
+      prname: '',
+      praddress: '',
+      prcontact: '',
+      prrelation: ''
+    }]);
+  }
+
+  const handleRemovePersonalReference = (index) => {
+    const list = [...personalReferences];
+    list.splice(index, 1);
+    setPersonalReferences(list);
+  }
+
+  const [personalProperties, setPersonalProperties] = useState([
+    {
+      ppkind: '',
+      pplocation: '',
+      ppvalue: '',
+      ppimbursement: '',
+    }
+  ]);
+
+  const handlePersonalPropertyInputChange = (index, field, value) => {
+    const list = [...personalProperties];
+    list[index][field] = value;
+    setPersonalProperties(list);
+  }
+
+  const handleAddPersonalPropertyChange = () => {
+    setPersonalProperties([...personalProperties, { 
+      ppkind: '',
+      pplocation: '',
+      ppvalue: '',
+      ppimbursement: ''
+    }]);
+  }
+
+  const handleRemovePersonalProperty = (index) => {
+    const list = [...personalProperties];
+    list.splice(index, 1);
+    setPersonalProperties(list);
   }
 
   const handleSubmit = async (e) => {
@@ -143,7 +221,9 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
       const response = await axios.post(`${API_URL}/credit-investigation/save-all`, {
         contactinfo: creditCustomerInformation,
         sourceofincome: otherSourceOfIncome,
-        creditreferences: creditReferences
+        creditreferences: creditReferences,
+        personalreferences: personalReferences,
+        personalproperties: personalProperties
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -220,6 +300,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               <Form.Control 
                                   name="cibirthday" 
                                   type="date" 
+                                  max={new Date().toISOString().split("T")[0]}
                                   value={creditCustomerInformation.cibirthday} 
                                   onChange={handleCustomerInformationChange} 
                               />
@@ -227,6 +308,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               <Form.Control 
                                   name='cicpage' 
                                   readOnly 
+                                  disabled
                                   value={creditCustomerInformation.cicpage} 
                               />
                             </InputGroup>
@@ -274,6 +356,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               <Form.Control 
                                   name="cispouseBirthday" 
                                   type="date" 
+                                  max={new Date().toISOString().split("T")[0]}
                                   value={creditCustomerInformation.cispouseBirthday} 
                                   onChange={handleCustomerInformationChange}
                               />
@@ -281,6 +364,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               <Form.Control 
                                   name='cisage' 
                                   readOnly 
+                                  disabled
                                   value={creditCustomerInformation.cisage} 
                               />
                             </InputGroup>
@@ -503,7 +587,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Control
                               type="number"
-                              step="0.01"
+                              placeholder="0.00"
                               value={creditCustomerInformation.ciPresAddrRentFee}
                               name='ciPresAddrRentFee'
                               onChange={handleCustomerInformationChange}
@@ -777,7 +861,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
 
                         <Form.Group as={Row}>
                           <Form.Label column sm={4} className="text-end">
-                            Telephone Number <span className="text-danger">*</span>
+                            Telephone # <span className="text-danger">*</span>
                           </Form.Label>
                           <Col sm={8}>
                             <Form.Control
@@ -799,6 +883,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 type="number" 
                                 name='ciIncomeSalaryNet'
+                                placeholder="0.00"
                                 value={creditCustomerInformation.ciIncomeSalaryNet}
                                 onChange={handleCustomerInformationChange}
                             />
@@ -813,6 +898,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 type="number"
                                 name='ciSpouseIncome'
+                                placeholder="0.00"
                                 value={creditCustomerInformation.ciSpouseIncome}
                                 onChange={handleCustomerInformationChange}
                             />
@@ -827,6 +913,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 type="number" 
                                 name='ciRentalIncome'
+                                placeholder="0.00"
                                 value={creditCustomerInformation.ciRentalIncome}
                                 onChange={handleCustomerInformationChange}    
                             />
@@ -841,6 +928,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 type="number"
                                 name='ciBusinessNet'
+                                placeholder="0.00"
                                 value={creditCustomerInformation.ciBusinessNet}
                                 onChange={handleCustomerInformationChange}    
                             />
@@ -855,6 +943,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 type="number" 
                                 name='ciOthers'
+                                placeholder="0.00"
                                 value={creditCustomerInformation.ciOthers}
                                 onChange={handleCustomerInformationChange}
                             />
@@ -869,7 +958,9 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control
                                 type="number"
                                 readOnly
+                                disabled
                                 name='ciTotalIncome'
+                                placeholder='0.00'
                                 value={creditCustomerInformation.ciTotalIncome}
                             />
                           </Col>
@@ -896,14 +987,14 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <thead>
                               <tr>
                                 <th style={{ width: "50%" }}>Source</th>
-                                <th style={{ width: "35%" }}>Amount (Php)</th>
-                                <th>
+                                <th style={{ width: "40%" }}>Amount (Php)</th>
+                                <th style={{ width: "10%", textAlign: "center" }}>
                                   <Button 
                                       className='tbl-btn' 
                                       size="sm"
                                       onClick={handleAddSourceOfIncomeChange}
                                   >
-                                    <FaPlus />
+                                    <FaPlusCircle />
                                   </Button>
                                 </th>
                               </tr>
@@ -915,21 +1006,24 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                     <Form.Control
                                         type='text'
                                         value={osi.osisource}
-                                        onChange={(e) => handleSourceOfIncomeInputChange(index, 'osisource', e.target.value)}
+                                        onChange={(e) => handleSourceOfIncomeInputChange(index, 'osisource', 
+                                          e.target.value)}
                                     />
                                   </td>
                                   <td>
                                     <Form.Control
                                         type="number"
                                         value={osi.osiamount}
-                                        onChange={(e) => handleSourceOfIncomeInputChange(index, 'osiamount', e.target.value)}
+                                        placeholder='0.00'
+                                        onChange={(e) => handleSourceOfIncomeInputChange(index, 'osiamount', 
+                                          e.target.value)}
                                     />
                                   </td>
-                                  <td>
+                                  <td className='text-center'>
                                     <Button 
                                         variant="danger" 
                                         className='tbl-btn' 
-                                        size="lg"
+                                        size="sm"
                                         onClick={() => handleRemoveSourceOfIncome(index)}
                                     >
                                       <FaTrash />
@@ -1126,7 +1220,9 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               <Form.Control
                                 type="number"
                                 readOnly
+                                disabled
                                 name='ciExpenseTotal'
+                                placeholder="0.00" 
                                 value={creditCustomerInformation.ciExpenseTotal}
                               />
                             </InputGroup>
@@ -1149,19 +1245,19 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                     <Table striped bordered hover responsive>
                       <thead className="table-dark">
                         <tr>
-                          <th width="15%">Creditor</th>
-                          <th width="18%">Address</th>
-                          <th width="12%">Date Granted</th>
-                          <th width="12%">Orig. Balance</th>
-                          <th width="12%">Pres. Balance</th>
-                          <th width="13%">Mo. Installment</th>
-                          <th width="7%">
+                          <th width="19%">Creditor</th>
+                          <th width="20%">Address</th>
+                          <th width="14%">Date Granted</th>
+                          <th width="14%">Orig. Balance</th>
+                          <th width="14%">Pres. Balance</th>
+                          <th width="14%">Mo. Installment</th>
+                          <th width="5%" className='text-center'>
                             <Button 
                                 className='tbl-btn' 
                                 size='sm'
                                 onClick={handleAddCreditReferenceChange}
                             >
-                                  <FaPlus />
+                                  <FaPlusCircle />
                             </Button>
                           </th>
                         </tr>
@@ -1187,35 +1283,42 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               <Form.Control
                                   type="date"
                                   value={cr.crdategranted}
-                                  onChange={(e) => handleCreditReferenceInputChange(index, 'crdategranted', e.target.value)}
+                                  onChange={(e) => handleCreditReferenceInputChange(index, 'crdategranted', 
+                                    e.target.value)}
                               />
                             </td>
                             <td>
                               <Form.Control
                                   type="number"
                                   value={cr.crorigbalance}
-                                  onChange={(e) => handleCreditReferenceInputChange(index, 'crorigbalance', e.target.value)}
+                                  placeholder='0.00'
+                                  onChange={(e) => handleCreditReferenceInputChange(index, 'crorigbalance', 
+                                    e.target.value)}
                               />
                             </td>
                             <td>
                               <Form.Control
                                   type="number"
                                   value={cr.crpresbalance}
-                                  onChange={(e) => handleCreditReferenceInputChange(index, 'crpresbalance', e.target.value)}
+                                  placeholder='0.00'
+                                  onChange={(e) => handleCreditReferenceInputChange(index, 'crpresbalance', 
+                                    e.target.value)}
                               />
                             </td>
                             <td>
                               <Form.Control
                                   type="number"
                                   value={cr.crmoinstallment}
-                                  onChange={(e) => handleCreditReferenceInputChange(index, 'crmoinstallment', e.target.value)}
+                                  placeholder='0.00'
+                                  onChange={(e) => handleCreditReferenceInputChange(index, 'crmoinstallment', 
+                                    e.target.value)}
                               />
                             </td>
-                            <td>
+                            <td className='text-center'>
                               <Button 
                                   variant="danger" 
                                   className='tbl-btn'
-                                  size="lg"
+                                  size="sm"
                                   onClick={() => handleRemoveCreditReference(index)}
                               >
                                 <FaTrash />
@@ -1228,28 +1331,73 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                   </div>
 
                   {/* Personal References Table */}
-                  <div>
+                  <div className='table-section mb-'>
                     <h5 className='text-warning'>Personal References</h5>
-                    <button variant="primary" size="sm" className="mb-2">
-                      + Add Personal Reference
-                    </button>
-                    <Table bordered hover responsive>
+                    <Table striped bordered hover responsive>
                       <thead className="table-dark">
                         <tr>
-                          <th>Name</th>
-                          <th>Address</th>
-                          <th>Contact No.</th>
-                          <th>Relation</th>
+                          <th width="20%">Name</th>
+                          <th width="40%">Address</th>
+                          <th width="16%">Contact No.</th>
+                          <th width="20%">Relation</th>
+                          <th width="5%" className='text-center'>
+                            <Button 
+                                className='tbl-btn' 
+                                size='sm'
+                                onClick={handleAddPersonalReferenceChange}
+                            >
+                              <FaPlusCircle />
+                            </Button>
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
-                        {/* Example row, replace with dynamic mapping */}
-                        <tr>
-                          <td>Juan Dela Cruz</td>
-                          <td>Parañaque City</td>
-                          <td>0917-123-4567</td>
-                          <td>Friend</td>
-                        </tr>
+                        {personalReferences.map((pr, index) => (
+                          <tr key={index}>
+                            <td>
+                              <Form.Control
+                                type="text"
+                                value={pr.prname}
+                                onChange={(e) => handlePersonalReferenceInputChange(index, 'prname', 
+                                  e.target.value)}
+                              />
+                            </td>
+                            <td>
+                              <Form.Control
+                                type="text"
+                                value={pr.praddress}
+                                onChange={(e) => handlePersonalReferenceInputChange(index, 'praddress', 
+                                  e.target.value)}
+                              />
+                            </td>
+                            <td>
+                              <Form.Control
+                                type="text"
+                                value={pr.prcontact}
+                                onChange={(e) => handlePersonalReferenceInputChange(index, 'prcontact', 
+                                  e.target.value)}
+                              />
+                            </td>
+                            <td>
+                              <Form.Control
+                                type="text"
+                                value={pr.prelation}
+                                onChange={(e) => handlePersonalReferenceInputChange(index, 'prrelation', 
+                                  e.target.value)}
+                              />
+                            </td>
+                            <td className='text-center'>
+                              <Button 
+                                className='tbl-btn' 
+                                size='sm'
+                                variant="danger"
+                                onClick={() => handleRemovePersonalReference(index)}
+                              >
+                                <FaTrash />
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </Table>
                   </div>
@@ -1261,29 +1409,76 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                   <Card.Title className='text-bold'>Other Information</Card.Title>
                 </Card.Header>
                 <Card.Body>
-                  <h5 className='text-warning'>Real And/Or Personal Properties Owned</h5>
-                  <button variant="primary" size="sm" className="mb-2">
-                    + Add Property
-                  </button>
-                  <Table bordered hover responsive>
-                    <thead className="table-dark">
-                      <tr>
-                        <th>Kind</th>
-                        <th>Location</th>
-                        <th>Value</th>
-                        <th>Imbursement</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {/* Example row, replace with dynamic mapping */}
-                      <tr>
-                        <td>House</td>
-                        <td>Taguig City</td>
-                        <td>₱2,500,000</td>
-                        <td>Mortgage</td>
-                      </tr>
-                    </tbody>
-                  </Table>
+                  <div className="table-section mb-4">
+                    <h5 className='text-warning'>Real And/Or Personal Properties Owned</h5>
+                    <Table striped bordered hover responsive>
+                      <thead className="table-dark">
+                        <tr>
+                          <th width="21%">Kind</th>
+                          <th width="40%">Location</th>
+                          <th width="17%">Value</th>
+                          <th width="17%">Imbursement</th>
+                          <th width="5%" className='text-center'>
+                            <Button 
+                                className='tbl-btn' 
+                                size='sm'
+                                onClick={handleAddPersonalPropertyChange}
+                            >
+                              <FaPlusCircle />
+                            </Button>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {personalProperties.map((pp, index) => (
+                          <tr key={index}>
+                            <td>
+                              <Form.Control
+                                type="text"
+                                value={pp.ppkind}
+                                onChange={(e) => handlePersonalPropertyInputChange(index, 'ppkind', e.target.value)}
+                              />
+                            </td>
+                            <td>
+                              <Form.Control
+                                type="text"
+                                value={pp.pplocation}
+                                onChange={(e) => handlePersonalPropertyInputChange(index, 'pplocation', e.target.value)}
+                              />
+                            </td>
+                            <td>
+                              <Form.Control
+                                type="number"
+                                value={pp.ppvalue}
+                                placeholder='0.00'
+                                onChange={(e) => handlePersonalPropertyInputChange(index, 'ppvalue', 
+                                  parseFloat(e.target.value) || 0)}
+                              />
+                            </td>
+                            <td>
+                              <Form.Control
+                                type="number"
+                                value={pp.ppimbursement}
+                                placeholder='0.00'
+                                onChange={(e) => handlePersonalPropertyInputChange(index, 'ppimbursement', 
+                                  parseFloat(e.target.value) || 0)}
+                              />
+                            </td>
+                            <td className='text-center'>
+                              <Button 
+                                className='tbl-btn' 
+                                size='sm'
+                                variant="danger"
+                                onClick={() => handleRemovePersonalProperty(index)}
+                              >
+                                <FaTrash />
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  </div>
                 </Card.Body>
               </Card>
             </Col>

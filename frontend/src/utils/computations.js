@@ -40,3 +40,32 @@ export const computeMotorFinance = ({
     uid,
   };
 };
+
+export const computeTotalIncome = (incomeFields) => {
+  return cleanNumber(incomeFields.ciIncomeSalaryNet) +
+         cleanNumber(incomeFields.ciSpouseIncome) +
+         cleanNumber(incomeFields.ciRentalIncome) +
+         cleanNumber(incomeFields.ciBusinessNet) +
+         cleanNumber(incomeFields.ciOthers);
+};
+
+export const computeTotalExpenses = (incomeFields) => {
+  return cleanNumber(incomeFields.ciExpenseLiving) +
+         cleanNumber(incomeFields.ciExpenseRent) +
+         cleanNumber(incomeFields.ciExpenseSchooling) +
+         cleanNumber(incomeFields.ciExpenseInsurance) +
+         cleanNumber(incomeFields.ciExpenseElectWat) +
+         cleanNumber(incomeFields.ciExpenseObligation) +
+         cleanNumber(incomeFields.ciExpenseLoan);
+};
+
+export const calculateAge = (birthdate) => {
+  const birth = new Date(birthdate);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  } 
+  return age;
+}

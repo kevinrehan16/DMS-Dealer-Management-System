@@ -24,7 +24,7 @@ class UserController extends Controller
         ]);
 
         if (!Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            return response()->json(['message' => 'Invalid credentials: Email or password is incorrect.'], 401);
         }
 
         $user = Auth::user();

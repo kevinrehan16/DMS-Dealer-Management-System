@@ -7,7 +7,7 @@ import GlobalModal from "../../components/common/GlobalModal";
 import ModalCreditApplication from "../../components/common/InquiryModals/ModalCreditApplication";
 import ModalInquiry from "../../components/common/InquiryModals/ModalInquiry";
 
-import { formatAmount } from '../../utils/formatters';
+import { formatAmount, formatMobile } from '../../utils/formatters';
 
 import axios from "axios";
 
@@ -147,27 +147,6 @@ export default function Inquiry() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatMobile = (value) => {
-    const digits = value.replace(/\D/g, '');
-
-    // Strip known prefixes
-    let normalized = digits;
-    if (normalized.startsWith('63')) normalized = normalized.slice(2);
-    else if (normalized.startsWith('0')) normalized = normalized.slice(1);
-
-    // Format into chunks
-    const part1 = normalized.slice(0, 3); // e.g. 915
-    const part2 = normalized.slice(3, 6); // e.g. 316
-    const part3 = normalized.slice(6, 10); // e.g. 9518
-
-    let formatted = '+63';
-    if (part1) formatted += '-' + part1;
-    if (part2) formatted += '-' + part2;
-    if (part3) formatted += '-' + part3;
-
-    return formatted;
   };
 
   useEffect(() => {
@@ -568,7 +547,8 @@ export default function Inquiry() {
                     <Form.Control
                       type="text"
                       name="mobile"
-                      value={formCustomerData.mobile.startsWith('+63') ? formCustomerData.mobile : '+63' + formCustomerData.mobile}
+                      value={formCustomerData.mobile.startsWith('+63') ? formCustomerData.mobile : '+63' + 
+                        formCustomerData.mobile}
                       onChange={e => {
                         const formatted = formatMobile(e.target.value);
                         setFormCustomerData({ ...formCustomerData, mobile: formatted });
