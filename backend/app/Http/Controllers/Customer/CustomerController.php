@@ -6,17 +6,26 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Http\Requests\StoreCustomerRequest;
+use App\Http\Resources\CustomerResource;
+use App\Services\CustomerService;
 
 class CustomerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+    private $customerService;
+
+    public function __construct(CustomerService $customerService)
+    {
+        $this->customerService = $customerService;
+    }
+
     public function index()
     {
-        $customers = Customer::orderBy('id', 'desc')->get();
+        $customers = $this->customerService->listCustomers();
         return response()->json([
-            'customers' => $customers,
+            'customers' => CustomerResource::collection($customers),
         ], 200);
     }
 
@@ -33,24 +42,12 @@ class CustomerController extends Controller
      */
     public function store(StoreCustomerRequest $request)
     {
-        $validated = $request->validated();
-
-        $customer = Customer::create([
-            'firstName' => ucwords(strtolower($validated['firstName'])),
-            'lastName' => ucwords(strtolower($validated['lastName'])),
-            'middleName' => ucwords(strtolower($validated['middleName'])),
-            'email' => strtolower($validated['email']),
-            'gender' => $validated['gender'],
-            'birthdate' => $validated['birthdate'],
-            'mobile' => $validated['mobile'],
-            'title' => $validated['title'],
-        ]);
+        $customer = $this->customerService->saveCustomer($request->validated());
 
         return response()->json([
             'message' => 'Customer created successfully.',
-            'customer' => $customer,
+            'data' => new CustomerResource($customer),
         ], 201);
-
     }
 
     /**

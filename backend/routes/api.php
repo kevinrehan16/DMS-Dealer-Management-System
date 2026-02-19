@@ -45,28 +45,35 @@ Route::prefix('users')->controller(UserController::class)->group(function () {
     });
 });
 
-Route::prefix('customers')->controller(CustomerController::class)->group(function () {
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/', 'index'); // GET /api/customers
-        Route::post('/', 'store'); // POST /api/customers
-        Route::get('/{id}', 'show'); // GET /api/customers/{id}
-        Route::put('/{id}', 'update'); // PUT /api/customers/{id}
-        Route::delete('/{id}', 'destroy'); // DELETE /api/customers/{id}
-    });
+Route::middleware('auth:sanctum')->prefix('customers')->group(function () {
+    Route::get('/', [CustomerController::class, 'index']);
+    Route::post('/', [CustomerController::class, 'store']);
+    Route::get('{customer}', [CustomerController::class, 'show']);
+    Route::put('{customer}', [CustomerController::class, 'update']);
+    Route::delete('{customer}', [CustomerController::class, 'destroy']);
 });
 
+Route::middleware('auth:sanctum')->prefix('inquiries')->group(function () {
+    Route::get('/', [InquiryController::class, 'index']);
+    Route::post('/', [InquiryController::class, 'store']);
+    Route::get('{inquiry}', [InquiryController::class, 'show']);
+    Route::put('{inquiry}', [InquiryController::class, 'update']);
+    Route::delete('{inquiry}', [InquiryController::class, 'destroy']);
 
-Route::prefix('inquiries')->controller(InquiryController::class)->group(function () {
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/', 'index'); // GET /api/inquiries
-        Route::post('/', 'store'); // POST /api/inquiries
-        Route::get('/{id}', 'show'); // GET /api/inquiries/{id}
-        Route::put('/{id}', 'update'); // PUT /api/inquiries/{id}
-        Route::delete('/{id}', 'destroy'); // DELETE /api/inquiries/{id}
-
-        Route::patch('/assignschedule', 'assignschedule');
-    });
+    Route::patch('/assignschedule', [InquiryController::class, 'assignschedule']);
 });
+
+// Route::prefix('inquiries')->controller(InquiryController::class)->group(function () {
+//     Route::middleware('auth:sanctum')->group(function () {
+//         Route::get('/', 'index'); // GET /api/inquiries
+//         Route::post('/', 'store'); // POST /api/inquiries
+//         Route::get('/{id}', 'show'); // GET /api/inquiries/{id}
+//         Route::put('/{id}', 'update'); // PUT /api/inquiries/{id}
+//         Route::delete('/{id}', 'destroy'); // DELETE /api/inquiries/{id}
+
+//         Route::patch('/assignschedule', 'assignschedule');
+//     });
+// });
 
 Route::prefix('motors')->controller(MotorController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
