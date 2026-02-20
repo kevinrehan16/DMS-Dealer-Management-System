@@ -10,11 +10,13 @@ import { computeMotorFinance } from '../../../utils/computations';
 
 import { useAuth } from '../../../context/AuthContext/AuthContext';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInquiries }) => {
   const API_URL = process.env.REACT_APP_API_URL;
   const token = localStorage.getItem('token');
 
+  const [errors, setErrors] = useState({});
   const { user } = useAuth();
   const { selectedCustomer } = useInquiry();
 
@@ -39,7 +41,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
     motorDiscount: "0.00",
     motorPromnote: "0.00",
     motorBranchcode: '',
-    motorInstallmentterm: "0.00",
+    motorInstallmentterm: '',
     motorDownpayment: "0.00",
     motorReservation: "0.00",
     motorSubsidy: "0.00",
@@ -165,7 +167,17 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
       refreshInquiries();
       console.log('Inquiry saved successfully:', response.data);
       handleClose();
+      setErrors({});
     } catch (error) {
+      if(error.response && error.response.data && error.response.data.errors){
+        setErrors(error.response.data.errors);
+      }
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error.response?.data?.message || 'Some fields are required!',
+        footer: 'An error occurred during saving new inquiry. Please try again.'
+      });
       console.error('Error saving inquiry:', error);
     } 
   }
@@ -199,12 +211,17 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                     <Form.Label className="mb-0">Source</Form.Label>
                   </Col>
                   <Col xs={8}>
-                    <Form.Select name="sourceInquiry" value={formData.sourceInquiry} onChange={handleInputCustomerChange} required>
-                      <option value="">-- Select Source --</option>
-                      <option value="Walk-In">Walk-In</option>
-                      <option value="Referral">Referral</option>
-                      <option value="Hth">HTH</option>
-                      <option value="Advertisement">Advertisement</option>
+                    <Form.Select 
+                      name="sourceInquiry" 
+                      value={formData.sourceInquiry} 
+                      onChange={handleInputCustomerChange} 
+                      className={errors.sourceInquiry ? 'is-invalid' : ''}
+                      required>
+                        <option value="">-- Select Source --</option>
+                        <option value="Walk-In">Walk-In</option>
+                        <option value="Referral">Referral</option>
+                        <option value="Hth">HTH</option>
+                        <option value="Advertisement">Advertisement</option>
                     </Form.Select>
                   </Col>
                 </Row>
@@ -219,7 +236,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                       <Form.Control
                         type="text"
                         placeholder='Click here...'
-                        className="capitalize_text input-search-cursor"
+                        className={`capitalize_text input-search-cursor ${errors.customer_id ? 'is-invalid' : ''}`}
                         name="fullName"
                         value={formData.fullName}
                         required
@@ -287,12 +304,17 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                     <Form.Label className="mb-0">Employment Status</Form.Label>
                   </Col>
                   <Col xs={8}>
-                    <Form.Select name="employmentStatus" value={formData.employmentStatus} onChange={handleInputCustomerChange} required>
-                      <option value="">-- Select Employment Status --</option>
-                      <option value="Employed">Employed</option>
-                      <option value="Self-Employed">Self-Employed</option>
-                      <option value="Unemployed">Unemployed</option>
-                      <option value="Student">Student</option>
+                    <Form.Select 
+                      name="employmentStatus" 
+                      className={errors.employmentStatus ? 'is-invalid' : ''}
+                      value={formData.employmentStatus} 
+                      onChange={handleInputCustomerChange} 
+                      required>
+                        <option value="">-- Select Employment Status --</option>
+                        <option value="Employed">Employed</option>
+                        <option value="Self-Employed">Self-Employed</option>
+                        <option value="Unemployed">Unemployed</option>
+                        <option value="Student">Student</option>
                     </Form.Select>
                   </Col>
                 </Row>
@@ -367,7 +389,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                     <InputGroup className='input-search-cursor' onClick={handleMotorList}>
                       <Form.Control
                         type="text"
-                        className="capitalize_text input-search-cursor"
+                        className={`capitalize_text input-search-cursor ${errors.motorBrand ? 'is-invalid' : ''} `}
                         name="motorBrand"
                         value={formData.motorBrand}
                         onChange={handleInputCustomerChange}
@@ -389,7 +411,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className={`capitalize_text ${errors.motorModel ? 'is-invalid' : ''}`}
                       name="motorModel"
                       value={formData.motorModel}
                       onChange={handleInputCustomerChange}
@@ -407,7 +429,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className={`capitalize_text ${errors.motorColor ? 'is-invalid' : ''}`}
                       name="motorColor"
                       value={formData.motorColor}
                       onChange={handleInputCustomerChange}
@@ -425,7 +447,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className={`capitalize_text ${errors.motorChassis ? 'is-invalid' : ''}`}
                       name="motorChassis"
                       value={formData.motorChassis}
                       onChange={handleInputCustomerChange}
@@ -443,7 +465,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className={`capitalize_text ${errors.motorSeries ? 'is-invalid' : ''}`}
                       name="motorSeries"
                       value={formData.motorSeries}
                       onChange={handleInputCustomerChange}
@@ -497,13 +519,13 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   </Col>
                   <Col xs={8}>
                     <Form.Select
-                      className="capitalize_text"
+                      className={`capitalize_text ${errors.motorRate ? 'is-invalid' : ''}`}
                       name="motorRate"
                       value={formData.motorRate}
                       onChange={handleInputCustomerChange}
                       required
                     >
-                      <option value="0">-- Select Rate --</option>
+                      <option value="0.00">-- Select Rate --</option>
                       <option value="1.12">R1 - (1.12)</option>
                       <option value="1.24">R2 - (1.24)</option>
                       <option value="1.36">R3 - (1.36)</option>
@@ -522,7 +544,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text text-end"
+                      className={`capitalize_text text-end ${errors.motorDiscount ? 'is-invalid' : ''}`}
                       name="motorDiscount"
                       value={formData.motorDiscount}
                       onChange={handleInputCustomerChange}
@@ -562,7 +584,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text"
+                      className={`capitalize_text ${errors.motorBranchcode ? 'is-invalid' : ''}`}
                       name="motorBranchcode"
                       value={formData.motorBranchcode}
                       onChange={handleInputCustomerChange}
@@ -578,7 +600,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   </Col>
                   <Col xs={8}>
                     <Form.Select
-                      className="capitalize_text"
+                      className={`capitalize_text ${errors.motorInstallmentterm ? 'is-invalid' : ''}`}
                       name="motorInstallmentterm"
                       value={formData.motorInstallmentterm}
                       onChange={handleInputCustomerChange}
@@ -733,10 +755,15 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                     <Form.Label className="mb-0">Customer Type</Form.Label>
                   </Col>
                   <Col xs={8}>
-                    <Form.Select name="motorCustomertype" value={formData.motorCustomertype} onChange={handleInputCustomerChange} required>
-                      <option value="">-- Select Customer Type --</option>
-                      <option value="Regular">Regular</option>
-                      <option value="Employee">Employee</option>
+                    <Form.Select 
+                      name="motorCustomertype" 
+                      className={errors.motorCustomertype ? 'is-invalid' : ''}
+                      value={formData.motorCustomertype} 
+                      onChange={handleInputCustomerChange} 
+                      required>
+                        <option value="">-- Select Customer Type --</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Employee">Employee</option>
                     </Form.Select>
                   </Col>
                 </Row>
@@ -750,7 +777,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
            <Button variant="primary" className="d-flex align-items-center justify-content-evenly" onClick={saveInquiry}>
             <FaSave /> Save
           </Button>
-          <Button variant="danger" onClick={handleClose} className="d-flex align-items-center justify-content-evenly">
+          <Button variant="danger" onClick={() => {handleClose(); setErrors({}) }} className="d-flex align-items-center justify-content-evenly">
             <FaTimes /> Close
           </Button>
         </Modal.Footer>

@@ -48,4 +48,46 @@ class StoreInquiryRequest extends FormRequest
             'motorCustomertype' => ['required','string','max:20'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            '*.required' => ':attribute is required.',
+            '*.numeric'  => ':attribute must be a valid number.',
+            '*.decimal'  => ':attribute must have exactly 2 decimal places.',
+            '*.max'      => ':attribute may not exceed :max characters.',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'customer_id' => 'Customer Fullname',
+            'sourceInquiry' => 'Source of Inquiry',
+            'salesPersonid' => 'Sales Person',
+            'employmentStatus' => 'Employment Status',
+
+            'motorBrand' => 'Motor Brand',
+            'motorModel' => 'Motor Model',
+            'motorSeries' => 'Motor Series',
+            'motorColor' => 'Motor Color',
+            'motorChassis' => 'Motor Chassis',
+            'motorBranchcode' => 'Motor Branch Code',
+            'motorInstallmentterm' => 'Installment Term',
+            'motorCustomertype' => 'Customer Type',
+
+            'motorLcp' => 'LCP',
+            'motorCashprice' => 'Cash Price',
+            'motorRate' => 'Rate',
+            'motorDiscount' => 'Discount',
+            'motorPromnote' => 'Promissory Note',
+            'motorDownpayment' => 'Downpayment',
+            'motorReservation' => 'Reservation Fee',
+            'motorSubsidy' => 'Subsidy',
+            'motorMonthlyinstallment' => 'Monthly Installment',
+            'motorInstallmentPrice' => 'Installment Price',
+            'motorAmountfinance' => 'Amount Financed',
+            'motorMonthlyuid' => 'Monthly UID',
+        ];
+    }
 }
