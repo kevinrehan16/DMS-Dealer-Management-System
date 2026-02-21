@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Button, Row, Col, Card, Table, Form, FormControl } from 'react-bootstrap'
 import { FaCheck, FaTimes, FaPlus, FaTrash } from "react-icons/fa";
+import { fetchWithRetry } from '../../../utils/network';
 import axios from 'axios';
 
 function ModalCreditApplication({show, handleClose, customerId}) {
@@ -211,13 +212,13 @@ function ModalCreditApplication({show, handleClose, customerId}) {
 
   const getRequirements = async () => {
     try {
-      const dataRequirements = await axios.get(`${API_URL}/requirements`, {
+      const dataRequirements = await fetchWithRetry(`${API_URL}/requirements`, {
         headers:{
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
           "Content-Type": "application/json"
         }
-      });
+      }, 3, 1000, 'Requirements');
       // Add file property to each item
       const dataWithFiles = dataRequirements.data.data.map(r => ({
         attModule: r.module,   // map module

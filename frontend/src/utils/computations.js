@@ -30,8 +30,8 @@ export const computeMotorFinance = ({
 
   totalFinance = totalFinance < 0 ? 0 : totalFinance;
   monthlyInstallment = terms > 0 ? (totalFinance * rate) / terms : 0;
-  promissoryNote = promissoryNote < 0 ? 0 : monthlyInstallment * terms;
-  uid = uid < 0 ? 0 : (promissoryNote - totalFinance) / terms;
+  promissoryNote = terms > 0 ? monthlyInstallment * terms : 0;
+  uid = terms > 0 ? (promissoryNote - totalFinance) / terms : 0;
 
   return {
     totalFinance,

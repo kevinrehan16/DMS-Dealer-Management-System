@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import axios from "axios";
+import { fetchWithRetry } from '../../utils/network';
 
 const InquiryContext = createContext();
 export const useInquiry = () => useContext(InquiryContext);
@@ -19,7 +20,7 @@ export const InquiryProvider = ({ children }) => {
   const getInquiriesContext = async () => {
     try {
       setLoading(true); // start loading
-      const inquiries = await axios.get(`${API_URL}/inquiries`, {
+      const inquiries = await fetchWithRetry(`${API_URL}/inquiries`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
@@ -29,7 +30,7 @@ export const InquiryProvider = ({ children }) => {
           searh: '',
           filterBy: ''
         }
-      });
+      }, 3, 1000, 'getInquiriesContext');
       setInquiriesContext(inquiries.data.inquiries);
 
     } catch (error) {

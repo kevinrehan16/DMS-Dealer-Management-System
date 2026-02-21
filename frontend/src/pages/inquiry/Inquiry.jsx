@@ -8,6 +8,7 @@ import ModalCreditApplication from "../../components/common/InquiryModals/ModalC
 import ModalInquiry from "../../components/common/InquiryModals/ModalInquiry";
 
 import { formatAmount, formatMobile } from '../../utils/formatters';
+import { fetchWithRetry } from "../../utils/network";
 
 import axios from "axios";
 
@@ -112,13 +113,12 @@ export default function Inquiry() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get(`${API_URL}/customers`, {
+      const response = await fetchWithRetry(`${API_URL}/customers`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
+          Accept: 'application/json'
         }
-      });
+      }, 3, 1000, 'Customers');
       setCustomers(response.data.customers);
 
       // console.log("Fetched inquiries:", response.data.inquiries);
@@ -130,17 +130,16 @@ export default function Inquiry() {
   const fetchInquiries = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/inquiries`, {
+      const response = await fetchWithRetry(`${API_URL}/inquiries`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
+          Accept: 'application/json'
         },
         params: {
           search: search,
           filterBy: filterBy // send search query to backend
         }
-      });
+      }, 3, 1000, 'Inquiries');
       setInquiries(response.data.inquiries);
     } catch (error) {
       console.error("Error fetching inquiries:", error);

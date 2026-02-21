@@ -5,62 +5,56 @@ namespace App\Http\Controllers\Motor;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ItemList;
+use App\Services\MotorService;
+use App\Http\Resources\MotorResource;
 
 class MotorController extends Controller
 {
-    //
+    private $motorService;
+
+    public function __construct(MotorService $motorService)
+    {
+        $this->motorService = $motorService;
+    }
+
     public function index()
     {
+        $motors = $this->motorService->getMotors();
         return response()->json([
-            'motors' => ItemList::all(),
-        ]);
+            'motors' => MotorResource::collection($motors)
+        ], 200);
     }
 
     public function getBrands()
     {
-        $items = ItemList::orderBy('brandName', 'asc')
-                ->distinct()
-                ->pluck('brandName');
-
+        $brands = $this->motorService->getBrands();
         return response()->json([
-            'brandMotor' => $items,
-        ]);
-
+            'brandMotor' => $brands
+        ], 200);
     }
 
     public function getModelsByBrand($brand)
     {
-        $models = ItemList::where('brandName', $brand)
-            ->orderBy('modelName', 'asc')
-            ->distinct()
-            ->pluck('modelName');
-
+        $models = $this->motorService->getModelsByBrand($brand);
         return response()->json([
-            'models' => $models,
-        ]);
+            'models' => $models
+        ], 200);
     }
 
-    public function getColorsByModel($model){
-        $colors = ItemList::where('modelName', $model)
-            ->orderBy('color', 'asc')
-            ->distinct()
-            ->pluck('color');
-
+    public function getColorsByModel($model)
+    {
+        $colors = $this->motorService->getColorsByModel($model);
         return response()->json([
-            'colors' => $colors,
-        ]);
+            'colors' => $colors
+        ], 200);
     }
 
-    public function getChassisByColor($color){
-        $chassis = ItemList::where('color', $color)
-            ->orderBy('chassis', 'asc')
-            ->select('chassis', 'series', 'interest', 'cashPrice', 'srpValue')
-            ->distinct()
-            ->get();
-
+    public function getChassisByColor($color)
+    {
+        $chassis = $this->motorService->getChassisByColor($color);
         return response()->json([
-            'chassis' => $chassis,
-        ]);
+            'chassis' => $chassis
+        ], 200);
     }
 
     public function show($id)

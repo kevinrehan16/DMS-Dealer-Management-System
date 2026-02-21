@@ -56,6 +56,15 @@ class InquiryService
         ]);
     }
 
+    public function assignSchedule(array $inquiryIds, array $schedule)
+    {
+        return Inquiry::whereIn('id', $inquiryIds)
+            ->update([
+                'date_creditinvestigation' => $schedule['date_schedule'],
+                'time_creditinvestigation' => $schedule['time_schedule'],
+            ]);
+    }
+
     private function formatName(?string $value): string
     {
         return $value ? ucwords(strtolower($value)) : '';

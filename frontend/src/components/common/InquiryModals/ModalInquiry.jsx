@@ -41,7 +41,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
     motorDiscount: "0.00",
     motorPromnote: "0.00",
     motorBranchcode: '',
-    motorInstallmentterm: '',
+    motorInstallmentterm: '0.00',
     motorDownpayment: "0.00",
     motorReservation: "0.00",
     motorSubsidy: "0.00",
@@ -178,7 +178,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
         text: error.response?.data?.message || 'Some fields are required!',
         footer: 'An error occurred during saving new inquiry. Please try again.'
       });
-      console.error('Error saving inquiry:', error);
+      // console.error('Error saving inquiry:', error);
     } 
   }
 
@@ -606,7 +606,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                       onChange={handleInputCustomerChange}
                       required
                     >
-                      <option value="">-- Select Installment Term --</option>
+                      <option value="0">-- Select Installment Term --</option>
                       <option value="3">3 Months</option>
                       <option value="6">6 Months</option>
                       <option value="12">12 Months</option>

@@ -1,6 +1,7 @@
 // src/context/AuthContext/AuthContext.js
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { fetchWithRetry } from '../../utils/network';
 
 const AuthContext = createContext();
 
@@ -17,11 +18,11 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
-    axios.get(`${API_URL}/user`, {
+    fetchWithRetry(`${API_URL}/user`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    })
+    }, 3, 1000, 'AuthContext')
     .then(res => {
       // console.log('User response:', res.data);
       setUser(res.data.user || res.data); // handle either structure

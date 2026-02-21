@@ -31,7 +31,7 @@ class InquiryController extends Controller
 
         return response()->json([
             'inquiries' => InquiryResource::collection($inquiries),
-        ]);
+        ], 200);
     }
 
 
@@ -97,12 +97,7 @@ class InquiryController extends Controller
             'schedule.time_schedule' => 'required'
         ]);
 
-        // Update all selected inquiry IDs
-        Inquiry::whereIn('id', $validated['id'])
-            ->update([
-                'date_creditinvestigation' => $validated['schedule']['date_schedule'],
-                'time_creditinvestigation' => $validated['schedule']['time_schedule'],
-            ]);
+        $this->inquiryService->assignSchedule($validated['id'], $validated['schedule']);
 
         return response()->json([
             'message' => 'Schedule updated successfully.'

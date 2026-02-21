@@ -63,31 +63,31 @@ Route::middleware('auth:sanctum')->prefix('inquiries')->group(function () {
     Route::patch('/assignschedule', [InquiryController::class, 'assignschedule']);
 });
 
-// Route::prefix('inquiries')->controller(InquiryController::class)->group(function () {
-//     Route::middleware('auth:sanctum')->group(function () {
-//         Route::get('/', 'index'); // GET /api/inquiries
-//         Route::post('/', 'store'); // POST /api/inquiries
-//         Route::get('/{id}', 'show'); // GET /api/inquiries/{id}
-//         Route::put('/{id}', 'update'); // PUT /api/inquiries/{id}
-//         Route::delete('/{id}', 'destroy'); // DELETE /api/inquiries/{id}
+Route::middleware('auth:sanctum')->prefix('motors')->group(function () {
+    Route::get('/', [MotorController::class, 'index']);
+    Route::get('/motorbrands', [MotorController::class, 'getBrands']);
+    Route::get('/motormodels/{brand}', [MotorController::class, 'getModelsByBrand']);
+    Route::get('/motorcolors/{model}', [MotorController::class, 'getColorsByModel']);
+    Route::get('/motorchassis/{color}', [MotorController::class, 'getChassisByColor']);
+    Route::post('/', [MotorController::class, 'store']);
+    Route::get('/{motor}', [MotorController::class, 'show']);
+    Route::put('/{motor}', [MotorController::class, 'update']);
+    Route::delete('/{motor}', [MotorController::class, 'destroy']);
+});
 
-//         Route::patch('/assignschedule', 'assignschedule');
+// Route::prefix('motors')->controller(MotorController::class)->group(function () {
+//     Route::middleware('auth:sanctum')->group(function () {
+//         Route::get('/', 'index'); // GET /api/motors
+//         Route::get('/motorbrands', 'getBrands'); // GET /api/motors/motorbrands
+//         Route::get('/motormodels/{brand}', 'getModelsByBrand'); // GET /api/motors/models/{brand}
+//         Route::get('/motorcolors/{model}', 'getColorsByModel'); // GET /api/motors/colors/{model}
+//         Route::get('/motorchassis/{color}', 'getChassisByColor'); // GET /api/motors/chassis/{color}
+//         Route::post('/', 'store'); // POST /api/motors
+//         Route::get('/{id}', 'show'); // GET /api/motors/{id}
+//         Route::put('/{id}', 'update'); // PUT /api/motors/{id}
+//         Route::delete('/{id}', 'destroy'); // DELETE /api/motors/{id}
 //     });
 // });
-
-Route::prefix('motors')->controller(MotorController::class)->group(function () {
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/', 'index'); // GET /api/motors
-        Route::get('/motorbrands', 'getBrands'); // GET /api/motors/motorbrands
-        Route::get('/motormodels/{brand}', 'getModelsByBrand'); // GET /api/motors/models/{brand}
-        Route::get('/motorcolors/{model}', 'getColorsByModel'); // GET /api/motors/colors/{model}
-        Route::get('/motorchassis/{color}', 'getChassisByColor'); // GET /api/motors/chassis/{color}
-        Route::post('/', 'store'); // POST /api/motors
-        Route::get('/{id}', 'show'); // GET /api/motors/{id}
-        Route::put('/{id}', 'update'); // PUT /api/motors/{id}
-        Route::delete('/{id}', 'destroy'); // DELETE /api/motors/{id}
-    });
-});
 
 Route::prefix('credit-application')->middleware('auth:sanctum')->group(function () {
 

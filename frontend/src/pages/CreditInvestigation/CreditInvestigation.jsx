@@ -141,8 +141,12 @@ function CreditInvestigation() {
             </Form>
           </Col>
           <Col md="1" className='d-flex justify-content-end'>
-            <Button variant="info" size="md" className="mt-auto d-flex align-items-center gap-1 text-white" onClick={handleShowScheduleCi}>
-              <FaCalendarDay /> Assign
+            <Button 
+              variant="info" 
+              size="md" 
+              className="mt-auto d-flex align-items-center gap-1 text-white" 
+              onClick={handleShowScheduleCi}>
+                <FaCalendarDay /> Assign
             </Button>
           </Col>
         </Row>

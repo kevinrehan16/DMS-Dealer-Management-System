@@ -2,6 +2,9 @@ import React, { use, useEffect, useState } from 'react'
 import { Modal, Button, Row, Col, Card, ListGroup } from 'react-bootstrap'
 import { FaCheck, FaTimes } from "react-icons/fa";
 import axios from 'axios';
+// debounce ginagamit to para idelay ang pag send ng API para hindi sunod-sunod and reques na nagkocause ng ERROR CODE 429
+import debounce from 'lodash.debounce'; 
+import { fetchWithRetry } from '../../../utils/network.js';
 
 const ModalMotors = ({ show, handleClose, onSelect }) => {
   const API_URL = process.env.REACT_APP_API_URL;
@@ -12,75 +15,74 @@ const ModalMotors = ({ show, handleClose, onSelect }) => {
   const [colors, setColors] = useState([]);
   const [chassis, setChassis] = useState([]);
 
-  const fetchBrands = async () => {
+  const fetchBrands = debounce (async () => {
     try {
-      const response = await axios.get(`${API_URL}/motors/motorbrands`,{
+      const response = await fetchWithRetry(`${API_URL}/motors/motorbrands`,{
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',
-          'Content-Type': 'application/json',
         }
-      });
+      }, 3, 1000, 'Brands'); // 3 retries, 1s delay
       setBrands(response.data.brandMotor);
       // console.log('Fetched brands:', response.data.listItemMotors);
     } catch (error) {
       console.error('Error fetching brands:', error);
     }
-  }
+  }, 500);
 
-  const fetchModelsByBrand = async (brand) => {
+  const fetchModelsByBrand = debounce(async (brand) => {
     handleItemClick("brands", brand);
 
     try {
-      const response = await axios.get(`${API_URL}/motors/motormodels/${brand}`, {
+      const response = await fetchWithRetry(`${API_URL}/motors/motormodels/${brand}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',
           'Content-Type': 'application/json',
         }
-      });
+      }, 3, 1000, 'Models');
       setModels(response.data.models);
       // console.log('Fetched models:', response.data.models);
     } catch (error) {
       console.error('Error fetching models:', error);
     }
-  };
+  }, 500);
 
-  const fetchColorsByModel = async (model) => {
+  const fetchColorsByModel = debounce(async (model) => {
     handleItemClick("models", model);
 
     try {
-      const response = await axios.get(`${API_URL}/motors/motorcolors/${model}`, {
+      const response = await fetchWithRetry(`${API_URL}/motors/motorcolors/${model}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',
           'Content-Type': 'application/json'
         }
-      });
+      }, 3, 1000, 'Colors');
       setColors(response.data.colors);
 
     } catch (error) {
       console.error('Error fetching colors:', error);
     }
-  }
+  }, 500);
 
-  const fetchChassisByColor = async (color) => {
+  const fetchChassisByColor = debounce(async (color) => {
     handleItemClick("colors", color);
 
     try {
-      const response = await axios.get(`${API_URL}/motors/motorchassis/${color}`, {
+      const response = await fetchWithRetry(`${API_URL}/motors/motorchassis/${color}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',
           'Content-Type': 'application/json'
         }
-      });
+      }, 3, 1000, 'Chassis');
       setChassis(response.data.chassis);
 
     } catch (error) {
       console.error('Error fetching chassis:', error);
     }
-  }
+  }, 500);
 
   const [selectedItems, setSelectedItems] = useState({
     brands: null,
@@ -139,8 +141,9 @@ const ModalMotors = ({ show, handleClose, onSelect }) => {
               <Card>
                 <Card.Header className='cardHeader'>Brands</Card.Header>
                 <ListGroup variant="flush" className='cardList'>
-                  {brands.map((brand, index) => (
-                    <ListGroup.Item key={index} active={selectedItems.brands === brand} onClick={() => { fetchModelsByBrand(brand); }}>{brand}</ListGroup.Item>
+                  {brands?.map((brand, index) => (
+                    <ListGroup.Item key={index} active={selectedItems.brands === brand} onClick={() => {
+                      fetchModelsByBrand(brand); }}>{brand}</ListGroup.Item>
                   ))}
                 </ListGroup>
               </Card>
@@ -150,8 +153,9 @@ const ModalMotors = ({ show, handleClose, onSelect }) => {
                 <Card.Header className='cardHeader'>Models</Card.Header>
                 <ListGroup variant="flush" className='cardList'>
                   {
-                    models.map((model, index) => (
-                      <ListGroup.Item key={index} active={selectedItems.models === model} onClick={() => fetchColorsByModel(model)}>{model}</ListGroup.Item>
+                    models?.map((model, index) => (
+                      <ListGroup.Item key={index} active={selectedItems.models === model} onClick={() => 
+                        fetchColorsByModel(model)}>{model}</ListGroup.Item>
                     ))
                   }
                 </ListGroup>
@@ -161,8 +165,9 @@ const ModalMotors = ({ show, handleClose, onSelect }) => {
               <Card>
                 <Card.Header className='cardHeader'>Colors</Card.Header>
                 <ListGroup variant="flush" className='cardList'>
-                  {colors.map((color, index) => (
-                    <ListGroup.Item key={index} active={selectedItems.colors === color} onClick={() => fetchChassisByColor(color)}>{color}</ListGroup.Item>
+                  {colors?.map((color, index) => (
+                    <ListGroup.Item key={index} active={selectedItems.colors === color} onClick={() => 
+                      fetchChassisByColor(color)}>{color}</ListGroup.Item>
                   ))}
                 </ListGroup>
               </Card>
@@ -171,7 +176,7 @@ const ModalMotors = ({ show, handleClose, onSelect }) => {
               <Card>
                 <Card.Header className='cardHeader'>Chassis</Card.Header>
                 <ListGroup variant="flush" className='cardList'>
-                  {Array.isArray(chassis) && chassis.map((item, index) => (
+                  {Array.isArray(chassis) && chassis?.map((item, index) => (
                     <ListGroup.Item
                       key={index}
                       active={selectedItems.chassis?.chassis === item.chassis}
