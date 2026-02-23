@@ -8,7 +8,12 @@ class InquiryService
 {
     public function listInquiries($search = null, $filterBy = null)
     {
-        return Inquiry::with('customer')
+        return Inquiry::with([
+                // Limit which customer columns to include
+                'customer:id,customer_id,firstName,lastName,addressnum,addressbldg,addressstreet,addressssubd,addressscity,addresssbrgy,addresssprovince,addresssregion,mobile'
+            ])
+            // Select only the columns you need from inquiries table
+            ->select('id', 'inquiry_id', 'customer_id', 'sourceInquiry', 'motorBrand', 'motorModel', 'motorColor', 'motorCashprice', 'motorMonthlyinstallment')
             ->where(function ($query) use ($search) {
                 if ($search) {
                     $query->whereRaw('inquiry_id ILIKE ?', ["%{$search}%"])

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card } from 'react-bootstrap';
-import { TextField, Button } from '@mui/material';
+import { TextField, Button, CircularProgress } from '@mui/material';
 import { useAuth } from '../../context/AuthContext/AuthContext';
 import { FaSignInAlt } from "react-icons/fa";
 import axios from 'axios';
@@ -11,6 +11,7 @@ import Swal from 'sweetalert2'
 const Login = () => {
   const { setUser } = useAuth();
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const API_URL = process.env.REACT_APP_API_URL;
@@ -23,13 +24,14 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
       const response = await axios.post(`${API_URL}/users/login`, form);
       // console.log('Login successful:', response.data);
       localStorage.setItem("token", response.data.token);
       navigate("/dashboard");
       setUser(response.data.user);
+      setLoading(false);
     } catch (error) {
       // console.error('Login failed:', error);
       setErrors(error.response?.data?.errors || {});
@@ -39,6 +41,7 @@ const Login = () => {
         text: error.response?.data?.message || 'Login failed!',
         footer: 'An error occurred during login. Please try again.'
       });
+      setLoading(false);
     }
   };
 
@@ -79,7 +82,12 @@ const Login = () => {
                 fullWidth
                 size="large"
               >
-               <FaSignInAlt className="me-2" /> Login
+                {loading ? 
+                  <CircularProgress size={20} color="inherit" style={{ marginRight: 8 }} />
+                  :
+                  <FaSignInAlt className="me-2" />
+                }
+                Login
               </Button>
             </form>
             <p className="text-center mt-3">

@@ -797,4 +797,4 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
   )
 }
 
-export default ModalInquiry
+export default React.memo(ModalInquiry);

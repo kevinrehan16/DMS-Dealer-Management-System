@@ -1,41 +1,64 @@
-import React, { useEffect, useState } from "react";
-import { useInquiry } from '../../context/InquiryContext/InquiryContext';
+import React, { useEffect, useState, useCallback } from "react";
 import { Row, Col, Form, Button, InputGroup, Table, Spinner } from "react-bootstrap";
-import { FaUserPlus, FaSearch, FaEdit, FaUserCheck, FaIdCard, FaSave, FaTimes, FaEye, FaTrash } from "react-icons/fa";
+import { FaUserPlus, FaSearch, FaEdit, FaEye, FaTrash } from "react-icons/fa";
 import "../../assets/css/Inquiry.css";
-import GlobalModal from "../../components/common/GlobalModal";
+
 import ModalCreditApplication from "../../components/common/InquiryModals/ModalCreditApplication";
 import ModalInquiry from "../../components/common/InquiryModals/ModalInquiry";
 
-import { formatAmount, formatMobile } from '../../utils/formatters';
+import { formatAmount } from '../../utils/formatters';
 import { fetchWithRetry } from "../../utils/network";
-
-import axios from "axios";
+import ModalCustomers from "../../components/common/InquiryModals/ModalCustomers";
 
 export default function Inquiry() {
-  const { handleCustomerSelect } = useInquiry();
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
 
   const API_URL = process.env.REACT_APP_API_URL;
   const token = localStorage.getItem('token');
+  
+  const [search, setSearch] = useState("");
+  const [branch, setBranch] = useState("");
+  const [filterBy, setFilterBy] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
-  const [error, setError] = useState({});
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // console.log({ search, branch, filterBy, dateFrom, dateTo });
+  };
 
   const [showModalInquiry, setShowModalInquiry] = useState(false);
   const handleShowInquiry = () => setShowModalInquiry(true);
   const handleCloseInquiry = () => setShowModalInquiry(false);
 
   const [showModalCustomer, setShowModalCustomer] = useState(false);
-  const handleShow = () => setShowModalCustomer(true);
-  const handleClose = () => setShowModalCustomer(false);
+  const handleShowCustomer = () => setShowModalCustomer(true);
+  const handleCloseCustomer = () => setShowModalCustomer(false);
+  
+  const [inquiries, setInquiries] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const [showModalNewCustomer, setShowModalNewCustomer] = useState(false);
-  const handleShowNewCustomer = () => setShowModalNewCustomer(true);
-  const handleCloseNewCustomer = () => {
-    clearFormCustomerData();
-    setError({});
-    setShowModalNewCustomer(false);
-  }
+  const fetchInquiries = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetchWithRetry(`${API_URL}/inquiries`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        params: {
+          search: search,
+          filterBy: filterBy,
+        },
+      }, 3, 1000, "Inquiries");
+
+      setInquiries(response.data.inquiries);
+    } catch (error) {
+      console.error("Error fetching inquiries:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [API_URL, token, search, filterBy]);
 
   const [showModalCreditApplication, setshowModalCreditApplication] = useState(false);
   const handleShowModalCreditApplication = (customer_id) => {
@@ -44,117 +67,9 @@ export default function Inquiry() {
   } 
   const handleCloseModalCreditApplication = () => setshowModalCreditApplication(false);
 
-  const [search, setSearch] = useState("");
-  const [branch, setBranch] = useState("");
-  const [filterBy, setFilterBy] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
-
-  // Dummy customer data
-  const [customers, setCustomers] = useState([]);
-  const [inquiries, setInquiries] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    console.log({ search, branch, filterBy, dateFrom, dateTo });
-  };
-
-  const [formCustomerData, setFormCustomerData] = useState({
-    title: '',
-    firstName: '',
-    lastName: '',
-    middleName: '',
-    email: '',
-    gender: '',
-    birthdate: '',
-    mobile: ''
-  });
-
-  const clearFormCustomerData = () => {
-    setFormCustomerData({
-      title: '',
-      firstName: '',
-      lastName: '',
-      middleName: '',
-      email: '',
-      gender: '',
-      birthdate: '',
-      mobile: ''
-    })
-  }
-
-  const handleInputCustomerChange = (e) => {
-    setFormCustomerData({
-      ...formCustomerData, [e.target.name]: e.target.value
-    })
-  }
-
-  const handleSaveNewCustomer = async () => {
-    try {
-      const response = await axios.post(`${API_URL}/customers`, formCustomerData, {
-        headers:{
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-      fetchCustomers();
-      clearFormCustomerData();
-      setError({});
-      console.log("New customer saved:", response.data);
-    } catch (error) {
-      if (error.response && error.response.data && error.response.data.errors) {
-        setError(error.response.data.errors);
-      }
-      console.error("Error saving new customer:", error);
-    }
-  }
-
-  const fetchCustomers = async () => {
-    try {
-      const response = await fetchWithRetry(`${API_URL}/customers`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json'
-        }
-      }, 3, 1000, 'Customers');
-      setCustomers(response.data.customers);
-
-      // console.log("Fetched inquiries:", response.data.inquiries);
-    } catch (error) {
-      console.error("Error fetching customers:", error);
-    }
-  };
-
-  const fetchInquiries = async () => {
-    try {
-      setLoading(true);
-      const response = await fetchWithRetry(`${API_URL}/inquiries`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json'
-        },
-        params: {
-          search: search,
-          filterBy: filterBy // send search query to backend
-        }
-      }, 3, 1000, 'Inquiries');
-      setInquiries(response.data.inquiries);
-    } catch (error) {
-      console.error("Error fetching inquiries:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
-
   useEffect(() => {
     fetchInquiries();
-  }, [search, filterBy]);
+  }, [fetchInquiries]);
 
   return (
     <div>
@@ -310,258 +225,14 @@ export default function Inquiry() {
         show={showModalInquiry}
         handleClose={handleCloseInquiry}
         title="New Inquiry"
-        onOpenGlobalModal={handleShow}
+        onOpenGlobalModal={handleShowCustomer}
         refreshInquiries={fetchInquiries}
       />
 
-      {/* 🔹 Customers' modal */}
-      <GlobalModal
+      <ModalCustomers
         show={showModalCustomer}
-        handleClose={handleClose}
-        onSave=""
-        title="Select Customer"
-        size="md"
-        footer={
-          <>
-            <Button variant="danger" onClick={handleClose} className="d-flex align-items-center justify-content-evenly">
-              <FaTimes /> Close
-            </Button>
-          </>
-        }
-
-      >
-        {/* Modal content goes here */}
-        <Row>
-          <Col md={8} sm={8}>
-            <Form>
-              <Form.Group className="mb-3 position-relative">
-                <InputGroup>
-                  <Form.Control
-                    type="text"
-                    placeholder="Search information..."
-                  />
-                  <InputGroup.Text>
-                    <FaSearch />
-                  </InputGroup.Text>
-                </InputGroup>
-              </Form.Group>
-            </Form>
-          </Col>
-          <Col md={4} sm={4}>
-            <Button variant="success" className="d-flex align-items-center justify-content-center gap-1 w-100" onClick={handleShowNewCustomer}>
-              <FaUserPlus /> Customer
-            </Button>
-          </Col>
-        </Row>
-        <div className="table-section">
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th width="30%">Customer ID</th>
-                <th width="35%">Customer Name</th>
-                <th width="25%">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {customers && customers.map((customer, index) => (
-                <tr key={customer.id}>
-                  <td>{customer.customer_id}</td>
-                  <td>{customer.firstName} {customer.lastName}</td>
-                  <td className="d-flex gap-2">
-                    <Button variant="success" size="sm" className="align-items-center justify-content-center" 
-                    onClick={() => { handleCustomerSelect(customer); handleClose(); }}
-                    title="Select this customer">
-                      <FaUserCheck />
-                    </Button>
-                    <Button variant="info" size="sm" className="align-items-center justify-content-center" title="View this customer">
-                      <FaIdCard className="text-white" />
-                    </Button>
-                    <Button variant="primary" size="sm" className="align-items-center justify-content-center" title="Edit this customer">
-                      <FaEdit />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </div>
-      </GlobalModal>
-
-      {/* 🔹 New Customer's modal */}
-      <GlobalModal 
-        show={showModalNewCustomer} 
-        handleClose={handleCloseNewCustomer}
-        title="Create New Customer"
-        size="md"
-        footer={
-          <>
-            <Button variant="primary" onClick={handleSaveNewCustomer} className="d-flex align-items-center justify-content-evenly">
-              <FaSave /> Save
-            </Button>
-            <Button variant="danger" onClick={handleCloseNewCustomer} className="d-flex align-items-center justify-content-evenly">
-              <FaTimes /> Close
-            </Button>
-          </>
-        }
-
-      >
-        <Row>
-          <Col>
-            <Form>
-              <Form.Group controlId="formTitle" className="mb-2">
-                <Row>
-                  <Col xs={3} className="d-flex align-items-center">
-                    <Form.Label className="mb-0">Title</Form.Label>
-                  </Col>
-                  <Col xs={9}>
-                    <Form.Control 
-                      as='select' 
-                      name='title' 
-                      value={formCustomerData.title} 
-                      onChange={handleInputCustomerChange} 
-                      className={error.title ? 'is-invalid' : ''}
-                      required
-                    >
-                      <option value=''>Select Title</option>
-                      <option value='mr'>Mr.</option>
-                      <option value='mrs'>Mrs.</option>
-                      <option value='ms'>Ms.</option>
-                    </Form.Control>
-                  </Col>
-                </Row>
-              </Form.Group>
-              <Form.Group controlId="formFirstName" className="mb-2">
-                <Row>
-                  <Col xs={3} className="d-flex align-items-center">
-                    <Form.Label className="mb-0">First Name</Form.Label>
-                  </Col>
-                  <Col xs={9}>
-                    <Form.Control
-                      type="text"
-                      className={`capitalize_text ${error.firstName ? 'is-invalid' : ''}`}
-                      name="firstName"
-                      value={formCustomerData.firstName}
-                      onChange={handleInputCustomerChange}
-                      required
-                    />
-                  </Col>
-                </Row>
-              </Form.Group>
-              <Form.Group controlId="formLastName" className="mb-2">
-                <Row>
-                  <Col xs={3} className="d-flex align-items-center">
-                    <Form.Label className="mb-0">Last Name</Form.Label>
-                  </Col>
-                  <Col xs={9}>
-                    <Form.Control
-                      type="text"
-                      className={`capitalize_text ${error.lastName ? 'is-invalid' : ''}`}
-                      name="lastName"
-                      value={formCustomerData.lastName}
-                      onChange={handleInputCustomerChange}
-                      required
-                    />
-                  </Col>
-                </Row>
-              </Form.Group>
-              <Form.Group controlId="formMiddleName" className="mb-2">
-                <Row>
-                  <Col xs={3} className="d-flex align-items-center">
-                    <Form.Label className="mb-0">Middle Name</Form.Label>
-                  </Col>
-                  <Col xs={9}>
-                    <Form.Control
-                      type="text"
-                      className={`capitalize_text ${error.middleName ? 'is-invalid' : ''}`}
-                      name="middleName"
-                      value={formCustomerData.middleName}
-                      onChange={handleInputCustomerChange}
-                      required
-                    />
-                  </Col>
-                </Row>
-              </Form.Group>
-              <Form.Group controlId="formEmail" className="mb-2">
-                <Row>
-                  <Col xs={3} className="d-flex align-items-center">
-                    <Form.Label className="mb-0">Email</Form.Label>
-                  </Col>
-                  <Col xs={9}>
-                    <Form.Control
-                      type="email"
-                      className={`lowercase_text ${error.email ? 'is-invalid' : ''}`}
-                      name="email"
-                      value={formCustomerData.email}
-                      onChange={handleInputCustomerChange}
-                      required
-                    />
-                  </Col>
-                </Row>
-              </Form.Group>
-              <Form.Group controlId="formGender" className="mb-2">
-                <Row>
-                  <Col xs={3} className="d-flex align-items-center">
-                    <Form.Label className="mb-0">Gender</Form.Label>
-                  </Col>
-                  <Col xs={9}>
-                    <Form.Control 
-                      as='select' 
-                      name='gender' 
-                      value={formCustomerData.gender} 
-                      onChange={handleInputCustomerChange}
-                      className={`${error.gender ? 'is-invalid' : ''}`}
-                      required
-                    >
-                      <option value=''>Select Gender</option>
-                      <option value='male'>Male</option>
-                      <option value='female'>Female</option>
-                    </Form.Control>
-                  </Col>
-                </Row>
-              </Form.Group>
-              <Form.Group controlId="formBirthdate" className="mb-2">
-                <Row>
-                  <Col xs={3} className="d-flex align-items-center">
-                    <Form.Label className="mb-0">Birthdate</Form.Label>
-                  </Col>
-                  <Col xs={9}>
-                    <Form.Control
-                      type="date"
-                      name="birthdate"
-                      className={`uppercase_text ${error.birthdate ? 'is-invalid' : ''}`}
-                      max={new Date().toISOString().split("T")[0]}
-                      value={formCustomerData.birthdate}
-                      onChange={handleInputCustomerChange}
-                      required
-                    />
-                  </Col>
-                </Row>
-              </Form.Group>
-              <Form.Group controlId="formMobile" className="mb-2">
-                <Row>
-                  <Col xs={3} className="d-flex align-items-center">
-                    <Form.Label className="mb-0">Mobile #</Form.Label>
-                  </Col>
-                  <Col xs={9}>
-                    <Form.Control
-                      type="text"
-                      name="mobile"
-                      value={formCustomerData.mobile.startsWith('+63') ? formCustomerData.mobile : '+63' + 
-                        formCustomerData.mobile}
-                      onChange={e => {
-                        const formatted = formatMobile(e.target.value);
-                        setFormCustomerData({ ...formCustomerData, mobile: formatted });
-                      }}
-                      className={`${error.mobile ? 'is-invalid' : ''}`}
-                      required
-                    />
-                  </Col>
-                </Row>
-              </Form.Group>
-            </Form>
-          </Col>
-        </Row>
-      </GlobalModal>
+        handleClose={handleCloseCustomer}
+      />
 
     </div>
   );

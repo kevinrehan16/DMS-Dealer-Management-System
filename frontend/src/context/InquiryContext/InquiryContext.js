@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import axios from "axios";
+import React, { createContext, useContext, useEffect, useState, useCallback  } from 'react';
 import { fetchWithRetry } from '../../utils/network';
 
 const InquiryContext = createContext();
@@ -17,7 +16,7 @@ export const InquiryProvider = ({ children }) => {
     setSelectedCustomer(customer);
   };
 
-  const getInquiriesContext = async () => {
+  const getInquiriesContext = useCallback(async () => {
     try {
       setLoading(true); // start loading
       const inquiries = await fetchWithRetry(`${API_URL}/inquiries`, {
@@ -38,11 +37,11 @@ export const InquiryProvider = ({ children }) => {
     } finally {
       setLoading(false); // stop loading
     }
-  }
+  }, [API_URL, token])
 
   useEffect(() => {
     getInquiriesContext();
-  }, [])
+  }, [getInquiriesContext])
 
   return (
     <InquiryContext.Provider value={{ selectedCustomer, handleCustomerSelect, inquiriesContext, loading, getInquiriesContext }}>

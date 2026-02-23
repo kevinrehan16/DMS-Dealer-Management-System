@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Modal, Button, Row, Col, Card, ListGroup } from 'react-bootstrap'
 import { FaCheck, FaTimes } from "react-icons/fa";
 import axios from 'axios';
@@ -200,4 +200,4 @@ const ModalMotors = ({ show, handleClose, onSelect }) => {
   )
 }
 
-export default ModalMotors
+export default React.memo(ModalMotors);

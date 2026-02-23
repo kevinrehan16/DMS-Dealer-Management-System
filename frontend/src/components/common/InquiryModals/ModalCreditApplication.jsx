@@ -981,4 +981,4 @@ function ModalCreditApplication({show, handleClose, customerId}) {
   )
 }
 
-export default ModalCreditApplication
+export default React.memo(ModalCreditApplication);
