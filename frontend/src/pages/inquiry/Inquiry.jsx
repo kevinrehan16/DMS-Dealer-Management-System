@@ -10,6 +10,8 @@ import { formatAmount } from '../../utils/formatters';
 import { fetchWithRetry } from "../../utils/network";
 import ModalCustomers from "../../components/common/InquiryModals/ModalCustomers";
 
+import { can } from "../../utils/permission";
+
 export default function Inquiry() {
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
 
@@ -155,10 +157,9 @@ export default function Inquiry() {
             </Form>
           </Col>
           <Col md={1} className="d-flex justify-content-end">
-            <Button type="submit" variant="primary" className="mt-auto d-flex align-items-center gap-1" onClick={handleShowInquiry}><FaUserPlus /> Inquiry</Button>
-            {/* <Button type="submit" variant="primary" className="mt-auto d-flex align-items-center gap-1" onClick={handleShow}>
-              <FaUserPlus /> Inquiry
-            </Button> */}
+            {can('create inquiry') && (
+              <Button type="submit" variant="primary" className="mt-auto d-flex align-items-center gap-1" onClick={handleShowInquiry}><FaUserPlus /> Inquiry</Button>
+            )}
           </Col>
         </Row>
         <div className="table-section mt-4">
@@ -215,24 +216,27 @@ export default function Inquiry() {
 
       {/* 🔹 Global reusable modal */}
       {/* 🔹 Inquiry's modal */}
-      <ModalCreditApplication
-        show={showModalCreditApplication}
-        handleClose={handleCloseModalCreditApplication}
-        customerId={selectedCustomerId}
-      />
+      {showModalCreditApplication &&
+        <ModalCreditApplication
+          show={showModalCreditApplication}
+          handleClose={handleCloseModalCreditApplication}
+          customerId={selectedCustomerId}
+      />}
 
-      <ModalInquiry
-        show={showModalInquiry}
-        handleClose={handleCloseInquiry}
-        title="New Inquiry"
-        onOpenGlobalModal={handleShowCustomer}
-        refreshInquiries={fetchInquiries}
-      />
+      {showModalInquiry &&
+        <ModalInquiry
+          show={showModalInquiry}
+          handleClose={handleCloseInquiry}
+          title="New Inquiry"
+          onOpenGlobalModal={handleShowCustomer}
+          refreshInquiries={fetchInquiries}
+      />}
 
-      <ModalCustomers
-        show={showModalCustomer}
-        handleClose={handleCloseCustomer}
-      />
+      {showModalCustomer &&
+        <ModalCustomers
+          show={showModalCustomer}
+          handleClose={handleCloseCustomer}
+      />}
 
     </div>
   );

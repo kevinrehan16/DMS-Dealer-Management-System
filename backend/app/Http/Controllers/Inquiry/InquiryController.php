@@ -24,6 +24,8 @@ class InquiryController extends Controller
 
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Inquiry::class);
+
         $search = $request->input('search');
         $filterBy = $request->input('filterBy');
 
@@ -33,8 +35,6 @@ class InquiryController extends Controller
             'inquiries' => InquiryResource::collection($inquiries),
         ], 200);
     }
-
-
 
     /**
      * Show the form for creating a new resource.
@@ -49,6 +49,8 @@ class InquiryController extends Controller
      */
     public function store(StoreInquiryRequest $request)
     {
+        $this->authorize('create', Inquiry::class);
+
         $inquiry = $this->inquiryService->saveInquiry($request->validated());
 
         return response()->json([
@@ -78,7 +80,7 @@ class InquiryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // $this->authorize('update', $inquiry);
     }
 
     /**
@@ -89,8 +91,10 @@ class InquiryController extends Controller
         //
     }
 
-    public function assignschedule(Request $request)
+    public function assignschedule(Request $request, Inquiry $inquiry)
     {
+        $this->authorize('assign', $inquiry);
+
         $validated = $request->validate([
             'id' => 'required|array',
             'schedule.date_schedule' => 'required|date',

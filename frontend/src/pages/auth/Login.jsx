@@ -29,6 +29,7 @@ const Login = () => {
       const response = await axios.post(`${API_URL}/users/login`, form);
       // console.log('Login successful:', response.data);
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem('permissions', JSON.stringify(response.data.permissions));
       navigate("/dashboard");
       setUser(response.data.user);
       setLoading(false);

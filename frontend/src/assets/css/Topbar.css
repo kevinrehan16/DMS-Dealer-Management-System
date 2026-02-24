@@ -1,16 +1,46 @@
-/* src/assets/css/topbar.css */
+@import url('./Variables.css');
+/* src/assets/css/Topbar.css */
 
+/* Make the topbar stay visually consistent */
 .topbar {
   height: 60px;
   background-color: #f8f9fa;
-  padding: 0 20px;
+  /* padding: 0 20px; */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: sticky; /* sticky on top */
+  position: sticky;
   top: 0;
   z-index: 500;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Dropdown toggle */
+.topbar .dropdown-toggle {
+  background: transparent !important;
+  border: none !important;
+  color: #343a40 !important;
+  font-weight: 500;
+}
+
+.topbar .dropdown-toggle {
+  padding: 18px !important;
+  border-radius: 0;
+}
+
+/* .topbar .topbar-right:hover {
+  background-color: var(--color-warning) !important;
+} */
+
+.topbar .dropdown-toggle:hover {
+  background-color: var(--color-warning) !important;
+  color: var(--text-color) !important;
+}
+
+.topbar .dropdown-toggle:focus {
+  box-shadow: none !important;
+  background-color: var(--color-warning) !important;
+  color: var(--text-color) !important;
 }
 
 .topbar-title {
@@ -19,6 +49,13 @@
   color: #343a40;
 }
 
-.topbar button {
+.topbar .dropdown-toggle {
+  background: transparent !important;
+  border: none !important;
+  color: #343a40 !important;
   font-weight: 500;
+}
+
+.topbar .dropdown-toggle:focus {
+  box-shadow: none !important;
 }

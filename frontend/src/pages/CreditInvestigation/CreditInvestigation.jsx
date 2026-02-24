@@ -10,6 +10,7 @@ import ModalCreditInvestigation from '../../components/common/CreditInvestigatio
 
 import { dateFormat, timeFormat } from '../../utils/formatters'
 import axios from 'axios'
+import Swal from 'sweetalert2'
 
 
 function CreditInvestigation() {
@@ -90,7 +91,11 @@ function CreditInvestigation() {
         }
       });
       // console.log(res.data);
-      alert("Schedule assigned successfully!");
+      Swal.fire({
+        icon: "success",
+        title: "Schedule assigned successfully",
+        text: "Selected customer's schedule has been updated!",
+      });
 
       getInquiriesContext();
       setSelectedIds([]);

@@ -52,6 +52,40 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
     motorCustomertype: '',
   });
 
+  const clearFormData = () => {
+    setFormData({
+      fullName: '',
+      customer_id: '',
+      address: '',
+      email: '',
+      mobile: '',
+      telephone: '',
+      sourceInquiry: '',
+      salesPersonid: user.userid,
+      employmentStatus: '',
+      motorBrand: '',
+      motorModel: '',
+      motorSeries: '',
+      motorColor: '',
+      motorChassis: '',
+      motorLcp: "0.00",
+      motorCashprice: "0.00",
+      motorRate: "0.00",
+      motorDiscount: "0.00",
+      motorPromnote: "0.00",
+      motorBranchcode: '',
+      motorInstallmentterm: '0.00',
+      motorDownpayment: "0.00",
+      motorReservation: "0.00",
+      motorSubsidy: "0.00",
+      motorMonthlyinstallment: "0.00",
+      motorInstallmentPrice: "0.00",
+      motorAmountfinance: "0.00",
+      motorMonthlyuid: "0.00",
+      motorCustomertype: '',
+    })
+  }
+
   const [showMotorModal, setShowMotorModal] = useState(false);
 
   const handleMotorList = () => {
@@ -168,6 +202,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
       console.log('Inquiry saved successfully:', response.data);
       handleClose();
       setErrors({});
+      clearFormData();
     } catch (error) {
       if(error.response && error.response.data && error.response.data.errors){
         setErrors(error.response.data.errors);
@@ -178,7 +213,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
         text: error.response?.data?.message || 'Some fields are required!',
         footer: 'An error occurred during saving new inquiry. Please try again.'
       });
-      // console.error('Error saving inquiry:', error);
+      console.error('Error saving inquiry:', error.response?.data);
     } 
   }
 
@@ -482,7 +517,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text text-end"
+                      className={`capitalize_text text-end ${errors.motorLcp ? 'is-invalid' : ''}`}
                       name="motorLcp"
                       value={formData.motorLcp}
                       onChange={handleInputCustomerChange}
@@ -501,7 +536,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text text-end"
+                      className={`capitalize_text text-end ${errors.motorCashprice ? 'is-invalid' : ''}`}
                       name="motorCashprice"
                       value={formData.motorCashprice}
                       onChange={handleInputCustomerChange}
@@ -563,7 +598,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text text-end"
+                      className={`capitalize_text text-end ${errors.motorPromnote ? 'is-invalid' : ''}`}
                       name="motorPromnote"
                       value={formData.motorPromnote}
                       onChange={handleInputCustomerChange}
@@ -624,7 +659,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text text-end"
+                      className={`capitalize_text text-end ${errors.motorDownpayment ? 'is-invalid' : ''}`}
                       name="motorDownpayment"
                       value={formData.motorDownpayment}
                       onChange={handleInputCustomerChange}
@@ -643,7 +678,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text text-end"
+                      className={`capitalize_text text-end ${errors.motorReservation ? 'is-invalid' : ''}`}
                       name="motorReservation"
                       value={formData.motorReservation}
                       onChange={handleInputCustomerChange}
@@ -662,7 +697,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text text-end"
+                      className={`capitalize_text text-end ${errors.motorSubsidy ? 'is-invalid' : ''}`}
                       name="motorSubsidy"
                       value={formData.motorSubsidy}
                       onChange={handleInputCustomerChange}
@@ -681,7 +716,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text text-end"
+                      className={`capitalize_text text-end ${errors.motorMonthlyinstallment ? 'is-invalid' : ''}`}
                       name="motorMonthlyinstallment"
                       value={formData.motorMonthlyinstallment}
                       onChange={handleInputCustomerChange}
@@ -700,7 +735,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text text-end"
+                      className={`capitalize_text text-end ${errors.motorInstallmentPrice ? 'is-invalid' : ''}`}
                       name="motorInstallmentPrice"
                       value={formData.motorInstallmentPrice}
                       onChange={handleInputCustomerChange}
@@ -719,7 +754,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text text-end"
+                      className={`capitalize_text text-end ${errors.motorAmountfinance ? 'is-invalid' : ''}`}
                       name="motorAmountfinance"
                       value={formData.motorAmountfinance}
                       onChange={handleInputCustomerChange}
@@ -738,7 +773,7 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
                   <Col xs={8}>
                     <Form.Control
                       type="text"
-                      className="capitalize_text text-end"
+                      className={`capitalize_text text-end ${errors.motorMonthlyuid ? 'is-invalid' : ''}`}
                       name="motorMonthlyuid"
                       value={formData.motorMonthlyuid}
                       onChange={handleInputCustomerChange}
@@ -777,22 +812,21 @@ const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInqu
            <Button variant="primary" className="d-flex align-items-center justify-content-evenly" onClick={saveInquiry}>
             <FaSave /> Save
           </Button>
-          <Button variant="danger" onClick={() => {handleClose(); setErrors({}) }} className="d-flex align-items-center justify-content-evenly">
+          <Button variant="danger" onClick={() => {handleClose(); setErrors({}); clearFormData();}} className="d-flex align-items-center justify-content-evenly">
             <FaTimes /> Close
           </Button>
         </Modal.Footer>
       </Modal>
 
-
+      {showMotorModal && 
       <ModalMotors
         // Pass necessary props here
         show={showMotorModal}
         handleClose={handleCloseMotorModal}
         onSelect={handleSendMotorInfo}
       >
-
-      </ModalMotors>
-
+      </ModalMotors>}
+      
     </div>
   )
 }

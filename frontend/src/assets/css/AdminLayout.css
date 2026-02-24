@@ -43,12 +43,12 @@
 }
 
 .main-content {
-  margin-left: 250px; /* space for sidebar */
+  margin-left: 250px; /* sidebar space */
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow-y: auto;
+  height: 100%;
+  overflow: hidden; /* prevent whole column scroll */
 }
 
 .topbar {
@@ -65,5 +65,8 @@
 }
 
 .adminlayout-body {
+  flex: 1;
+  overflow-y: auto; /* scroll only content area */
   padding: 20px;
+  background-color: #f1f3f5;
 }

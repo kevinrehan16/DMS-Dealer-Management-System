@@ -1,0 +1,67 @@
+/* Role cards */
+.role-card {
+  background-color: #2c323a;
+  color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.role-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.role-icon {
+  color: #ffc107;
+  font-size: 25px;
+}
+
+.permission-group {
+  background: #343a40;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.permission-group h6 {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.permission-badge {
+  background-color: #444a53;
+  color: #ccc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.permission-badge.active {
+  background-color: #ffc107;
+  color: #343a40;
+}
+
+/* Make roles-container scrollable */
+.roles-container {
+  max-height: 70vh; /* or any fixed height you want */
+  overflow-y: auto;
+  padding-right: 8px; /* optional, prevents scrollbar overlap */
+  scrollbar-width: thin; /* for Firefox */
+}
+
+/* Optional: custom scrollbar for Webkit (Chrome, Edge, Safari) */
+.roles-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.roles-container::-webkit-scrollbar-track {
+  background: #343a40;
+  border-radius: 4px;
+}
+
+.roles-container::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  border: 2px solid #343a40;
+}

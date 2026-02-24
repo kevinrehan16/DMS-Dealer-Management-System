@@ -12,6 +12,7 @@ import { AuthProvider } from "../../context/AuthContext/AuthContext";
 import Inquiry from "../../pages/Inquiry/Inquiry";
 import AdminEvaluation from "../../pages/AdminEvaluation/AdminEvaluation";
 import CreditInvestigation from "../../pages/CreditInvestigation/CreditInvestigation";
+import Roles from "../../pages/Settings/Roles";
 
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
@@ -61,6 +62,7 @@ export default function AppRoutes() {
                         </InquiryProvider>
                       } />
             <Route path="/adminevaluation" element={<AdminEvaluation />} />
+            <Route path="/settings/roles" element={<Roles />} />
           </Route>
         </Routes>
       </AuthProvider>

@@ -16,7 +16,8 @@ use App\Http\Controllers\CreditApplication\CreditApplicationBatchController;
 use App\Http\Controllers\CreditInvestigation\CreditInvestigationBatchController;
 use App\Http\Controllers\CreditInvestigation\CreditInvestigationPrimaryController;
 use App\Http\Controllers\Settings\Referentials\RequirementController;
-
+use App\Http\Controllers\Settings\Roles\RolesController;
+use App\Http\Controllers\Settings\setup\ModulePermissionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,3 +122,19 @@ Route::prefix('requirements')->controller(RequirementController::class)->group(f
         Route::post('/', 'store');  // POST /api/requirements
     });
 });
+
+Route::prefix('settings')->controller(RolesController::class)->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        // ROLE'S END POINTS
+        Route::get('/roles', 'index');
+        Route::post('/roles', 'store');
+        Route::post('/permissions', [RolesController::class,'storePermission']);
+        Route::post('/assign-role', [RolesController::class,'assignRoleToUser']);
+
+        // PERMISSION'S END POINTS
+        Route::post('/setup/permissions', [ModulePermissionController::class,'createModulePermissions']);
+        Route::post('/setup/assign-to-role', [ModulePermissionController::class, 'assignModulesToRole']);
+    });
+});
+
+

@@ -13,7 +13,7 @@ class InquiryService
                 'customer:id,customer_id,firstName,lastName,addressnum,addressbldg,addressstreet,addressssubd,addressscity,addresssbrgy,addresssprovince,addresssregion,mobile'
             ])
             // Select only the columns you need from inquiries table
-            ->select('id', 'inquiry_id', 'customer_id', 'sourceInquiry', 'motorBrand', 'motorModel', 'motorColor', 'motorCashprice', 'motorMonthlyinstallment')
+            ->select('id', 'inquiry_id', 'customer_id', 'sourceInquiry', 'motorBrand', 'motorModel', 'motorColor', 'motorCashprice', 'motorMonthlyinstallment', 'date_creditinvestigation', 'time_creditinvestigation')
             ->where(function ($query) use ($search) {
                 if ($search) {
                     $query->whereRaw('inquiry_id ILIKE ?', ["%{$search}%"])

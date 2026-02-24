@@ -64,3 +64,7 @@ export const formatMobile = (value) => {
 
     return formatted;
 };
+
+export const formatUpperCase = (string) => {
+  return (string ?? '').toUpperCase();
+}

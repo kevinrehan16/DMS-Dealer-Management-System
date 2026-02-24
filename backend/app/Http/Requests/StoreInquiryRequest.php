@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreInquiryRequest extends FormRequest
 {
@@ -21,7 +22,7 @@ class StoreInquiryRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'customer_id' => ['required','integer'],
             'sourceInquiry' => ['required','string','max:30'],
             'salesPersonid' => ['required','string','max:30'],
@@ -31,22 +32,43 @@ class StoreInquiryRequest extends FormRequest
             'motorSeries' => ['required','string','max:30'],
             'motorColor' => ['required','string','max:30'],
             'motorChassis' => ['required','string','max:30'],
-            'motorLcp' => ['required','numeric','decimal:2','gt:0'],
-            'motorCashprice' => ['required','numeric','decimal:2','gt:0'],
-            'motorRate' => ['required','numeric','decimal:2','gt:0'],
-            'motorDiscount' => ['required','numeric','decimal:2','gt:0'],
-            'motorPromnote' => ['required','numeric','decimal:2','gt:0'],
             'motorBranchcode' => ['required','string','max:30'],
-            'motorInstallmentterm' => ['required','string','max:20'],
-            'motorDownpayment' => ['required','numeric','decimal:2','gt:0'],
-            'motorReservation' => ['required','numeric','decimal:2','gt:0'],
-            'motorSubsidy' => ['required','numeric','decimal:2','gt:0'],
-            'motorMonthlyinstallment' => ['required','numeric','decimal:2','gt:0'],
-            'motorInstallmentPrice' => ['required','numeric','decimal:2','gt:0'],
-            'motorAmountfinance' => ['required','numeric','decimal:2','gt:0'],
-            'motorMonthlyuid' => ['required','numeric','decimal:2','gt:0'],
+            'motorInstallmentterm' => ['required','numeric','max:3'],
             'motorCustomertype' => ['required','string','max:20'],
         ];
+
+        $numericFields = [
+            'motorLcp',
+            'motorCashprice',
+            'motorRate',
+            'motorDiscount',
+            'motorPromnote',
+            'motorDownpayment',
+            'motorReservation',
+            'motorSubsidy',
+            'motorMonthlyinstallment',
+            'motorInstallmentPrice',
+            'motorAmountfinance',
+            'motorMonthlyuid',
+        ];
+
+        foreach ($numericFields as $field) {
+            $rules[$field] = ['required', 'numeric', 'decimal:2'];
+
+            // Conditional rule
+            $rules[$field][] = Rule::when(
+                $this->input('motorBranchcode') !== 'BTK',
+                ['gt:0'], // only apply gt:0 if branch != BTK
+                ['gte:0'] // else allow 0 or greater
+            );
+        }
+
+        $rules['motorInstallmentterm'] = array_merge(
+            ['required','numeric','max:3'],
+            $this->input('motorBranchcode') !== 'BTK' ? ['gt:0'] : ['gte:0']
+        );
+
+        return $rules;
     }
 
     public function messages(): array
@@ -57,6 +79,7 @@ class StoreInquiryRequest extends FormRequest
             '*.decimal'  => ':attribute must have exactly 2 decimal places.',
             '*.max'      => ':attribute may not exceed :max characters.',
             '*.gt'       => 'The :attribute field must be greater than :value.',
+            '*.gte'      => 'The :attribute field must be 0 or greater.',
         ];
     }
 

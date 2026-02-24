@@ -14,6 +14,8 @@ class CreditInvestigationPrimaryController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', CreditInvestigationPrimary::class);
+
         return response()->json(['message' => 'Hello Credit Investigation.']);
     }
 
@@ -30,6 +32,8 @@ class CreditInvestigationPrimaryController extends Controller
      */
     public function store(StoreCreditInvestigationPrimaryRequest $request)
     {
+        $this->authorize('create', CreditInvestigationPrimary::class);
+
         // TO USE OR ADD THE VALIDATE(), GO TO:
         // Controllers/Requests/StoreCreditInvestigationPrimaryRequest
         $contactInfo = CreditInvestigationPrimary::create($request->validate());

@@ -35,6 +35,7 @@ class UserController extends Controller
             'message' => 'Login successful',
             'user' => $user,
             'token' => $token,
+            'permissions' => $user->getAllPermissions()->pluck('name'),
         ]);
     }
 

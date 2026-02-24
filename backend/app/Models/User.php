@@ -8,10 +8,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Traits\GeneratesCustomId;
+use Spatie\Permission\Traits\HasRoles; // Install composer spatie/laravel-permission, to use role and permission
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, GeneratesCustomId;
+    use HasApiTokens, HasFactory, Notifiable, GeneratesCustomId, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -53,4 +54,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    protected $guard_name = 'sanctum';
 }

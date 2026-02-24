@@ -1,48 +1,60 @@
-/* src/assets/css/sidebar.css */
-
-.sidebar {
-  width: 250px;
-  background-color: #343a40;
-  color: white;
-  padding: 20px;
+/* Submenu container */
+.submenu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  margin-left: 0.5rem;
   display: flex;
   flex-direction: column;
-  position: fixed; /* fixed sidebar */
-  top: 0;
-  left: 0;
-  height: 100%;
-  overflow-y: auto;
-  z-index: 1000;
+  background-color: #3f464f; /* slightly lighter than main sidebar */
+  border-radius: 6px;
+  padding: 0 0.5rem;
 }
 
-.sidebar-title {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 30px;
-  color: #ffc107;
+/* Open submenu */
+.submenu.open {
+  max-height: 200px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
-.sidebar .nav-link {
-  color: white;
-  margin-bottom: 10px;
-  font-weight: 500;
-  padding: 8px 12px;
+/* Submenu link styling */
+.submenu-link {
+  padding: 6px 12px;
+  margin-bottom: 4px;
   border-radius: 4px;
-  transition: background 0.2s, color 0.2s;
+  color: white; /* default text */
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: none !important; /* remove any inherited background */
 }
 
-.sidebar .nav-link:hover {
-  color: #343a40;
-  background-color: #ffc107;
+/* Hover effect */
+.submenu-link:hover {
+  color: #ffc107;
+  background: none !important;
   text-decoration: none;
 }
 
-.sidebar .nav-link.active {
-  background-color: #ffc107;
-  color: #343a40 !important;
-  font-weight: 600;
+/* Active submenu text */
+.submenu-active {
+  color: #ffc107 !important; /* ensure yellow overrides anything */
+  background: none !important; /* no background */
+}
+
+/* Arrow icon rotation */
+.settings-arrow {
+  transition: transform 0.3s ease;
+}
+
+.settings-arrow.rotate {
+  transform: rotate(180deg);
+}
+
+.nav-link:focus {
+  color: var(--text-color) !important;
+}
+
+.nav-link:hover {
+  color: var(--color-warning) !important;
 }
