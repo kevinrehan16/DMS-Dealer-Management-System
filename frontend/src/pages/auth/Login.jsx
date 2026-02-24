@@ -25,22 +25,50 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const response = await axios.post(`${API_URL}/users/login`, form);
-      // console.log('Login successful:', response.data);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem('permissions', JSON.stringify(response.data.permissions));
-      navigate("/dashboard");
-      setUser(response.data.user);
+
+      const { token, permissions, user } = response.data;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("permissions", JSON.stringify(permissions));
+
+      // 1️⃣ Extract unique modules from permissions
+      // example: ['view inquiry', 'create investigation']
+      const modules = [
+        ...new Set(
+          permissions.map(p => p.split(" ")[1])
+        )
+      ];
+      // modules => ['inquiry', 'investigation']
+
+      // 2️⃣ Define your custom priority order
+      const priorityOrder = [
+        "dashboard",
+        "inquiry",
+        "investigation",
+        "evaluation"
+      ];
+
+      // 3️⃣ Find first available module based on priority
+      const moduleToNavigate = priorityOrder.find(module =>
+        modules.includes(module)
+      );
+
+      setUser(user);
       setLoading(false);
+
+      // 4️⃣ Navigate (fallback to dashboard if none matched)
+      navigate(`/${moduleToNavigate || "dashboard"}`);
+
     } catch (error) {
-      // console.error('Login failed:', error);
       setErrors(error.response?.data?.errors || {});
       Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: error.response?.data?.message || 'Login failed!',
-        footer: 'An error occurred during login. Please try again.'
+        text: error.response?.data?.message || "Login failed!",
+        footer: "An error occurred during login. Please try again."
       });
       setLoading(false);
     }
@@ -82,6 +110,7 @@ const Login = () => {
                 type="submit"
                 fullWidth
                 size="large"
+                disabled={loading}
               >
                 {loading ? 
                   <CircularProgress size={20} color="inherit" style={{ marginRight: 8 }} />

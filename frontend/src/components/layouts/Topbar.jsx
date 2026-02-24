@@ -13,6 +13,7 @@ export default function Topbar() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("permissions");
     navigate("/");
   };
 
