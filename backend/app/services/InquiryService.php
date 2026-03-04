@@ -79,4 +79,13 @@ class InquiryService
     {
         return $value ? ucwords(strtoupper($value)) : '';
     }
+
+    public function updateStatus($customerId, $status)
+    {
+        // Hanapin ang inquiry base sa customerId at i-update
+        return Inquiry::where('customer_id', $customerId)->update([
+            'inquiry_status' => $status,
+            'updated_at' => now()
+        ]);
+    }
 }

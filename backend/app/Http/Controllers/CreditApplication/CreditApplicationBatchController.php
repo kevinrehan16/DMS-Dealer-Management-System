@@ -14,9 +14,17 @@ use App\Models\CreditApplicationReferences;
 use App\Models\CreditApplicationIncome;
 use App\Models\CreditApplicationProperties;
 use App\Models\CreditApplicationAttachments;
+use App\Services\InquiryService; // Import ang service
 
 class CreditApplicationBatchController extends Controller
 {
+    protected $inquiryService;
+
+    // Dependency Injection via Constructor
+    public function __construct(InquiryService $inquiryService)
+    {
+        $this->inquiryService = $inquiryService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -45,6 +53,9 @@ class CreditApplicationBatchController extends Controller
 
             $primaryId = $primary->id;
             $creditAppId = $primary->creditApp_id;
+            $customerId = $primary->customer_id;
+
+            $this->inquiryService->updateStatus($customerId, 'investigation');
 
             foreach ($request->input('preferences', []) as $pref) {
                 CreditApplicationPreferences::create(array_merge(
