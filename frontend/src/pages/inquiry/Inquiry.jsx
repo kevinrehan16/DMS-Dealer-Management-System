@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Row, Col, Form, Button, InputGroup, Table, Spinner } from "react-bootstrap";
+import { Row, Col, Form, Button, InputGroup, Table } from "react-bootstrap";
 import { FaUserPlus, FaSearch, FaEdit, FaEye, FaTrash } from "react-icons/fa";
 import "../../assets/css/Inquiry.css";
 
@@ -11,6 +11,7 @@ import { fetchWithRetry } from "../../utils/network";
 import ModalCustomers from "../../components/common/InquiryModals/ModalCustomers";
 
 import { can } from "../../utils/permission";
+import axios from "axios";
 
 export default function Inquiry() {
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
@@ -23,6 +24,7 @@ export default function Inquiry() {
   const [filterBy, setFilterBy] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [selectedInquiry, setSelectedInquiry] = useState(null);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -61,6 +63,22 @@ export default function Inquiry() {
       setLoading(false);
     }
   }, [API_URL, token, search, filterBy]);
+
+  const editInquiry = async (inqID) => {
+    try {
+      const response = await axios.get(`${API_URL}/inquiries/${inqID}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+      setSelectedInquiry(response.data.data);
+      setShowModalInquiry(true);
+      console.log(selectedInquiry);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const [showModalCreditApplication, setshowModalCreditApplication] = useState(false);
   const handleShowModalCreditApplication = (customer_id) => {
@@ -178,13 +196,18 @@ export default function Inquiry() {
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan="8" className="text-center">
-                    <Spinner animation="border" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </Spinner>
-                  </td>
-                </tr>
+                [...Array(5)].map((_, index) => (
+                  <tr key={index}>
+                    <td><div className="skeleton-text"></div></td>
+                    <td><div className="skeleton-text"></div></td>
+                    <td><div className="skeleton-text"></div></td>
+                    <td><div className="skeleton-text"></div></td>
+                    <td><div className="skeleton-text"></div></td>
+                    <td><div className="skeleton-text"></div></td>
+                    <td><div className="skeleton-text"></div></td>
+                    <td><div className="skeleton-text"></div></td>
+                  </tr>
+                ))
               ) : (
                 inquiries && inquiries.map((inquiry, index) => (
                   <tr key={index}>
@@ -196,7 +219,12 @@ export default function Inquiry() {
                     <td className="text-end">{formatAmount(inquiry.motorCashprice)}</td>
                     <td className="text-end">{formatAmount(inquiry.motorMonthlyinstallment)}</td>
                     <td className="text-center">
-                      <Button variant="info" size="sm" className="d-inline-block me-1 text-white">
+                      <Button 
+                        variant="info" 
+                        size="sm" 
+                        className="d-inline-block me-1 text-white"
+                        onClick={()=>editInquiry(inquiry.id)}
+                      >
                         <FaEye />
                       </Button>
                       <Button variant="warning" size="sm" className="d-inline-block me-1 text-white" onClick={()=>handleShowModalCreditApplication(inquiry.customer.id)}>
@@ -230,6 +258,7 @@ export default function Inquiry() {
           title="New Inquiry"
           onOpenGlobalModal={handleShowCustomer}
           refreshInquiries={fetchInquiries}
+          thisInquiry={selectedInquiry}
       />}
 
       {showModalCustomer &&

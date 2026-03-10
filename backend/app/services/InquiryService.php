@@ -61,6 +61,11 @@ class InquiryService
         ]);
     }
 
+    public function editInquiry($inqID)
+    {
+       return Inquiry::with('customer')->findOrFail($inqID);
+    }
+
     public function assignSchedule(array $inquiryIds, array $schedule)
     {
         return Inquiry::whereIn('id', $inquiryIds)

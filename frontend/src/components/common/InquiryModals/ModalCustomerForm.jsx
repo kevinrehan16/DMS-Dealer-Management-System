@@ -1,9 +1,9 @@
-import React, {useEffect, useState } from 'react'
+import React, {useState } from 'react'
 import { Modal, Button, Row, Col, Form } from 'react-bootstrap'
 import { FaSave, FaTimes } from "react-icons/fa";
 
 import axios from 'axios';
-import { formatAmount, formatMobile } from '../../../utils/formatters';
+import { formatMobile } from '../../../utils/formatters';
 
 const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
   const API_URL = process.env.REACT_APP_API_URL;

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import "../../assets/css/CreditInvestigation.css"
 import { Row, Col, Form, InputGroup, Button, Table } from 'react-bootstrap'
-import { FaSearch, FaCalendarDay , FaTrash, FaEdit, FaTimes, FaSave } from 'react-icons/fa'
+import { FaSearch, FaRegEye, FaCalendarDay , FaTrash, FaEdit, FaTimes, FaSave } from 'react-icons/fa'
 
 import { useInquiry } from '../../context/InquiryContext/InquiryContext'
 
-import GlobalModal from '../../components/common/GlobalModal'
+import ModalCompare from '../../components/common/EvaluationModals/ModalCompare'
 
 import { dateFormat, timeFormat } from '../../utils/formatters'
 import axios from 'axios'
@@ -15,6 +15,16 @@ function AdminEvaluation() {
   const API_URL = process.env.REACT_APP_API_URL;
   const token = localStorage.getItem('token');
 
+  const [showModalCompare, setShowModalCompare] = useState(false);
+
+  const handleShowModalCompare = () => {
+    setShowModalCompare(true);
+  }
+
+  const handleCloseModalCompare = () => {
+    setShowModalCompare(false);
+  }
+
   return (
     <div>
       <div className="ci-header">
@@ -23,7 +33,7 @@ function AdminEvaluation() {
 
       <div className="ci-page">
         <Row>
-          <Col md={12}>
+          <Col md={11}>
             <Form className="filter-form">
               <Row className="align-items-end">
                 <Col md={4}>
@@ -43,6 +53,9 @@ function AdminEvaluation() {
 
               </Row>
             </Form>
+          </Col>
+          <Col md={1} className="d-flex justify-content-end">
+            <Button type="submit" variant="primary" className="mt-auto d-flex align-items-center gap-1" onClick={handleShowModalCompare}><FaRegEye /> Inquiry</Button>
           </Col>
         </Row>
         <div className="table-section mt-4">
@@ -72,7 +85,10 @@ function AdminEvaluation() {
         </div>
       </div>
 
-
+      <ModalCompare 
+        show={showModalCompare}
+        handleClose={handleCloseModalCompare}
+      />
 
     </div>
   )

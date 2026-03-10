@@ -46,4 +46,10 @@ class Inquiry extends Model
     {
         return $this->belongsTo(Customer::class, 'customer_id', 'id');
     }
+
+    public function creditInvestigation()
+    {
+        // Inquiry has one Credit Investigation record
+        return $this->hasOne(CreditInvestigationPrimary::class, 'inquiry_id', 'id');
+    }
 }

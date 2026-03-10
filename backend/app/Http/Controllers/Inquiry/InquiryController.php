@@ -62,9 +62,16 @@ class InquiryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Inquiry $inquiry)
     {
-        //
+        $this->authorize('view', Inquiry::class);
+
+        $inquiry = $this->inquiryService->editInquiry($inquiry->id);
+
+        return response()->json([
+            'message' => 'Get customer inquiry.',
+            'data' => new InquiryResource($inquiry),
+        ], 200);
     }
 
     /**

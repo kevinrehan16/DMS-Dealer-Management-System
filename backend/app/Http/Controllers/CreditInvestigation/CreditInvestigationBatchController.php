@@ -7,14 +7,22 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\DB;
 
+use App\Models\Inquiry;
 use App\Models\CreditInvestigationPrimary;
 use App\Models\CreditInvestigationOtherSourceIncome;
 use App\Models\CreditInvestigationCreditReferences;
 use App\Models\CreditInvestigationPersonalReference;
 use App\Models\CreditInvestigationPersonalProperty;
+use App\Services\InquiryService;
 
 class CreditInvestigationBatchController extends Controller
 {
+    private $inquiryService;
+
+    public function __construct(InquiryService $inquiryService)
+    {
+        $this->inquiryService = $inquiryService;
+    }
     /**
      * Show the form for creating the resource.
      */
@@ -69,6 +77,9 @@ class CreditInvestigationBatchController extends Controller
                     ]
                 ));
             }
+
+            $customerId = Inquiry::where('id', $inquiryID)->value('customer_id');
+            $this->inquiryService->updateStatus($customerId, "For Approval");
 
             DB::commit();
             return response()->json(['ContactInformations' => $contactInfo]);
