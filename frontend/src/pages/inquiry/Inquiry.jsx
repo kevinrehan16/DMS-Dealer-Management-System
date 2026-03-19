@@ -5,10 +5,11 @@ import "../../assets/css/Inquiry.css";
 
 import ModalCreditApplication from "../../components/common/InquiryModals/ModalCreditApplication";
 import ModalInquiry from "../../components/common/InquiryModals/ModalInquiry";
+import ModalCustomers from "../../components/common/InquiryModals/ModalCustomers";
 
 import { formatAmount } from '../../utils/formatters';
 import { fetchWithRetry } from "../../utils/network";
-import ModalCustomers from "../../components/common/InquiryModals/ModalCustomers";
+import SkeletonRowLoading from "../../components/common/Loading/SkeletonRowLoading";
 
 import { can } from "../../utils/permission";
 import axios from "axios";
@@ -197,16 +198,7 @@ export default function Inquiry() {
             <tbody>
               {loading ? (
                 [...Array(5)].map((_, index) => (
-                  <tr key={index}>
-                    <td><div className="skeleton-text"></div></td>
-                    <td><div className="skeleton-text"></div></td>
-                    <td><div className="skeleton-text"></div></td>
-                    <td><div className="skeleton-text"></div></td>
-                    <td><div className="skeleton-text"></div></td>
-                    <td><div className="skeleton-text"></div></td>
-                    <td><div className="skeleton-text"></div></td>
-                    <td><div className="skeleton-text"></div></td>
-                  </tr>
+                  <SkeletonRowLoading key={index} columns={8} />
                 ))
               ) : (
                 inquiries && inquiries.map((inquiry, index) => (

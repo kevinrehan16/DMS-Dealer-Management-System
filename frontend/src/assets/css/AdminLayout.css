@@ -91,3 +91,27 @@
   }
 }
 /* Simple CSS Skeleton Animation for table LOADING */
+
+hr.dotted {
+  border: none;
+  border-top: 2px dotted #000;
+}
+
+.page-header h4{
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  color: var(--color-primary);
+}
+
+.content-page {
+  background: #fff;
+  padding: 20px;
+  border-radius: .35rem;
+  box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;
+  height: 80vh;         /* full viewport height */
+  display: flex;         /* optional: enables flex layout */
+  flex-direction: column;
+  background-clip: border-box;
+  border: 1px solid #e3e6f0;
+}

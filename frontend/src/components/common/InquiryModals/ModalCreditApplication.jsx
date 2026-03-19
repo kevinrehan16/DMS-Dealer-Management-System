@@ -546,6 +546,7 @@ function ModalCreditApplication({show, handleClose, customerId}) {
                   <Row>
                     <Col md={7}>
                       <div className="table-section">
+                        <h5 className='text-warning'>Other Sources Of Income</h5>
                         <Table striped bordered hover responsive>
                           <thead>
                             <tr>
@@ -915,7 +916,7 @@ function ModalCreditApplication({show, handleClose, customerId}) {
                   <Row>
                     <Col md={12}>
                       <div className="table-section">
-                        <h5 className='text-warning'>Real and/or Personal Properties Owned</h5>
+                        <h5 className='text-warning'>Documents</h5>
                         <Table striped bordered hover responsive>
                           <thead>
                             <tr>

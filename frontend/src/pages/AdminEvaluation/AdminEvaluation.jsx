@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import "../../assets/css/CreditInvestigation.css"
 import { Row, Col, Form, InputGroup, Button, Table } from 'react-bootstrap'
-import { FaSearch, FaRegEye, FaCalendarDay , FaTrash, FaEdit, FaTimes, FaSave } from 'react-icons/fa'
+import { FaSearch, FaRegEye, FaCalendarDay , FaTrash, FaEdit, FaTimes, FaSave, FaUserTie } from 'react-icons/fa'
 
 import { useInquiry } from '../../context/InquiryContext/InquiryContext'
 
@@ -27,11 +27,11 @@ function AdminEvaluation() {
 
   return (
     <div>
-      <div className="ci-header">
-        <h4>ADMIN EVALUATION</h4>
+      <div className="page-header">
+        <h4><FaUserTie className='me-2 fs-4'/> ADMIN EVALUATION</h4>
       </div>
 
-      <div className="ci-page">
+      <div className="content-page">
         <Row>
           <Col md={11}>
             <Form className="filter-form">
@@ -55,7 +55,7 @@ function AdminEvaluation() {
             </Form>
           </Col>
           <Col md={1} className="d-flex justify-content-end">
-            <Button type="submit" variant="primary" className="mt-auto d-flex align-items-center gap-1" onClick={handleShowModalCompare}><FaRegEye /> Inquiry</Button>
+            <Button type="submit" variant="primary" className="mt-auto d-flex align-items-center gap-1" onClick={handleShowModalCompare}><FaRegEye /> Evaluation</Button>
           </Col>
         </Row>
         <div className="table-section mt-4">
