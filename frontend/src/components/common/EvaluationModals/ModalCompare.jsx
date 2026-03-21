@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Modal, Row, Col, Table, Button } from 'react-bootstrap';
 import { FaMapMarkerAlt, FaInfoCircle, FaTimes } from "react-icons/fa";
 
+import CreditApplication from './ModalChild/CreditApplication';
+
 // Reusable structural component for the "Label + Value" look
 const DataBlock = ({ label, value }) => ( // Add 'value' here
   <div className="mb-3">
@@ -17,20 +19,20 @@ const DataBlock = ({ label, value }) => ( // Add 'value' here
   </div>
 );
 
-const DataHeader = ({ title }) => (
-  <h5 className="text-primary border-bottom pb-2 mb-3 fs-6 fw-bold uppercase_text">
-    {title || '---'} {/* Add this to display the value */}
-  </h5>
-);
+// const DataHeader = ({ title }) => (
+//   <h5 className="text-primary border-bottom pb-2 mb-3 fs-6 fw-bold uppercase_text">
+//     {title || '---'} {/* Add this to display the value */}
+//   </h5>
+// );
 
-const ModalCompare = ({ show, handleClose }) => {
+const ModalCompare = ({ show, handleClose, applicationId }) => {
 
-  const [creditinfo, setCreditInfo] = useState({
-    lastName: 'Macandog',
-    middleName: 'Francisco',
-    firstName: 'Kevin',
+  // const [creditinfo, setCreditInfo] = useState({
+  //   lastName: 'Macandog',
+  //   middleName: 'Francisco',
+  //   firstName: 'Kevin',
 
-  })
+  // })
 
   return (
     <Modal show={show} onHide={handleClose} size="xl" backdrop="static" keyboard={false} dialogClassName="custom-modal">
@@ -53,7 +55,8 @@ const ModalCompare = ({ show, handleClose }) => {
               overflowY: 'auto'
             }}
           >
-            <h4 className="text-muted text-center pb-2 mb-4 fw-bold uppercase_text">
+            <CreditApplication applicationId={applicationId} />
+            {/* <h4 className="text-muted text-center pb-2 mb-4 fw-bold uppercase_text">
               CREDIT APPLICATION
             </h4>
 
@@ -216,8 +219,7 @@ const ModalCompare = ({ show, handleClose }) => {
                   </tbody>
                 </Table>
               </Col>
-            </Row>
-            
+            </Row> */}
           </Col>
 
           {/* RIGHT COLUMN: FORM 2 STRUCTURE */}

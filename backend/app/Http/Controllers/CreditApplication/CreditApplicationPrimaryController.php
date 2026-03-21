@@ -7,10 +7,18 @@ use Illuminate\Http\Request;
 
 // Add these
 use App\Http\Requests\StoreCreditApplicationPrimaryRequest;
+use App\Http\Resources\CreditApplicationResource;
 use App\Models\CreditApplicationPrimary;
+use App\Services\ApplicationService;
 
 class CreditApplicationPrimaryController extends Controller
 {
+    protected $applicationservice;
+
+    public function __construct(ApplicationService $applicationservice)
+    {
+        $this->applicationservice = $applicationservice;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -47,7 +55,12 @@ class CreditApplicationPrimaryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $allcreditapplication = $this->applicationservice->getCreditApplicationById($id);
+
+        return response()->json([
+            //! WHEN USING SHOW FUNCTION use this kind of callign the RESOURCES
+            'creditapplications' => new CreditApplicationResource($allcreditapplication)
+        ], 200);
     }
 
     /**

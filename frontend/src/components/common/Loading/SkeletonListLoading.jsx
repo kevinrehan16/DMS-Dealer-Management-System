@@ -1,11 +1,12 @@
 import { ListGroup } from "react-bootstrap";
+import SkeletonLoading from "./SkeletonLoading";
 
 const SkeletonListLoading = ({ count = 5 }) => {
   return (
     <>
       {[...Array(count)].map((_, i) => (
         <ListGroup.Item key={i}>
-          <div className="skeleton-text"></div>
+          <SkeletonLoading />
         </ListGroup.Item>
       ))}
     </>

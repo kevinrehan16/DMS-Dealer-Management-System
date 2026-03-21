@@ -4,6 +4,7 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 import { TextField, Button, CircularProgress } from '@mui/material';
 import { useAuth } from '../../context/AuthContext/AuthContext';
 import { FaSignInAlt } from "react-icons/fa";
+import { logo } from '../../assets';
 import axios from 'axios';
 import '../../assets/css/Login.css';
 import Swal from 'sweetalert2'
@@ -79,7 +80,8 @@ const Login = () => {
       <Row className="w-100 justify-content-center">
         <Col xs={12} sm={8} md={5} lg={4}>
           <Card className="p-4 shadow-lg login-card">
-            <h3 className="text-center mb-4">Welcome Back</h3>
+            <img src={logo} alt="All in One Software" className='img-thumbnail mb-2' />
+            <h4 className="text-center mb-3">Dealer Management System</h4>
             <form onSubmit={handleSubmit}>
               <TextField
                 fullWidth

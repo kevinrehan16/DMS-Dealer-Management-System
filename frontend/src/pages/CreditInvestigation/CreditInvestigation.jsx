@@ -6,6 +6,7 @@ import { FaSearch, FaCalendarDay , FaTrash, FaEdit, FaTimes, FaSave } from 'reac
 import { useInquiry } from '../../context/InquiryContext/InquiryContext'
 
 import GlobalModal from '../../components/common/GlobalModal'
+// import ModalCreditInvestigation from '../../components/common/CreditInvestigationModals/ModalCreditInvestigation-BACKUP'
 import ModalCreditInvestigation from '../../components/common/CreditInvestigationModals/ModalCreditInvestigation'
 
 import { dateFormat, timeFormat } from '../../utils/formatters'

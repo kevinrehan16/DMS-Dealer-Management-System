@@ -115,3 +115,12 @@ hr.dotted {
   background-clip: border-box;
   border: 1px solid #e3e6f0;
 }
+
+hr.dotted {
+  border: none !important;
+  border-top: 4px groove #59a0c4 !important;
+}
+
+.form-check label:hover {
+  cursor: pointer;
+}

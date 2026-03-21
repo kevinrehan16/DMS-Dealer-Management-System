@@ -61,7 +61,12 @@ export default function AppRoutes() {
                           <CreditInvestigation />
                         </InquiryProvider>
                       } />
-            <Route path="/adminevaluation" element={<AdminEvaluation />} />
+            <Route path="/adminevaluation" 
+              element={
+                        <InquiryProvider>
+                          <AdminEvaluation />
+                        </InquiryProvider>
+                       } />
             <Route path="/settings/roles" element={<Roles />} />
           </Route>
         </Routes>

@@ -24,4 +24,10 @@ class Customer extends Model
 
     protected $customIdPrefix = 'C-';
     protected $customIdColumn = 'customer_id';
+
+    public function creditApplication()
+    {
+        return $this->hasOne(CreditApplicationPrimary::class, 'customer_id', 'id')
+                    ->select('id','customer_id');
+    }
 }
