@@ -64,7 +64,7 @@ class InquiryController extends Controller
      */
     public function show(Inquiry $inquiry)
     {
-        $this->authorize('view', Inquiry::class);
+        $this->authorize('view', $inquiry);
 
         $inquiry = $this->inquiryService->editInquiry($inquiry->id);
 

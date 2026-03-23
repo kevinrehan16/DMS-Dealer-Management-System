@@ -55,10 +55,13 @@ class CreditApplicationPrimaryController extends Controller
      */
     public function show(string $id)
     {
+        $application = CreditApplicationPrimary::findOrFail($id);
+        $this->authorize('view', $application);
+
         $allcreditapplication = $this->applicationservice->getCreditApplicationById($id);
 
         return response()->json([
-            //! WHEN USING SHOW FUNCTION use this kind of callign the RESOURCES
+            //! WHEN USING SHOW FUNCTION use this kind of calling the RESOURCES
             'creditapplications' => new CreditApplicationResource($allcreditapplication)
         ], 200);
     }
