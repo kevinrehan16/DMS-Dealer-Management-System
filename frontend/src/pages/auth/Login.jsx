@@ -32,8 +32,8 @@ const Login = () => {
 
       const { token, permissions, user } = response.data;
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("permissions", JSON.stringify(permissions));
+      sessionStorage.setItem("token", token);
+      sessionStorage.setItem("permissions", JSON.stringify(permissions));
 
       // 1️⃣ Extract unique modules from permissions
       // example: ['view inquiry', 'create investigation']

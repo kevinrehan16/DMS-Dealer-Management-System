@@ -6,7 +6,7 @@ export const useInquiry = () => useContext(InquiryContext);
 
 export const InquiryProvider = ({ children }) => {
   const API_URL = process.env.REACT_APP_API_URL;
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
 
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [inquiriesContext, setInquiriesContext] = useState([]);

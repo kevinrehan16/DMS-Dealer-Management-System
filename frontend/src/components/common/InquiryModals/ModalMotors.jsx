@@ -9,7 +9,7 @@ import { fetchWithRetry } from '../../../utils/network.js';
 
 const ModalMotors = ({ show, handleClose, onSelect }) => {
   const API_URL = process.env.REACT_APP_API_URL;
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
 
   const [brands, setBrands] = useState([]);
   const [models, setModels] = useState([]);

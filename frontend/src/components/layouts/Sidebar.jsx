@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Nav } from "react-bootstrap";
-import { FaAppStore, FaChartPie, FaUser, FaFileAlt, FaCog, FaUserSecret, FaUserTie, FaChevronDown } from "react-icons/fa";
+import { FaAppStore, 
+          FaChartPie, 
+          FaUser, 
+          FaFileAlt, 
+          FaCog, 
+          FaUserSecret, 
+          FaUserTie, 
+          FaChevronDown, 
+          FaRegDotCircle, 
+          FaUsers 
+        } from "react-icons/fa";
 import { useLocation, Link } from "react-router-dom";
 import "../../assets/css/Sidebar.css";
 import { can } from "../../utils/permission";
@@ -32,7 +42,7 @@ export default function Sidebar() {
 
   return (
     <div className="sidebar">
-      <h3 className="sidebar-title"><FaAppStore /> DMS</h3>
+      <h3 className="sidebar-title"><FaAppStore className="text-warning" size={30} /> DMS</h3>
       <Nav className="flex-column">
         {can('view dashboard') && (
           <Nav.Link
@@ -76,6 +86,14 @@ export default function Sidebar() {
 
         <Nav.Link
           as={Link}
+          to="/users"
+          className={`d-flex align-items-center gap-2 ${location.pathname === "/users" ? "active" : ""}`}
+        >
+          <FaUsers /> Users
+        </Nav.Link>
+
+        <Nav.Link
+          as={Link}
           to="#"
           className={`d-flex align-items-center gap-2 ${location.pathname === "/reports" ? "active" : ""}`}
         >
@@ -99,17 +117,17 @@ export default function Sidebar() {
             <Nav.Link
               as={Link}
               to="/settings/roles"
-              className={`submenu-link ${activeSubMenu === "roles" ? "submenu-active" : ""}`}
+              className={`submenu-link ${activeSubMenu === "roles" ? "submenu-active" : ""} d-flex align-items-center gap-2`}
             >
-              Roles
+              <FaRegDotCircle />  Roles
             </Nav.Link>
 
             <Nav.Link
               as={Link}
               to="/settings/permissions"
-              className={`submenu-link ${activeSubMenu === "permissions" ? "submenu-active" : ""}`}
+              className={`submenu-link ${activeSubMenu === "permissions" ? "submenu-active" : ""} d-flex align-items-center gap-2`}
             >
-              Permissions
+              <FaRegDotCircle /> Permissions
             </Nav.Link>
           </div>
         </div>

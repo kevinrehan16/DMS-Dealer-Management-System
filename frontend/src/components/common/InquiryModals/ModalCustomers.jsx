@@ -10,7 +10,7 @@ import ModalCustomerForm from './ModalCustomerForm.jsx';
 
 const ModalCustomers = ({show, handleClose}) => {
   const API_URL = process.env.REACT_APP_API_URL;
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   
   const { handleCustomerSelect } = useInquiry();
   const [customers, setCustomers] = useState([]);

@@ -14,7 +14,7 @@ import axios from 'axios'
 
 function AdminEvaluation() {
   const API_URL = process.env.REACT_APP_API_URL;
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
 
   const { inquiriesContext, loading, getInquiriesContext } = useInquiry();
 

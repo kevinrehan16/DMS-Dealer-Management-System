@@ -16,7 +16,7 @@ import Swal from 'sweetalert2'
 
 function CreditInvestigation() {
   const API_URL = process.env.REACT_APP_API_URL;
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
 
   const [thisInquiryid, setThisInquiryid] = useState(0);
   const [showModalCreditInvestigation, setShowModalCreditInvestigation] = useState(false);

@@ -9,7 +9,7 @@ import { formatUpperCase } from '../../utils/formatters'
 const Roles = () => {
 
   const API_URL = process.env.REACT_APP_API_URL;
-  const token = localStorage.getItem('token'); 
+  const token = sessionStorage.getItem('token'); 
 
   const [roles, setRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);

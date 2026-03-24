@@ -12,8 +12,8 @@ export default function Topbar() {
   const { user, loading } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("permissions");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("permissions");
     navigate("/");
   };
 

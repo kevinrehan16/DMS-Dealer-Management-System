@@ -6,7 +6,7 @@ import axios from 'axios';
 
 function ModalCreditApplication({show, handleClose, customerId}) {
   const API_URL = process.env.REACT_APP_API_URL;
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
 
   const [incomeRows, setIncomeRows] = useState([
     { 

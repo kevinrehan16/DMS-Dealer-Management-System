@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Traits\GeneratesCustomId;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+
 use Spatie\Permission\Traits\HasRoles; // Install composer spatie/laravel-permission, to use role and permission
 
 class User extends Authenticatable
@@ -56,4 +58,28 @@ class User extends Authenticatable
     ];
 
     protected $guard_name = 'sanctum';
+
+    protected function firstName(): Attribute {
+        return Attribute::make(
+            set: fn (string $value) => strtolower($value),
+        );
+    }
+
+    protected function lastName(): Attribute {
+        return Attribute::make(
+            set: fn (string $value) => strtolower($value),
+        );
+    }
+
+    protected function email(): Attribute {
+        return Attribute::make(
+            set: fn (string $value) => strtolower($value),
+        );
+    }
+
+    protected function userName(): Attribute {
+        return Attribute::make(
+            set: fn (string $value) => strtolower($value),
+        );
+    }
 }

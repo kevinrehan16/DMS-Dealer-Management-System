@@ -14,8 +14,5 @@
 
 .modal-title {
   font-weight: 600;
-}
-
-.modal-footer button {
-  min-width: 100px;
+  text-transform: uppercase;
 }

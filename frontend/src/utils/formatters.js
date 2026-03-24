@@ -68,3 +68,13 @@ export const formatMobile = (value) => {
 export const formatUpperCase = (string) => {
   return (string ?? '').toUpperCase();
 }
+
+export const formatCapitalize = (string) => {
+  if (!string) return ''; // Safety check para sa null/undefined
+  
+  return string
+    .toLowerCase()
+    .split(' ') // Hiwalayin kung may multiple words (e.g., First Name)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};

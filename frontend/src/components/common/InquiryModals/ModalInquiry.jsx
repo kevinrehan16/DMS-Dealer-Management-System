@@ -14,7 +14,7 @@ import Swal from 'sweetalert2';
 
 const ModalInquiry = ({ show, handleClose, title, onOpenGlobalModal, refreshInquiries, thisInquiry }) => {
   const API_URL = process.env.REACT_APP_API_URL;
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
 
   const [errors, setErrors] = useState({});
   const { user } = useAuth();

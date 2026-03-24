@@ -1,7 +1,7 @@
 // src/utils/permission.js
 
 export const can = (permission) => {
-    const storedPermissions = localStorage.getItem('permissions');
+    const storedPermissions = sessionStorage.getItem('permissions');
 
     if (!storedPermissions) return false;
 

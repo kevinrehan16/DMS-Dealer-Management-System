@@ -7,7 +7,7 @@ import { formatMobile } from '../../../utils/formatters';
 
 const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
   const API_URL = process.env.REACT_APP_API_URL;
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
 
   const [error, setError] = useState({});
   const [formCustomerData, setFormCustomerData] = useState({

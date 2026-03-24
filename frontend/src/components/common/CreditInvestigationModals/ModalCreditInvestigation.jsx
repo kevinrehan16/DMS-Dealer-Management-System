@@ -10,7 +10,7 @@ import { calculateAge, computeTotalIncome, computeTotalExpenses } from '../../..
 
 const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
   const API_URL = process.env.REACT_APP_API_URL;
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
 
   const [isLoadingSave, setIsLoadingSave] = useState(false);
 

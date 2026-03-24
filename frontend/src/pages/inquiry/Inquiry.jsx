@@ -18,7 +18,7 @@ export default function Inquiry() {
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
 
   const API_URL = process.env.REACT_APP_API_URL;
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   
   const [search, setSearch] = useState("");
   const [branch, setBranch] = useState("");
