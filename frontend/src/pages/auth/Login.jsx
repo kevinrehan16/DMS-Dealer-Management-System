@@ -7,9 +7,11 @@ import { FaSignInAlt } from "react-icons/fa";
 import { logo } from '../../assets';
 import axios from 'axios';
 import '../../assets/css/Login.css';
-import Swal from 'sweetalert2'
+import { useNotification } from '../../context/NotificationContext';
 
 const Login = () => {
+  const notify = useNotification();
+
   const { setUser } = useAuth();
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -61,16 +63,17 @@ const Login = () => {
       setLoading(false);
 
       // 4️⃣ Navigate (fallback to dashboard if none matched)
+      notify.toast('success', 'Welcome '+ user.firstName + ' ' + user.lastName);
       navigate(`/${moduleToNavigate || "dashboard"}`);
 
     } catch (error) {
       setErrors(error.response?.data?.errors || {});
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: error.response?.data?.message || "Login failed!",
-        footer: "An error occurred during login. Please try again."
-      });
+      notify.alertMsg(
+        error.response?.data?.message || "Login failed!", 
+        "An error occurred during login. Please try again.",
+        "error",
+        "Oops..."
+      );
       setLoading(false);
     }
   };

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Inquiry;
 
 use App\Models\Inquiry;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\InquiryDetailsResource;
 use Illuminate\Http\Request;
 use App\Http\Resources\InquiryResource;
 use App\Services\InquiryService;
@@ -70,7 +71,7 @@ class InquiryController extends Controller
 
         return response()->json([
             'message' => 'Get customer inquiry.',
-            'data' => new InquiryResource($inquiry),
+            'data' => new InquiryDetailsResource($inquiry),
         ], 200);
     }
 

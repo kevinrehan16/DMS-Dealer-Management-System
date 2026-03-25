@@ -129,7 +129,7 @@ function Users() {
                     <tr key={index}>
                       <td></td>
                       <td>{row.userid}</td>
-                      <td>{row.firstName} {row.lastName}</td>
+                      <td>{formatCapitalize(row.firstName)} {formatCapitalize(row.lastName)}</td>
                       <td>{formatCapitalize(row.email)}</td>
                       <td>{formatCapitalize(row.userName)}</td>
                       <td>{formatUpperCase(row.userType)}</td>

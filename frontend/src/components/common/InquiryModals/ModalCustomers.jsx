@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Button, Row, Col, Table, Form, InputGroup } from 'react-bootstrap'
 import { FaTimes, FaSearch, FaUserPlus, FaUserCheck, FaIdCard, FaEdit } from "react-icons/fa";
+import SkeletonRowLoading from '../Loading/SkeletonRowLoading.jsx';
 
-import { useInquiry } from '../../../context/InquiryContext/InquiryContext.js';
+import { useCustomer } from '../../../hooks/HooksCustomer/useCustomer.js';
 // debounce ginagamit to para idelay ang pag send ng API para hindi sunod-sunod and reques na nagkocause ng ERROR CODE 429
 import debounce from 'lodash.debounce'; 
 import { fetchWithRetry } from '../../../utils/network.js';
 import ModalCustomerForm from './ModalCustomerForm.jsx';
 
-const ModalCustomers = ({show, handleClose}) => {
-  const API_URL = process.env.REACT_APP_API_URL;
-  const token = sessionStorage.getItem('token');
+const ModalCustomers = ({show, handleClose, onSelectCustomer}) => {
   
-  const { handleCustomerSelect } = useInquiry();
-  const [customers, setCustomers] = useState([]);
+  const { data: customers = [], isLoading, isError, error, refetch, isFetching } = useCustomer({
+    enabled: show
+  });
+  
   
   const [showModalNewCustomer, setShowModalNewCustomer] = useState(false);
   const handleShowNewCustomer = () => setShowModalNewCustomer(true);
@@ -22,25 +23,11 @@ const ModalCustomers = ({show, handleClose}) => {
     setShowModalNewCustomer(false);
   }
 
-  const fetchCustomers = async () => {
-    try {
-      const response = await fetchWithRetry(`${API_URL}/customers`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json'
-        }
-      }, 3, 1000, 'Customers');
-      setCustomers(response.data.customers);
-
-      // console.log("Fetched inquiries:", response.data.inquiries);
-    } catch (error) {
-      console.error("Error fetching customers:", error);
-    }
-  };
-
   useEffect(() => {
-    fetchCustomers();
-  }, []);
+    if (show) {
+      refetch(); // Opsyonal: Para laging fresh data pagbukas
+    }
+  }, [show, refetch]);
 
   return (
     <div>
@@ -81,25 +68,31 @@ const ModalCustomers = ({show, handleClose}) => {
                 </tr>
               </thead>
               <tbody>
-                {customers && customers.map((customer, index) => (
-                  <tr key={customer.id}>
-                    <td>{customer.customer_id}</td>
-                    <td>{customer.firstName} {customer.lastName}</td>
-                    <td className="d-flex gap-2">
-                      <Button variant="success" size="sm" className="align-items-center justify-content-center" 
-                      onClick={() => { handleCustomerSelect(customer); handleClose(); }}
-                      title="Select this customer">
-                        <FaUserCheck />
-                      </Button>
-                      <Button variant="info" size="sm" className="align-items-center justify-content-center" title="View this customer">
-                        <FaIdCard className="text-white" />
-                      </Button>
-                      <Button variant="primary" size="sm" className="align-items-center justify-content-center" title="Edit this customer">
-                        <FaEdit />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                {isLoading ? (
+                  [...Array(5)].map((_, index) => (
+                    <SkeletonRowLoading key={index} columns={3} />
+                  ))
+                ) : (
+                  customers && customers.map((customer, index) => (
+                    <tr key={customer.id}>
+                      <td>{customer.customer_id}</td>
+                      <td>{customer.firstName} {customer.lastName}</td>
+                      <td className="d-flex gap-2">
+                        <Button variant="success" size="sm" className="align-items-center justify-content-center" 
+                        onClick={() => { onSelectCustomer(customer); handleClose(); }}
+                        title="Select this customer">
+                          <FaUserCheck />
+                        </Button>
+                        <Button variant="info" size="sm" className="align-items-center justify-content-center" title="View this customer">
+                          <FaIdCard className="text-white" />
+                        </Button>
+                        <Button variant="primary" size="sm" className="align-items-center justify-content-center" title="Edit this customer">
+                          <FaEdit />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </Table>
           </div>
@@ -114,7 +107,7 @@ const ModalCustomers = ({show, handleClose}) => {
       <ModalCustomerForm
         show={showModalNewCustomer}
         handleClose={handleCloseNewCustomer}
-        fetchCustomers={fetchCustomers}
+        // fetchCustomers={fetchCustomers}
       />
     </div>
   )

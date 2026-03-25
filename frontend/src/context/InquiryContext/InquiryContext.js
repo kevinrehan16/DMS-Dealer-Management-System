@@ -26,7 +26,7 @@ export const InquiryProvider = ({ children }) => {
           "Content-Type": "application/json"
         },
         params:{
-          searh: '',
+          search: '',
           filterBy: ''
         }
       }, 3, 1000, 'getInquiriesContext');

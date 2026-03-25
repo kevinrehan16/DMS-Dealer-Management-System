@@ -1,27 +1,39 @@
 // Utility function to format amount with commas and fixed decimals
 export const formatAmount = (amount, decimals = 2) => {
-  if (isNaN(amount)) return '0.00';
-  return parseFloat(amount)
+  // 1. Siguraduhin na may value at valid number
+  const num = parseFloat(String(amount).replace(/,/g, ''));
+
+  if (isNaN(num)) return '0.00';
+
+  // 2. I-format
+  return num
     .toFixed(decimals)
     .replace(/\d(?=(\d{3})+\.)/g, '$&,');
 };
 
 // Handler for formatting on blur
-export const handleAmountBlur = (e, setFormData, fieldName) => {
-  const val = parseFloat(e.target.value.replace(/,/g, ''));
-  setFormData((prev) => ({
-    ...prev,
-    [fieldName]: isNaN(val) ? '0.00' : formatAmount(val),
-  }));
+export const handleAmountBlur = (e, setValue, fieldName) => {
+  // 1. Siguraduhing string muna ang value bago i-replace
+  const rawValue = String(e.target.value || "").replace(/,/g, '');
+  const val = parseFloat(rawValue);
+
+  // 2. I-compute ang final value
+  const finalValue = isNaN(val) ? '0.00' : formatAmount(val);
+
+  // 3. GAMITIN ANG setValue NG RHF (Direct value, no (prev) => ...)
+  setValue(fieldName, finalValue);
 };
 
 // Handler for stripping commas on focus
-export const handleAmountFocus = (e, setFormData, fieldName) => {
-  const val = parseFloat(e.target.value.replace(/,/g, ''));
-  setFormData((prev) => ({
-    ...prev,
-    [fieldName]: val === 0 ? '' : val.toString(),
-  }));
+export const handleAmountFocus = (e, setValue, fieldName) => {
+  const rawValue = String(e.target.value || "").replace(/,/g, '');
+  const val = parseFloat(rawValue);
+
+  // Kung NaN o 0, gawing empty string para madaling mag-type ang user
+  const finalValue = isNaN(val) || val === 0 ? '' : val.toString();
+  
+  // 3. GAMITIN ANG setValue NG RHF
+  setValue(fieldName, finalValue);
 };
 
 export const cleanToDouble = (val) => {

@@ -33,7 +33,7 @@ class StoreInquiryRequest extends FormRequest
             'motorColor' => ['required','string','max:30'],
             'motorChassis' => ['required','string','max:30'],
             'motorBranchcode' => ['required','string','max:30'],
-            'motorInstallmentterm' => ['required','numeric','max:3'],
+            'motorInstallmentterm' => ['required','numeric','max:120'],
             'motorCustomertype' => ['required','string','max:20'],
         ];
 
@@ -64,7 +64,7 @@ class StoreInquiryRequest extends FormRequest
         }
 
         $rules['motorInstallmentterm'] = array_merge(
-            ['required','numeric','max:3'],
+            ['required','numeric','max:120'],
             $this->input('motorBranchcode') !== 'BTK' ? ['gt:0'] : ['gte:0']
         );
 

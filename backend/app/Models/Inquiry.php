@@ -45,7 +45,7 @@ class Inquiry extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customer_id', 'id')
-                    ->select('id','customer_id','firstName','lastName','addressnum','addressbldg','addressstreet','addressssubd','addressscity','addresssbrgy','addresssprovince','addresssregion','mobile');
+                    ->select('id','customer_id','firstName','lastName','addressnum','addressbldg','addressstreet','addressssubd','addressscity','addresssbrgy','addresssprovince','addresssregion','mobile', 'telno', 'middleName', 'title', 'gender', 'email', 'birthdate', 'age');
     }
 
     public function creditInvestigation()

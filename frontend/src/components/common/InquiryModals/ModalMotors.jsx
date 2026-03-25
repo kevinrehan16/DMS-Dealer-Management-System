@@ -2,153 +2,73 @@ import React, { useEffect, useState } from 'react'
 import { Modal, Button, Row, Col, Card, ListGroup } from 'react-bootstrap'
 import { FaCheck, FaTimes } from "react-icons/fa";
 import SkeletonListLoading from '../Loading/SkeletonListLoading.jsx';
+import { useMotorBrands, useMotorModels, useMotorColors, useMotorChassis } from '../../../hooks/HooksMotor/useMotor.js';
 
-// debounce ginagamit ko para idelay ang pag send ng API para hindi sunod-sunod and reques na nagkocause ng ERROR CODE 429
-import debounce from 'lodash.debounce'; 
-import { fetchWithRetry } from '../../../utils/network.js';
-
-const ModalMotors = ({ show, handleClose, onSelect }) => {
-  const API_URL = process.env.REACT_APP_API_URL;
-  const token = sessionStorage.getItem('token');
-
-  const [brands, setBrands] = useState([]);
-  const [models, setModels] = useState([]);
-  const [colors, setColors] = useState([]);
-  const [chassis, setChassis] = useState([]);
-
-  const [loading, setLoading] = useState({
-    brands: false,
-    models: false,
-    colors: false,
-    chassis: false,
-  });
-
-  const fetchBrands = debounce (async () => {
-    setLoading(prev => ({ ...prev, brands: true }));
-
-    try {
-      const response = await fetchWithRetry(`${API_URL}/motors/motorbrands`,{
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        }
-      }, 3, 1000, 'Brands'); // 3 retries, 1s delay
-      setBrands(response.data.brandMotor);
-      // console.log('Fetched brands:', response.data.listItemMotors);
-    } catch (error) {
-      console.error('Error fetching brands:', error);
-    } finally {
-      setLoading(prev => ({ ...prev, brands: false }));
-    }
-  }, 500);
-
-  const fetchModelsByBrand = debounce(async (brand) => {
-    setLoading(prev => ({ ...prev, models: true }));
-    handleItemClick("brands", brand);
-
-    try {
-      const response = await fetchWithRetry(`${API_URL}/motors/motormodels/${brand}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        }
-      }, 3, 1000, 'Models');
-      setModels(response.data.models);
-      // console.log('Fetched models:', response.data.models);
-    } catch (error) {
-      console.error('Error fetching models:', error);
-    } finally {
-      setLoading(prev => ({ ...prev, models: false }));
-    }
-  }, 500);
-
-  const fetchColorsByModel = debounce(async (model) => {
-    setLoading(prev => ({ ...prev, colors: true }));
-    handleItemClick("models", model);
-
-    try {
-      const response = await fetchWithRetry(`${API_URL}/motors/motorcolors/${model}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        }
-      }, 3, 1000, 'Colors');
-      setColors(response.data.colors);
-
-    } catch (error) {
-      console.error('Error fetching colors:', error);
-    } finally {
-      setLoading(prev => ({ ...prev, colors: false }));
-    }
-  }, 500);
-
-  const fetchChassisByColor = debounce(async (color) => {
-    setLoading(prev => ({ ...prev, chassis: true }));
-    handleItemClick("colors", color);
-
-    try {
-      const response = await fetchWithRetry(`${API_URL}/motors/motorchassis/${color}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        }
-      }, 3, 1000, 'Chassis');
-      setChassis(response.data.chassis);
-
-    } catch (error) {
-      console.error('Error fetching chassis:', error);
-    } finally {
-      setLoading(prev => ({ ...prev, chassis: false }));
-    }
-  }, 500);
-
+const ModalMotors = ({ show, handleClose, onSelectMotor }) => {
   const [selectedItems, setSelectedItems] = useState({
-    brands: null,
-    models: null,
-    colors: null,
-    chassis: null,
+    brands: '',
+    models: '',
+    colors: '',
+    chassis: '',
   });
 
-  const handleItemClick = (groupKey, index) => {
-    setSelectedItems((prev) => {
-      switch (groupKey) {
-        case "brands":
-          return {
-            brands: index,
-            models: null,
-            colors: null,
-            chassis: null,
-          };
-        case "models":
-          return {
-            ...prev,
-            models: index,
-            colors: null,
-            chassis: null,
-          };
-        case "colors":
-          return {
-            ...prev,
-            colors: index,
-            chassis: null,
-          };
-        case "chassis":
-          return {
-            ...prev,
-            chassis: index,
-          };
-        default:
-          return prev;
-      }
-    });
+  // 1. Fetch Brands (Auto load pag open ng modal)
+  const { data: brands = [], isLoading: loadingBrands } = useMotorBrands({
+    enabled: show
+  });
+
+  // 2. Fetch Models (Depende sa napiling brand)
+  const { data: models = [], isFetching: loadingModels } = useMotorModels(selectedItems.brands);
+
+  // 3. Fetch Colors (Depende sa napiling model)
+  const { data: colors = [], isFetching: loadingColors } = useMotorColors(selectedItems.models);
+
+  // 4. Fetch Chassis (Depende sa napiling color)
+  const { data: chassis = [], isFetching: loadingChassis } = useMotorChassis(selectedItems.colors);
+  
+  // Simpleng Click Handler
+  const handleBrandClick = (brand) => {
+    setSelectedItems({ brands: brand, models: '', colors: '', chassis: '' });
   };
 
-  useEffect(() => {
-    fetchBrands();
-  }, []);
+  const handleModelClick = (model) => {
+    setSelectedItems(prev => ({ ...prev, models: model, colors: '', chassis: '' }));
+  };
+
+  const handleColorClick = (color) => {
+    setSelectedItems(prev => ({ ...prev, colors: color, chassis: '' }));
+  };
+
+  const handleChassisClick = (item) => {
+    setSelectedItems(prev => ({ ...prev, chassis: item }));
+  };
+
+  const handleSelectMotor = (selectedItems) => {
+    // 1. Validation: Siguraduhin na may laman lahat
+    if (!selectedItems.brands || 
+        !selectedItems.models || 
+        !selectedItems.colors || 
+        !selectedItems.chassis
+      ) {
+        alert("Please select Brand, Model, Color, and Chassis before proceeding.");
+        return;
+    }
+
+    const finalData = {
+      motorBrand: selectedItems.brands,
+      motorModel: selectedItems.models,
+      motorColor: selectedItems.colors,
+      motorChassis: selectedItems.chassis.chassis,
+      motorSeries: selectedItems.chassis.series,
+      motorLcp: selectedItems.chassis.interest, 
+      motorCashprice: selectedItems.chassis.cashPrice,
+      motorSrpValue: selectedItems.chassis.srpValue,
+    };
+    // console.log(selectedItems);
+
+    onSelectMotor(finalData);
+    handleClose();
+  };
 
   return (
     <div>
@@ -162,14 +82,14 @@ const ModalMotors = ({ show, handleClose, onSelect }) => {
               <Card>
                 <Card.Header className='cardHeader'>Brands</Card.Header>
                 <ListGroup variant="flush" className='cardList'>
-                  {loading.brands ? (
+                  {loadingBrands ? (
                     <SkeletonListLoading count={3} />
                   ) : (
                     brands?.map((brand, index) => (
                       <ListGroup.Item
                         key={index}
                         active={selectedItems.brands === brand}
-                        onClick={() => fetchModelsByBrand(brand)}
+                        onClick={() => handleBrandClick(brand)}
                       >
                         {brand}
                       </ListGroup.Item>
@@ -182,14 +102,14 @@ const ModalMotors = ({ show, handleClose, onSelect }) => {
               <Card>
                 <Card.Header className='cardHeader'>Models</Card.Header>
                 <ListGroup variant="flush" className='cardList'>
-                  {loading.models ? (
+                  {loadingModels ? (
                     <SkeletonListLoading count={3} />
                   ) : (
                     models?.map((model, index) => (
                       <ListGroup.Item
                         key={index}
                         active={selectedItems.models === model}
-                        onClick={() => fetchColorsByModel(model)}
+                        onClick={() => handleModelClick(model)}
                       >
                         {model}
                       </ListGroup.Item>
@@ -202,14 +122,14 @@ const ModalMotors = ({ show, handleClose, onSelect }) => {
               <Card>
                 <Card.Header className='cardHeader'>Colors</Card.Header>
                 <ListGroup variant="flush" className='cardList'>
-                  {loading.colors ? (
+                  {loadingColors ? (
                     <SkeletonListLoading count={3} />
                   ) : (
                     colors?.map((color, index) => (
                       <ListGroup.Item
                         key={index}
                         active={selectedItems.colors === color}
-                        onClick={() => fetchChassisByColor(color)}
+                        onClick={() => handleColorClick(color)}
                       >
                         {color}
                       </ListGroup.Item>
@@ -222,14 +142,14 @@ const ModalMotors = ({ show, handleClose, onSelect }) => {
               <Card>
                 <Card.Header className='cardHeader'>Chassis</Card.Header>
                 <ListGroup variant="flush" className='cardList'>
-                  {loading.chassis ? (
+                  {loadingChassis ? (
                     <SkeletonListLoading count={3} />
                   ) : (
                     Array.isArray(chassis) && chassis.map((item, index) => (
                       <ListGroup.Item
                         key={index}
-                        active={selectedItems.chassis?.chassis === item.chassis}
-                        onClick={() => handleItemClick("chassis", item)}
+                        active={selectedItems.chassis && selectedItems.chassis.chassis === item.chassis}
+                        onClick={() => handleChassisClick(item)}
                       >
                         {item.chassis}
                       </ListGroup.Item>
@@ -241,7 +161,11 @@ const ModalMotors = ({ show, handleClose, onSelect }) => {
           </Row>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant='success' onClick={() => onSelect(selectedItems)}><FaCheck /> Done</Button>
+          <Button 
+            variant='success' 
+            onClick={() => handleSelectMotor(selectedItems)}
+          >
+            <FaCheck /> Done</Button>
           <Button variant="danger" onClick={handleClose}><FaTimes /> Close</Button>
         </Modal.Footer>
       </Modal>

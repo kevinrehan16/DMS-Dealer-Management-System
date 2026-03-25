@@ -91,6 +91,9 @@ const ModalUser = ({ show, handleClose, userId }) => {
                     {...register("firstName")} 
                     isInvalid={!!errors.firstName}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.firstName?.message}
+                  </Form.Control.Feedback>
                 </Col>
               </Row>
               <Row className='mb-3'>
@@ -106,6 +109,9 @@ const ModalUser = ({ show, handleClose, userId }) => {
                     {...register("lastName")} 
                     isInvalid={!!errors.lastName}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.lastName?.message}
+                  </Form.Control.Feedback>
                 </Col>
               </Row>
               <Row className='mb-3'>
@@ -121,6 +127,9 @@ const ModalUser = ({ show, handleClose, userId }) => {
                     {...register("email")} 
                     isInvalid={!!errors.email}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.email?.message}
+                  </Form.Control.Feedback>
                 </Col>
               </Row>
               <Row className='mb-3'>
@@ -139,6 +148,9 @@ const ModalUser = ({ show, handleClose, userId }) => {
                     <option value='male'>Male</option>
                     <option value='female'>Female</option>
                   </Form.Select>
+                  <Form.Control.Feedback type="invalid">
+                    {errors.gender?.message}
+                  </Form.Control.Feedback>
                 </Col>
               </Row>
               <Row className='mb-3'>
@@ -154,6 +166,9 @@ const ModalUser = ({ show, handleClose, userId }) => {
                     {...register("userName")} 
                     isInvalid={!!errors.userName}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.userName?.message}
+                  </Form.Control.Feedback>
                 </Col>
               </Row>
               <Row className='mb-3'>
@@ -169,6 +184,9 @@ const ModalUser = ({ show, handleClose, userId }) => {
                     {...register("password")} 
                     isInvalid={!!errors.password}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.password?.message}
+                  </Form.Control.Feedback>
                 </Col>
               </Row>
               <Row className='mb-3'>
@@ -185,8 +203,12 @@ const ModalUser = ({ show, handleClose, userId }) => {
                   >
                     <option value=''>--Select User Type--</option>
                     <option value='administrator'>Administrator</option>
+                    <option value='user'>User</option>
                     <option value='staff'>Staff</option>
-                </Form.Select>
+                  </Form.Select>
+                  <Form.Control.Feedback type="invalid">
+                    {errors.userType?.message}
+                  </Form.Control.Feedback>
                 </Col>
               </Row>
             </Col>

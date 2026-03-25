@@ -59,27 +59,11 @@ class User extends Authenticatable
 
     protected $guard_name = 'sanctum';
 
-    protected function firstName(): Attribute {
-        return Attribute::make(
-            set: fn (string $value) => strtolower($value),
-        );
-    }
-
-    protected function lastName(): Attribute {
-        return Attribute::make(
-            set: fn (string $value) => strtolower($value),
-        );
-    }
-
-    protected function email(): Attribute {
-        return Attribute::make(
-            set: fn (string $value) => strtolower($value),
-        );
-    }
-
-    protected function userName(): Attribute {
-        return Attribute::make(
-            set: fn (string $value) => strtolower($value),
-        );
-    }
+    //         //! SETTER and GETTER change formatting in Saving/Updating and Fetching
+    // protected function firstName(): Attribute {
+    //     return Attribute::make(
+    //         set: fn (string $value) => strtolower($value),
+    //         get: fn (string $value) => ucfirst($value),
+    //     );
+    // }
 }

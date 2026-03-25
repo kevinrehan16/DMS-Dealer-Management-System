@@ -1,97 +1,112 @@
-import React, {useState } from 'react'
-import { Modal, Button, Row, Col, Form } from 'react-bootstrap'
-import { FaSave, FaTimes } from "react-icons/fa";
+import React, {useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form';
 
-import axios from 'axios';
+import { Modal, Button, Row, Col, Form, Alert } from 'react-bootstrap'
+import { CircularProgress } from '@mui/material';
+import { FaSave, FaTimes, FaInfoCircle  } from "react-icons/fa";
+
+import { useCreateNewCustomer } from '../../../hooks/HooksCustomer/useCustomer';
 import { formatMobile } from '../../../utils/formatters';
+import { useNotification } from '../../../context/NotificationContext';
 
 const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
-  const API_URL = process.env.REACT_APP_API_URL;
-  const token = sessionStorage.getItem('token');
+  const notify = useNotification();
 
-  const [error, setError] = useState({});
-  const [formCustomerData, setFormCustomerData] = useState({
-    title: '',
-    firstName: '',
-    lastName: '',
-    middleName: '',
-    email: '',
-    gender: '',
-    birthdate: '',
-    mobile: ''
-  });
+  const [customerID, setCustomerId] = useState('');
+  const { mutate: createCustomer, isPending: isCreating } = useCreateNewCustomer();
+  const { register, handleSubmit, reset, setValue, setError, formState: { errors } } = useForm();
   
-  const clearFormCustomerData = () => {
-    setFormCustomerData({
-      title: '',
-      firstName: '',
-      lastName: '',
-      middleName: '',
-      email: '',
-      gender: '',
-      birthdate: '',
-      mobile: ''
-    })
-  }
-
-  const handleInputCustomerChange = (e) => {
-    setFormCustomerData({
-      ...formCustomerData, [e.target.name]: e.target.value
-    })
-  }
-
-  const handleCloseNewCustomer = () => {
-    clearFormCustomerData();
-    setError({});
-    handleClose();
-  }
-
-  const handleSaveNewCustomer = async () => {
-    try {
-      const response = await axios.post(`${API_URL}/customers`, formCustomerData, {
-        headers:{
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
+  const saveNewCustomer = (data) => {
+    createCustomer(data, {
+      onSuccess: (response) => {
+        notify.alertMsg(
+          response.data.message || "New Customer Saved!", 
+          "New customer has beed saved successfully.",
+          "success",
+          "New Customer Saved."
+        );
+        // console.log("Successfully Added Data from Server:", response.data);
+        reset();
+        handleClose();
+      },
+      onError: (error) => {
+        // Check kung validation error galing sa Laravel (Status 422)
+        if (error.response && error.response.status === 422) {
+          const backendErrors = error.response.data.errors;
+          // I-loop ang errors para mag-pula ang textboxes
+          Object.keys(backendErrors).forEach((field) => {
+            setError(field, {
+              type: "server",
+              message: backendErrors[field][0], // Kunin yung unang error message
+            });
+          });
         }
-      });
-      fetchCustomers();
-      clearFormCustomerData();
-      setError({});
-      console.log("New customer saved:", response.data);
-    } catch (error) {
-      if (error.response && error.response.data && error.response.data.errors) {
-        setError(error.response.data.errors);
       }
-      console.error("Error saving new customer:", error);
-    }
+    });
   }
+
+  useEffect(() => {
+    if (!show) return;
+
+    if (customerID) {
+      // reset(formattedData);
+      reset({ 
+        title: '',
+        firstName: '',
+        lastName: '',
+        middleName: '',
+        email: '',
+        gender: '',
+        birthdate: '',
+        mobile: ''
+      });
+    } else {
+      // ADD MODE: Linisin ang form
+      reset({ 
+        title: '',
+        firstName: '',
+        lastName: '',
+        middleName: '',
+        email: '',
+        gender: '',
+        birthdate: '',
+        mobile: '+63'
+      });
+    }
+  }, [customerID, show]);
 
   return (
     <div>
-      <Modal show={show} onHide={handleCloseNewCustomer} size='md' backdrop="static" keyboard={false}>
+      <Modal show={show} onHide={handleClose} size='md' backdrop="static" keyboard={false}>
         <Modal.Header closeButton>
           <Modal.Title>Create New Customer</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Row>
             <Col>
-              <Form>
+              <Alert variant="info" className="d-flex align-items-center shadow-sm border-0">
+                <FaInfoCircle className="me-1" />
+                <div>
+                  <span className='fw-medium'>Note:</span> Kindly fillup all the required 
+                  (<b className='text-danger'>*</b>) informations.
+                </div>
+              </Alert>
+              <Form onSubmit={(e) => e.preventDefault()}>
                 <Form.Group controlId="formTitle" className="mb-2">
                   <Row>
                     <Col xs={3} className="d-flex align-items-center">
-                      <Form.Label className="mb-0">Title</Form.Label>
+                      <Form.Label className="mb-0">Title <b className='text-danger'>*</b>
+                      </Form.Label>
                     </Col>
                     <Col xs={9}>
                       <Form.Select 
                         as='select' 
                         name='title' 
-                        value={formCustomerData.title} 
-                        onChange={handleInputCustomerChange} 
-                        className={error.title ? 'is-invalid' : ''}
+                        {...register("title")}
+                        className={errors.title ? 'is-invalid' : ''}
                         required
                       >
-                        <option value=''>Select Title</option>
+                        <option value=''>-- Select Title --</option>
                         <option value='mr'>Mr.</option>
                         <option value='mrs'>Mrs.</option>
                         <option value='ms'>Ms.</option>
@@ -102,15 +117,15 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                 <Form.Group controlId="formFirstName" className="mb-2">
                   <Row>
                     <Col xs={3} className="d-flex align-items-center">
-                      <Form.Label className="mb-0">First Name</Form.Label>
+                      <Form.Label className="mb-0">First Name <b className='text-danger'>*</b>
+                      </Form.Label>
                     </Col>
                     <Col xs={9}>
                       <Form.Control
                         type="text"
-                        className={`capitalize_text ${error.firstName ? 'is-invalid' : ''}`}
+                        className={`capitalize_text ${errors.firstName ? 'is-invalid' : ''}`}
                         name="firstName"
-                        value={formCustomerData.firstName}
-                        onChange={handleInputCustomerChange}
+                        {...register("firstName")}
                         required
                       />
                     </Col>
@@ -119,15 +134,15 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                 <Form.Group controlId="formLastName" className="mb-2">
                   <Row>
                     <Col xs={3} className="d-flex align-items-center">
-                      <Form.Label className="mb-0">Last Name</Form.Label>
+                      <Form.Label className="mb-0">Last Name <b className='text-danger'>*</b>
+                      </Form.Label>
                     </Col>
                     <Col xs={9}>
                       <Form.Control
                         type="text"
-                        className={`capitalize_text ${error.lastName ? 'is-invalid' : ''}`}
+                        className={`capitalize_text ${errors.lastName ? 'is-invalid' : ''}`}
                         name="lastName"
-                        value={formCustomerData.lastName}
-                        onChange={handleInputCustomerChange}
+                        {...register("lastName")}
                         required
                       />
                     </Col>
@@ -141,10 +156,9 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                     <Col xs={9}>
                       <Form.Control
                         type="text"
-                        className={`capitalize_text ${error.middleName ? 'is-invalid' : ''}`}
+                        className={`capitalize_text ${errors.middleName ? 'is-invalid' : ''}`}
                         name="middleName"
-                        value={formCustomerData.middleName}
-                        onChange={handleInputCustomerChange}
+                        {...register("middleName")}
                         required
                       />
                     </Col>
@@ -153,15 +167,15 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                 <Form.Group controlId="formEmail" className="mb-2">
                   <Row>
                     <Col xs={3} className="d-flex align-items-center">
-                      <Form.Label className="mb-0">Email</Form.Label>
+                      <Form.Label className="mb-0">Email <b className='text-danger'>*</b>
+                      </Form.Label>
                     </Col>
                     <Col xs={9}>
                       <Form.Control
                         type="email"
-                        className={`lowercase_text ${error.email ? 'is-invalid' : ''}`}
+                        className={`lowercase_text ${errors.email ? 'is-invalid' : ''}`}
                         name="email"
-                        value={formCustomerData.email}
-                        onChange={handleInputCustomerChange}
+                        {...register("email")}
                         required
                       />
                     </Col>
@@ -170,37 +184,37 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                 <Form.Group controlId="formGender" className="mb-2">
                   <Row>
                     <Col xs={3} className="d-flex align-items-center">
-                      <Form.Label className="mb-0">Gender</Form.Label>
+                      <Form.Label className="mb-0">Gender <b className='text-danger'>*</b>
+                      </Form.Label>
                     </Col>
                     <Col xs={9}>
-                      <Form.Control 
+                      <Form.Select 
                         as='select' 
                         name='gender' 
-                        value={formCustomerData.gender} 
-                        onChange={handleInputCustomerChange}
-                        className={`${error.gender ? 'is-invalid' : ''}`}
+                        {...register("gender")}
+                        className={`${errors.gender ? 'is-invalid' : ''}`}
                         required
                       >
-                        <option value=''>Select Gender</option>
+                        <option value=''>-- Select Gender --</option>
                         <option value='male'>Male</option>
                         <option value='female'>Female</option>
-                      </Form.Control>
+                      </Form.Select>
                     </Col>
                   </Row>
                 </Form.Group>
                 <Form.Group controlId="formBirthdate" className="mb-2">
                   <Row>
                     <Col xs={3} className="d-flex align-items-center">
-                      <Form.Label className="mb-0">Birthdate</Form.Label>
+                      <Form.Label className="mb-0">Birthdate <b className='text-danger'>*</b>
+                      </Form.Label>
                     </Col>
                     <Col xs={9}>
                       <Form.Control
                         type="date"
                         name="birthdate"
-                        className={`uppercase_text ${error.birthdate ? 'is-invalid' : ''}`}
+                        {...register("birthdate")}
+                        className={`uppercase_text ${errors.birthdate ? 'is-invalid' : ''}`}
                         max={new Date().toISOString().split("T")[0]}
-                        value={formCustomerData.birthdate}
-                        onChange={handleInputCustomerChange}
                         required
                       />
                     </Col>
@@ -215,13 +229,27 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                       <Form.Control
                         type="text"
                         name="mobile"
-                        value={formCustomerData.mobile.startsWith('+63') ? formCustomerData.mobile : '+63' + 
-                          formCustomerData.mobile}
-                        onChange={e => {
-                          const formatted = formatMobile(e.target.value);
-                          setFormCustomerData({ ...formCustomerData, mobile: formatted });
-                        }}
-                        className={`${error.mobile ? 'is-invalid' : ''}`}
+                        {...register("mobile", {
+                        required: "Mobile number is required",
+                        onChange: (e) => {
+                          let val = e.target.value;
+
+                          // 1. Siguraduhin na laging may +63
+                          if (!val.startsWith('+63')) {
+                          // Kung nag-type sila ng "09...", tatanggalin ang "0" at papaltan ng "+639"
+                            val = '+63' + val.replace(/^\+?63?|^0/, '');
+                          }
+
+                          // 2. I-apply ang formatMobile function mo
+                          const formatted = formatMobile(val);
+
+                          // 3. I-update ang value sa react-hook-form manually para mag-reflect sa UI
+                          setValue("mobile", formatted);
+                        }
+                      })}
+                      // Huwag gumamit ng 'value=' dito para hindi mag-error ang React
+                      placeholder="+63-999-999-9999"
+                        className={`${errors.mobile ? 'is-invalid' : ''}`}
                         required
                       />
                     </Col>
@@ -232,10 +260,22 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
           </Row>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={handleSaveNewCustomer} className="d-flex align-items-center justify-content-evenly">
-            <FaSave /> Save
+          <Button 
+            variant="primary" 
+            onClick={handleSubmit(saveNewCustomer)} 
+            className="d-flex align-items-center gap-1"
+          >
+            {isCreating ? 
+              (<><CircularProgress size={20} color="inherit" /> Saving...</>)
+              :
+              (<><FaSave /> Save</>)
+            }
           </Button>
-          <Button variant="danger" onClick={handleCloseNewCustomer} className="d-flex align-items-center justify-content-evenly">
+          <Button 
+            variant="danger" 
+            onClick={handleClose} 
+            className="d-flex align-items-center gap-1"
+          >
             <FaTimes /> Close
           </Button>
         </Modal.Footer>

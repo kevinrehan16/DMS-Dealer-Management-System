@@ -1,17 +1,21 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Row, Col, Form, Button, InputGroup, Table } from "react-bootstrap";
 import { FaUserPlus, FaSearch, FaEdit, FaEye, FaTrash } from "react-icons/fa";
+import { CircularProgress } from "@mui/material";
 import "../../assets/css/Inquiry.css";
+
+import { useInquiry } from "../../hooks/HooksInquiry/useInquiry";
 
 import ModalCreditApplication from "../../components/common/InquiryModals/ModalCreditApplication";
 import ModalInquiry from "../../components/common/InquiryModals/ModalInquiry";
-import ModalCustomers from "../../components/common/InquiryModals/ModalCustomers";
+// import ModalCustomers from "../../components/common/InquiryModals/ModalCustomers";
 
 import { formatAmount } from '../../utils/formatters';
 import { fetchWithRetry } from "../../utils/network";
 import SkeletonRowLoading from "../../components/common/Loading/SkeletonRowLoading";
 
 import { can } from "../../utils/permission";
+import { debounce, filter } from "lodash";
 import axios from "axios";
 
 export default function Inquiry() {
@@ -20,66 +24,69 @@ export default function Inquiry() {
   const API_URL = process.env.REACT_APP_API_URL;
   const token = sessionStorage.getItem('token');
   
-  const [search, setSearch] = useState("");
-  const [branch, setBranch] = useState("");
-  const [filterBy, setFilterBy] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [selectedInquiry, setSelectedInquiry] = useState(null);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    // console.log({ search, branch, filterBy, dateFrom, dateTo });
-  };
 
   const [showModalInquiry, setShowModalInquiry] = useState(false);
   const handleShowInquiry = () => setShowModalInquiry(true);
   const handleCloseInquiry = () => setShowModalInquiry(false);
 
-  const [showModalCustomer, setShowModalCustomer] = useState(false);
-  const handleShowCustomer = () => setShowModalCustomer(true);
-  const handleCloseCustomer = () => setShowModalCustomer(false);
+  // const [showModalCustomer, setShowModalCustomer] = useState(false);
+  // const handleShowCustomer = () => setShowModalCustomer(true);
+  // const handleCloseCustomer = () => setShowModalCustomer(false);
   
-  const [inquiries, setInquiries] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  const fetchInquiries = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await fetchWithRetry(`${API_URL}/inquiries`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-        params: {
-          search: search,
-          filterBy: filterBy,
-        },
-      }, 3, 1000, "Inquiries");
-
-      setInquiries(response.data.inquiries);
-    } catch (error) {
-      console.error("Error fetching inquiries:", error);
-    } finally {
-      setLoading(false);
+  const [searchInfo, setSearchInfo] = useState("");
+  const [userFilterBy, setUserFilterBy] = useState("");
+  const [filters, setFilters] = useState(
+    { 
+      search: '', 
+      filterBy: '' 
     }
-  }, [API_URL, token, search, filterBy]);
+  );
 
-  const editInquiry = async (inqID) => {
-    try {
-      const response = await axios.get(`${API_URL}/inquiries/${inqID}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      });
-      setSelectedInquiry(response.data.data);
-      setShowModalInquiry(true);
-      console.log(selectedInquiry);
-    } catch (error) {
-      console.log(error);
-    }
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      setFilters(prev => ({ ...prev, search: value }));
+    }, 500),
+    []
+  );
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchInfo(value); // Update agad ang textbox para hindi "laggy"
+    debouncedSearch(value); // Tawagin ang debounced function
+  };
+  
+  const handleTypeChange = (e) => {
+    const value = e.target.value;
+    setUserFilterBy(value);
+    setFilters(prev => ({ ...prev, filterBy: value }));
+  };
+
+  const { data: inquiries = [], isLoading, isError, error, refetch, isFetching } = useInquiry(filters);
+
+  const handleShowModalInquiry = (customerID) => {
+    setSelectedCustomerId(customerID);
+    setShowModalInquiry(true);
   }
+
+  // const editInquiry = async (inqID) => {
+  //   try {
+  //     const response = await axios.get(`${API_URL}/inquiries/${inqID}`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         Accept: "application/json",
+  //       },
+  //     });
+  //     setSelectedInquiry(response.data.data);
+  //     setShowModalInquiry(true);
+  //     console.log(selectedInquiry);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
   const [showModalCreditApplication, setshowModalCreditApplication] = useState(false);
   const handleShowModalCreditApplication = (customer_id) => {
@@ -87,10 +94,6 @@ export default function Inquiry() {
     setshowModalCreditApplication(true);
   } 
   const handleCloseModalCreditApplication = () => setshowModalCreditApplication(false);
-
-  useEffect(() => {
-    fetchInquiries();
-  }, [fetchInquiries]);
 
   return (
     <div>
@@ -101,7 +104,7 @@ export default function Inquiry() {
       <div className="inquiry-page">
         <Row>
           <Col md={11}>
-            <Form onSubmit={handleSearch} className="filter-form">
+            <Form onSubmit={(e) => e.preventDefault()} className="filter-form">
               <Row className="align-items-end">
                 <Col md={4}>
                   <Form.Group controlId="search">
@@ -110,11 +113,12 @@ export default function Inquiry() {
                       <Form.Control
                         type="text"
                         placeholder="Search customer..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        value={searchInfo}
+                        onChange={handleSearchChange}
                       />
                       <InputGroup.Text>
-                        <FaSearch />
+                        {/* Spinner icon kung nag-fe-fetch pa sa background */}
+                        {isFetching ? <CircularProgress size={16} /> : <FaSearch />}
                       </InputGroup.Text>
                     </InputGroup>
                   </Form.Group>
@@ -123,7 +127,7 @@ export default function Inquiry() {
                 <Col md={2}>
                   <Form.Group controlId="branch">
                     <Form.Label>Branch</Form.Label>
-                    <Form.Select value={branch} onChange={(e) => setBranch(e.target.value)}>
+                    <Form.Select>
                       <option value="">All</option>
                       <option value="Manila">Manila</option>
                       <option value="Cebu">Cebu</option>
@@ -135,7 +139,7 @@ export default function Inquiry() {
                 <Col md={2}>
                   <Form.Group controlId="filterBy">
                     <Form.Label>Filter By</Form.Label>
-                    <Form.Select value={filterBy} onChange={(e) => setFilterBy(e.target.value)}>
+                    <Form.Select value={userFilterBy} onChange={handleTypeChange}>
                       <option value="">All</option>
                       <option value="walk-in">Walk-In</option>
                       <option value="referral">Referral</option>
@@ -177,7 +181,7 @@ export default function Inquiry() {
           </Col>
           <Col md={1} className="d-flex justify-content-end">
             {can('create inquiry') && (
-              <Button type="submit" variant="primary" className="mt-auto d-flex align-items-center gap-1" onClick={handleShowInquiry}><FaUserPlus /> Inquiry</Button>
+              <Button type="submit" variant="primary" className="mt-auto d-flex align-items-center gap-1" onClick={()=>handleShowModalInquiry(null)}><FaUserPlus /> Inquiry</Button>
             )}
           </Col>
         </Row>
@@ -196,7 +200,7 @@ export default function Inquiry() {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {isLoading ? (
                 [...Array(5)].map((_, index) => (
                   <SkeletonRowLoading key={index} columns={8} />
                 ))
@@ -215,7 +219,7 @@ export default function Inquiry() {
                         variant="info" 
                         size="sm" 
                         className="d-inline-block me-1 text-white"
-                        onClick={()=>editInquiry(inquiry.id)}
+                        onClick={()=>handleShowModalInquiry(inquiry.id)}
                       >
                         <FaEye />
                       </Button>
@@ -243,21 +247,19 @@ export default function Inquiry() {
           customerId={selectedCustomerId}
       />}
 
-      {showModalInquiry &&
-        <ModalInquiry
-          show={showModalInquiry}
-          handleClose={handleCloseInquiry}
-          title="New Inquiry"
-          onOpenGlobalModal={handleShowCustomer}
-          refreshInquiries={fetchInquiries}
-          thisInquiry={selectedInquiry}
-      />}
+      
+      <ModalInquiry
+        show={showModalInquiry}
+        handleClose={handleCloseInquiry}
+        title="New Inquiry"
+        customerID={selectedCustomerId}
+      />
 
-      {showModalCustomer &&
+      {/* {showModalCustomer &&
         <ModalCustomers
           show={showModalCustomer}
           handleClose={handleCloseCustomer}
-      />}
+      />} */}
 
     </div>
   );

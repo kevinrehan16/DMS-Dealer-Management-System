@@ -13,6 +13,7 @@ export const useUsers = (filters = {}) => {
     queryFn: () => userService.getAllUsers(filters), // Mas malinis na!
     staleTime: 5 * 60 * 1000,
     retry: 3,
+    retryDelay: 1000,
   });
 };
 
