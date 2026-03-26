@@ -5,6 +5,8 @@ import { Modal, Button, Row, Col, Form, Alert } from 'react-bootstrap'
 import { CircularProgress } from '@mui/material';
 import { FaSave, FaTimes, FaInfoCircle  } from "react-icons/fa";
 
+import AddressForm from '../AddressModals/ModalChild/AddressForm';
+
 import { useCreateNewCustomer } from '../../../hooks/HooksCustomer/useCustomer';
 import { formatMobile } from '../../../utils/formatters';
 import { useNotification } from '../../../context/NotificationContext';
@@ -23,7 +25,7 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
           response.data.message || "New Customer Saved!", 
           "New customer has beed saved successfully.",
           "success",
-          "New Customer Saved."
+          "Saving Customer."
         );
         // console.log("Successfully Added Data from Server:", response.data);
         reset();
@@ -81,7 +83,7 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
         <Modal.Header closeButton>
           <Modal.Title>Create New Customer</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{ maxHeight: '70vh', overflowY: 'auto' }}>
           <Row>
             <Col>
               <Alert variant="info" className="d-flex align-items-center shadow-sm border-0">
@@ -94,11 +96,11 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
               <Form onSubmit={(e) => e.preventDefault()}>
                 <Form.Group controlId="formTitle" className="mb-2">
                   <Row>
-                    <Col xs={3} className="d-flex align-items-center">
+                    <Col xs={4} className="d-flex align-items-center">
                       <Form.Label className="mb-0">Title <b className='text-danger'>*</b>
                       </Form.Label>
                     </Col>
-                    <Col xs={9}>
+                    <Col xs={8}>
                       <Form.Select 
                         as='select' 
                         name='title' 
@@ -116,11 +118,11 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                 </Form.Group>
                 <Form.Group controlId="formFirstName" className="mb-2">
                   <Row>
-                    <Col xs={3} className="d-flex align-items-center">
+                    <Col xs={4} className="d-flex align-items-center">
                       <Form.Label className="mb-0">First Name <b className='text-danger'>*</b>
                       </Form.Label>
                     </Col>
-                    <Col xs={9}>
+                    <Col xs={8}>
                       <Form.Control
                         type="text"
                         className={`capitalize_text ${errors.firstName ? 'is-invalid' : ''}`}
@@ -133,11 +135,11 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                 </Form.Group>
                 <Form.Group controlId="formLastName" className="mb-2">
                   <Row>
-                    <Col xs={3} className="d-flex align-items-center">
+                    <Col xs={4} className="d-flex align-items-center">
                       <Form.Label className="mb-0">Last Name <b className='text-danger'>*</b>
                       </Form.Label>
                     </Col>
-                    <Col xs={9}>
+                    <Col xs={8}>
                       <Form.Control
                         type="text"
                         className={`capitalize_text ${errors.lastName ? 'is-invalid' : ''}`}
@@ -150,10 +152,10 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                 </Form.Group>
                 <Form.Group controlId="formMiddleName" className="mb-2">
                   <Row>
-                    <Col xs={3} className="d-flex align-items-center">
+                    <Col xs={4} className="d-flex align-items-center">
                       <Form.Label className="mb-0">Middle Name</Form.Label>
                     </Col>
-                    <Col xs={9}>
+                    <Col xs={8}>
                       <Form.Control
                         type="text"
                         className={`capitalize_text ${errors.middleName ? 'is-invalid' : ''}`}
@@ -166,11 +168,11 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                 </Form.Group>
                 <Form.Group controlId="formEmail" className="mb-2">
                   <Row>
-                    <Col xs={3} className="d-flex align-items-center">
-                      <Form.Label className="mb-0">Email <b className='text-danger'>*</b>
+                    <Col xs={4} className="d-flex align-items-center">
+                      <Form.Label className="mb-0">Email Address <b className='text-danger'>*</b>
                       </Form.Label>
                     </Col>
-                    <Col xs={9}>
+                    <Col xs={8}>
                       <Form.Control
                         type="email"
                         className={`lowercase_text ${errors.email ? 'is-invalid' : ''}`}
@@ -183,11 +185,11 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                 </Form.Group>
                 <Form.Group controlId="formGender" className="mb-2">
                   <Row>
-                    <Col xs={3} className="d-flex align-items-center">
+                    <Col xs={4} className="d-flex align-items-center">
                       <Form.Label className="mb-0">Gender <b className='text-danger'>*</b>
                       </Form.Label>
                     </Col>
-                    <Col xs={9}>
+                    <Col xs={8}>
                       <Form.Select 
                         as='select' 
                         name='gender' 
@@ -204,11 +206,11 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                 </Form.Group>
                 <Form.Group controlId="formBirthdate" className="mb-2">
                   <Row>
-                    <Col xs={3} className="d-flex align-items-center">
-                      <Form.Label className="mb-0">Birthdate <b className='text-danger'>*</b>
+                    <Col xs={4} className="d-flex align-items-center">
+                      <Form.Label className="mb-0">Birth Date <b className='text-danger'>*</b>
                       </Form.Label>
                     </Col>
-                    <Col xs={9}>
+                    <Col xs={8}>
                       <Form.Control
                         type="date"
                         name="birthdate"
@@ -222,10 +224,10 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                 </Form.Group>
                 <Form.Group controlId="formMobile" className="mb-2">
                   <Row>
-                    <Col xs={3} className="d-flex align-items-center">
-                      <Form.Label className="mb-0">Mobile #</Form.Label>
+                    <Col xs={4} className="d-flex align-items-center">
+                      <Form.Label className="mb-0">Mobile Number</Form.Label>
                     </Col>
-                    <Col xs={9}>
+                    <Col xs={8}>
                       <Form.Control
                         type="text"
                         name="mobile"
@@ -255,6 +257,14 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                     </Col>
                   </Row>
                 </Form.Group>
+                <hr />
+
+                {/* ADDRESS FORM HERE... */}
+                <AddressForm 
+                  setFormValue={setValue} 
+                  register={register}
+                />
+                
               </Form>
             </Col>
           </Row>

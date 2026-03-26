@@ -30,6 +30,14 @@ class StoreCustomerRequest extends FormRequest
             'gender' => ['required','string','max:10'],
             'birthdate' => ['required','date'],
             'mobile' => ['required','string','max:20','regex:/^\+?[0-9\-\s]+$/'],
+            'addressnum'   => ['nullable','string'],
+            'addressbldg' => ['nullable','string'],
+            'addressstreet'     => ['nullable','string'],
+            'addressssubd'     => ['nullable','string'],
+            'addresssregion'   => ['nullable','string'],
+            'addresssprovince' => ['nullable','string'],
+            'addressscity'     => ['nullable','string'],
+            'addresssbrgy'     => ['nullable','string'],
         ];
     }
 }

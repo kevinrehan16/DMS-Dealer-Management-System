@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Row, Col, Table } from 'react-bootstrap'
 import { formatAmount, formatMobile, dateFormat } from '../../../../utils/formatters';
 
-import { useCreditApplication } from '../../../../hooks/useCreditApplication';
+import { useCreditApplication } from '../../../../hooks/HooksCreditApp/useCreditApplication';
 import SkeletonFormLoading from '../../Loading/SkeletonFormLoading';
 
 // Reusable structural component for the "Label + Value" look

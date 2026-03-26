@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { Row, Col, Form, Button, InputGroup, Table } from "react-bootstrap";
 import { FaUserPlus, FaSearch, FaEdit, FaEye, FaTrash } from "react-icons/fa";
 import { CircularProgress } from "@mui/material";
@@ -11,32 +11,22 @@ import ModalInquiry from "../../components/common/InquiryModals/ModalInquiry";
 // import ModalCustomers from "../../components/common/InquiryModals/ModalCustomers";
 
 import { formatAmount } from '../../utils/formatters';
-import { fetchWithRetry } from "../../utils/network";
 import SkeletonRowLoading from "../../components/common/Loading/SkeletonRowLoading";
 
 import { can } from "../../utils/permission";
-import { debounce, filter } from "lodash";
-import axios from "axios";
+import { debounce } from "lodash";
 
 export default function Inquiry() {
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
-
-  const API_URL = process.env.REACT_APP_API_URL;
-  const token = sessionStorage.getItem('token');
+  const [selectedApplicationId, setSelectedApplicationId] = useState(null);
   
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [selectedInquiry, setSelectedInquiry] = useState(null);
 
 
   const [showModalInquiry, setShowModalInquiry] = useState(false);
-  const handleShowInquiry = () => setShowModalInquiry(true);
   const handleCloseInquiry = () => setShowModalInquiry(false);
 
-  // const [showModalCustomer, setShowModalCustomer] = useState(false);
-  // const handleShowCustomer = () => setShowModalCustomer(true);
-  // const handleCloseCustomer = () => setShowModalCustomer(false);
-  
   const [searchInfo, setSearchInfo] = useState("");
   const [userFilterBy, setUserFilterBy] = useState("");
   const [filters, setFilters] = useState(
@@ -72,25 +62,10 @@ export default function Inquiry() {
     setShowModalInquiry(true);
   }
 
-  // const editInquiry = async (inqID) => {
-  //   try {
-  //     const response = await axios.get(`${API_URL}/inquiries/${inqID}`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //         Accept: "application/json",
-  //       },
-  //     });
-  //     setSelectedInquiry(response.data.data);
-  //     setShowModalInquiry(true);
-  //     console.log(selectedInquiry);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
-
   const [showModalCreditApplication, setshowModalCreditApplication] = useState(false);
-  const handleShowModalCreditApplication = (customer_id) => {
+  const handleShowModalCreditApplication = (customer_id, applicationId) => {
     setSelectedCustomerId(customer_id);
+    setSelectedApplicationId(applicationId);
     setshowModalCreditApplication(true);
   } 
   const handleCloseModalCreditApplication = () => setshowModalCreditApplication(false);
@@ -223,7 +198,7 @@ export default function Inquiry() {
                       >
                         <FaEye />
                       </Button>
-                      <Button variant="warning" size="sm" className="d-inline-block me-1 text-white" onClick={()=>handleShowModalCreditApplication(inquiry.customer.id)}>
+                      <Button variant="warning" size="sm" className="d-inline-block me-1 text-white" onClick={()=>handleShowModalCreditApplication(inquiry.customer.id, inquiry.customer.credit_application.id)}>
                         <FaEdit />
                       </Button>
                       <Button variant="danger" size="sm" className="d-inline-block me-1 text-white">
@@ -238,13 +213,14 @@ export default function Inquiry() {
         </div>
       </div>
 
-      {/* 🔹 Global reusable modal */}
-      {/* 🔹 Inquiry's modal */}
+      {/* Global reusable modal */}
+      {/* Inquiry's modal */}
       {showModalCreditApplication &&
         <ModalCreditApplication
           show={showModalCreditApplication}
           handleClose={handleCloseModalCreditApplication}
           customerId={selectedCustomerId}
+          applicationId={selectedApplicationId}
       />}
 
       
@@ -254,12 +230,6 @@ export default function Inquiry() {
         title="New Inquiry"
         customerID={selectedCustomerId}
       />
-
-      {/* {showModalCustomer &&
-        <ModalCustomers
-          show={showModalCustomer}
-          handleClose={handleCloseCustomer}
-      />} */}
 
     </div>
   );

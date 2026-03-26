@@ -49,7 +49,17 @@ class CreditApplicationBatchController extends Controller
         DB::beginTransaction();
 
         try {
-            $primary = CreditApplicationPrimary::create($request->input('primary'));
+            // IMPORTANT: I-decode ang 'primary' dahil String ito galing sa FormData
+            $primaryData = is_string($request->input('primary'))
+                ? json_decode($request->input('primary'), true)
+                : $request->input('primary');
+
+            $mainTableData = collect($primaryData)->except([
+                'preferenceRows', 'referenceRows', 'incomeRows', 'propertyRows', 'attachments_meta'
+            ])->toArray();
+            // I-save ang main application
+            $primary = CreditApplicationPrimary::create($mainTableData);
+            $primary->refresh();
 
             $primaryId = $primary->id;
             $creditAppId = $primary->creditApp_id;
@@ -57,88 +67,71 @@ class CreditApplicationBatchController extends Controller
 
             $this->inquiryService->updateStatus($customerId, 'investigation');
 
-            foreach ($request->input('preferences', []) as $pref) {
-                CreditApplicationPreferences::create(array_merge(
-                    $pref,
-                    [
-                        'credit_application_primary_id' => $primaryId,
-                        'creditAppPrimary_id' => $creditAppId
-                    ]
-                ));
+            // Listahan ng arrays na kailangang i-loop mula sa loob ng $primaryData
+            $nestedArrays = [
+                'preferenceRows' => CreditApplicationPreferences::class,
+                'referenceRows'  => CreditApplicationReferences::class,
+                'incomeRows'      => CreditApplicationIncome::class,
+                'propertyRows'  => CreditApplicationProperties::class,
+            ];
+
+            foreach ($nestedArrays as $key => $modelClass) {
+                // Kunin ang array mula sa loob ng decoded primary data
+                $rows = $primaryData[$key] ?? [];
+                foreach ($rows as $row) {
+                    // Siguraduhin na hindi empty ang row bago i-save
+                    if (!empty(array_filter($row))) {
+                        $modelClass::create(array_merge($row, [
+                            'credit_application_primary_id' => $primaryId,
+                            'creditAppPrimary_id' => $creditAppId
+                        ]));
+                    }
+                }
             }
 
-            foreach ($request->input('references', []) as $ref) {
-                CreditApplicationReferences::create(array_merge(
-                    $ref,
-                    [
-                        'credit_application_primary_id' => $primaryId,
-                        'creditAppPrimary_id' => $creditAppId
-                    ]
-                ));
-            }
-
-            foreach ($request->input('income', []) as $income) {
-                CreditApplicationIncome::create(array_merge(
-                    $income,
-                    [
-                        'credit_application_primary_id' => $primaryId,
-                        'creditAppPrimary_id' => $creditAppId
-                    ]
-                ));
-            }
-
-            foreach ($request->input('properties', []) as $property) {
-                CreditApplicationProperties::create(array_merge(
-                    $property,
-                    [
-                        'credit_application_primary_id' => $primaryId,
-                        'creditAppPrimary_id' => $creditAppId
-                    ]
-                ));
-            }
-
+            // --- ATTACHMENTS LOGIC ---
             if ($request->hasFile('attachments')) {
-                foreach ($request->file('attachments') as $index => $file) {
+                $files = $request->file('attachments');
 
-                    // Get module name from metadata
-                    $moduleName = $request->input("attachments_meta.$index.attReq");
+                // Kunin ang meta mula sa primary data (ito yung filtered meta galing React)
+                $metaData = $primaryData['attachments_meta'] ?? [];
 
-                    // Sanitize module name for filesystem
+                foreach ($files as $index => $file) {
+                    // Dahil filtered na sa React, ang $index 0 ng $files
+                    // ay siguradong $index 0 din ng $metaData.
+                    $meta = $metaData[$index] ?? [];
+
+                    $moduleName = $meta['attReq'] ?? 'Requirement';
                     $moduleNameSafe = preg_replace('/[^A-Za-z0-9_\-]/', '_', $moduleName);
-
-                    // Get original file extension
                     $extension = $file->getClientOriginalExtension();
 
-                    // Make filename: ModuleName_TIMESTAMP.ext to avoid duplicates
-                    $filename = $moduleNameSafe . '.' . $extension;
+                    // Dagdagan ng microtime para kahit mabilis ang upload, unique ang filename
+                    $filename = "{$moduleNameSafe}_" . time() . "_{$index}.{$extension}";
 
-                    // Store file in storage/app/public/credit_app_attachments
+                    // I-store sa: storage/app/public/credit_app_attachments/APP-2024-001/filename.jpg
                     $path = $file->storeAs("credit_app_attachments/{$creditAppId}", $filename, 'public');
 
-                    // Save to database
+                    // I-save sa database record
                     CreditApplicationAttachments::create([
                         'credit_application_primary_id' => $primaryId,
-                        'customer_id'                   => $request->input("attachments_meta.$index.customer_id"),
-                        'creditAppPrimary_id'           => $creditAppId,
-                        'attModule'                     => $moduleName,
-                        'attReq'                        => $request->input("attachments_meta.$index.attReq"),
-                        'attFileName'                   => $path,
-                        'attFileType'                   => $file->getMimeType(),
-                        'attFileSize'                   => $file->getSize(),
+                        'customer_id'           => $customerId,
+                        'creditAppPrimary_id'   => $creditAppId,
+                        'attModule'             => $meta['attModule'] ?? '',
+                        'attReq'                => $moduleName,
+                        'attFileName'           => $path,
+                        'attFileType'           => $file->getMimeType(),
+                        'attFileSize'           => $file->getSize(),
                     ]);
                 }
             }
 
-
-
             DB::commit();
-
             return response()->json(['message' => 'Credit application saved successfully.']);
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
         }
-
     }
 
     /**

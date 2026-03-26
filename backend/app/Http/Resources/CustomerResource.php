@@ -32,12 +32,17 @@ class CustomerResource extends JsonResource
                     'bldg'      => $this->addressbldg,
                     'street'    => $this->addressstreet,
                     'subd'      => $this->addressssubd,
-                    'city'      => $this->addressscity,
-                    'brgy'      => $this->addresssbrgy,
+                    'city'      => $this->formatText($this->addressscity),
+                    'brgy'      => $this->formatText($this->addresssbrgy),
                     'province'  => $this->addresssprovince,
                     'region'    => $this->addresssregion,
             ],
             'createdAt' => $this->created_at,
         ];
+    }
+
+    private function formatText($value)
+    {
+        return $value ? ucwords(strtolower(trim($value))) : null;
     }
 }

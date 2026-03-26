@@ -398,7 +398,6 @@ const ModalInquiry = ({ show, handleClose, title, customerID }) => {
                     <Col xs={8}>
                       <Form.Control
                         type="text"
-                        className="capitalize_text"
                         name="email"
                         {...register("email")}
                         readOnly
@@ -410,6 +409,8 @@ const ModalInquiry = ({ show, handleClose, title, customerID }) => {
                 </Form.Group>
               </Col>
             </Row>
+
+            <hr className='dotted' />
 
             <Row className='my-3 mx-1'>
               <h5>Motorcycle Interested In</h5>

@@ -20,6 +20,14 @@ class Customer extends Model
         'birthdate',
         'mobile',
         'title',
+        'addressnum',
+        'addressbldg',
+        'addressstreet',
+        'addressssubd',
+        'addresssregion',
+        'addresssprovince',
+        'addressscity',
+        'addresssbrgy',
     ];
 
     protected $customIdPrefix = 'C-';

@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Address\AddressController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Inquiry\InquiryController;
@@ -139,6 +140,14 @@ Route::prefix('settings')->controller(RolesController::class)->group(function ()
         Route::post('/setup/permissions', [ModulePermissionController::class,'createModulePermissions']);
         Route::post('/setup/assign-to-role', [ModulePermissionController::class, 'assignModulesToRole']);
     });
+});
+
+Route::prefix('address')->controller(AddressController::class)->group(function () {
+    Route::get('/regions', 'getRegions');
+    Route::get('/provinces/{regCode}', 'getProvinces');
+    Route::get('/cities/{provCode}', 'getCities');
+    // citymunCode naman ang gagamitin natin di,to
+    Route::get('/barangays/{citymunCode}', 'getBarangays');
 });
 
 
