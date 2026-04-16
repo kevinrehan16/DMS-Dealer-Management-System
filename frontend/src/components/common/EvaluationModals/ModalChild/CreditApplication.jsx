@@ -71,7 +71,7 @@ const CreditApplication = ({ applicationId }) => {
         <Col md={4}><DataBlock label="No. of Dependent" value={appData?.otherDependetn} /></Col>
       </Row>
 
-      <DataBlock label="Full Address" value={appData?.presentAddress} />
+      <DataBlock label="Present Address" value={appData?.presentAddress} />
 
       <hr className='dotted' />
 
@@ -101,15 +101,15 @@ const CreditApplication = ({ applicationId }) => {
       <hr className='dotted' />
 
       <DataHeader title="References Information"></DataHeader>
-      <h6 className="mt-1 text-muted small fw-medium">Credit References</h6>
+      <h6 className="mt-1 text-muted small fw-medium">Personal References</h6>
       <Row>
         <Col md={12}>
           <Table bordered hover size="sm" className="small shadow-sm">
             <thead className="table-secondary">
               <tr>
                 <th width="24">Full Name</th>
-                <th width="38">Address</th>
-                <th width="20">Contact #</th>
+                <th width="36">Address</th>
+                <th width="22">Contact #</th>
                 <th width="18">Relationship</th>
               </tr>
             </thead>
@@ -127,18 +127,18 @@ const CreditApplication = ({ applicationId }) => {
         </Col>
       </Row>
       <hr className='dotted'/>
-      <h6 className="mt-1 text-muted small fw-medium">Personal References</h6>
+      <h6 className="mt-1 text-muted small fw-medium">Credit References</h6>
       <Row>
         <Col md={12}>
           <Table bordered hover size="sm" className="small shadow-sm">
             <thead className="table-secondary">
               <tr>
                 <th width="18%">Creditor</th>
-                <th width="28%">Address</th>
+                <th width="27%">Address</th>
                 <th width="15%">Date Granted</th>
                 <th width="12%">Original Balance</th>
                 <th width="12%">Present Balance</th>
-                <th width="15%">Monthly Installment</th>
+                <th width="16%">Monthly Installment</th>
               </tr>
             </thead>
             <tbody>

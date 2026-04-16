@@ -125,7 +125,8 @@ Route::prefix('requirements')->controller(RequirementController::class)->group(f
 });
 
 Route::middleware('auth:sanctum')->prefix('evaluation')->group(function () {
-    Route::get('/{id}', [CreditApplicationPrimaryController::class, 'show']);
+    Route::get('/creditapplication/{id}', [CreditApplicationPrimaryController::class, 'show']);
+    Route::get('/creditinvestigation/{id}', [CreditInvestigationPrimaryController::class, 'show']);
 });
 
 Route::prefix('settings')->controller(RolesController::class)->group(function () {

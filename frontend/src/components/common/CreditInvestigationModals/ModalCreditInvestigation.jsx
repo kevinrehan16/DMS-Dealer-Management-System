@@ -224,7 +224,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
     <div>
       <Modal show={show} onHide={closeModalInvestigation} size='xl' backdrop="static" keyboard={false} dialogClassName="custom-modal">
         <Modal.Header closeButton>
-          <Modal.Title>Modal Copy</Modal.Title>
+          <Modal.Title>Credit Investigation</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Row>

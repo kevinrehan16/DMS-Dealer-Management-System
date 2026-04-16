@@ -3,6 +3,7 @@ import { Modal, Row, Col, Table, Button } from 'react-bootstrap';
 import { FaMapMarkerAlt, FaInfoCircle, FaTimes } from "react-icons/fa";
 
 import CreditApplication from './ModalChild/CreditApplication';
+import CreditInvestigation from './ModalChild/CreditInvestigation';
 
 // Reusable structural component for the "Label + Value" look
 const DataBlock = ({ label, value }) => ( // Add 'value' here
@@ -25,14 +26,7 @@ const DataBlock = ({ label, value }) => ( // Add 'value' here
 //   </h5>
 // );
 
-const ModalCompare = ({ show, handleClose, applicationId }) => {
-
-  // const [creditinfo, setCreditInfo] = useState({
-  //   lastName: 'Macandog',
-  //   middleName: 'Francisco',
-  //   firstName: 'Kevin',
-
-  // })
+const ModalCompare = ({ show, handleClose, applicationId, investigationId }) => {
 
   return (
     <Modal show={show} onHide={handleClose} size="xl" backdrop="static" keyboard={false} dialogClassName="custom-modal">
@@ -232,93 +226,7 @@ const ModalCompare = ({ show, handleClose, applicationId }) => {
               overflowY: 'auto'
             }}
           >
-            <h4 className="text-muted text-center pb-2 mb-4 fw-bold uppercase_text">
-              CREDIT INVESTIGATION
-            </h4>
-            <h5 className="text-success border-bottom pb-2 mb-3 fs-6 fw-bold uppercase_text">
-              Customer Information
-            </h5>
-
-            <Row className="g-2">
-              <Col md={6}><DataBlock label="Field Title 1" /></Col>
-              <Col md={6}><DataBlock label="Field Title 2" /></Col>
-            </Row>
-
-            <h6 className="mt-3 text-secondary small fw-bold">
-              <FaMapMarkerAlt className="me-1" /> LOCATION GROUP
-            </h6>
-            <Row className="g-2">
-              <Col md={6}><DataBlock label="Address Type A" /></Col>
-              <Col md={6}><DataBlock label="Address Type B" /></Col>
-            </Row>
-
-            <h6 className="mt-3 text-secondary small fw-bold">
-                <FaInfoCircle className="me-1" /> SUMMARY TABLE
-            </h6>
-            <Table striped bordered size="sm" className="small mt-2">
-              <tbody>
-                <tr>
-                  <td className="bg-light fw-bold" width="30%">Label 1</td>
-                  <td></td>
-                  <td className="bg-light fw-bold" width="30%">Label 2</td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td className="bg-light fw-bold">Label 3</td>
-                  <td></td>
-                  <td className="bg-light fw-bold text-primary">TOTAL</td>
-                  <td className="fw-bold"></td>
-                </tr>
-              </tbody>
-            </Table>
-            <Table striped bordered size="sm" className="small mt-2">
-              <tbody>
-                <tr>
-                  <td className="bg-light fw-bold" width="30%">Label 1</td>
-                  <td></td>
-                  <td className="bg-light fw-bold" width="30%">Label 2</td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td className="bg-light fw-bold">Label 3</td>
-                  <td></td>
-                  <td className="bg-light fw-bold text-primary">TOTAL</td>
-                  <td className="fw-bold"></td>
-                </tr>
-              </tbody>
-            </Table>
-            <Table striped bordered size="sm" className="small mt-2">
-              <tbody>
-                <tr>
-                  <td className="bg-light fw-bold" width="30%">Label 1</td>
-                  <td></td>
-                  <td className="bg-light fw-bold" width="30%">Label 2</td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td className="bg-light fw-bold">Label 3</td>
-                  <td></td>
-                  <td className="bg-light fw-bold text-primary">TOTAL</td>
-                  <td className="fw-bold"></td>
-                </tr>
-              </tbody>
-            </Table>
-            <Table striped bordered size="sm" className="small mt-2">
-              <tbody>
-                <tr>
-                  <td className="bg-light fw-bold" width="30%">Label 1</td>
-                  <td></td>
-                  <td className="bg-light fw-bold" width="30%">Label 2</td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td className="bg-light fw-bold">Label 3</td>
-                  <td></td>
-                  <td className="bg-light fw-bold text-primary">TOTAL</td>
-                  <td className="fw-bold"></td>
-                </tr>
-              </tbody>
-            </Table>
+            <CreditInvestigation investigationId={investigationId} />
           </Col>
 
         </Row>

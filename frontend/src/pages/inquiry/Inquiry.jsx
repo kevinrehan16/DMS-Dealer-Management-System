@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { Row, Col, Form, Button, InputGroup, Table } from "react-bootstrap";
-import { FaUserPlus, FaSearch, FaEdit, FaEye, FaTrash } from "react-icons/fa";
+import { FaUserPlus, FaSearch, FaEdit, FaEye, FaTrash, FaMotorcycle } from "react-icons/fa";
 import { CircularProgress } from "@mui/material";
 import "../../assets/css/Inquiry.css";
 
@@ -165,11 +165,10 @@ export default function Inquiry() {
             <thead>
               <tr>
                 <th width='9%'>Inquiry ID</th>
-                <th width='15%'>Customer Name</th>
-                <th width='17%'>Address</th>
+                <th width='20%'>Customer Name</th>
                 <th width='12%'>Mobile #</th>
-                <th width='17%'>Brand/Model/Color</th>
-                <th width='8%'>Cash Price</th>
+                <th width='30%'>Motor</th>
+                <th width='9%'>Cash Price</th>
                 <th width='12%'>Mo. Installment</th>
                 <th width='10%'>Actions</th>
               </tr>
@@ -184,9 +183,16 @@ export default function Inquiry() {
                   <tr key={index}>
                     <td>{inquiry.inquiry_id}</td>
                     <td>{inquiry.customer.firstName} {inquiry.customer.lastName}</td>
-                    <td>{inquiry.customer.addresssbrgy ? inquiry.customer.addresssbrgy + ', ' : ''} {inquiry.customer.addressscity ? inquiry.customer.addressscity : ''}</td>
                     <td>{inquiry.customer.mobile}</td>
-                    <td>{inquiry.motorBrand} / {inquiry.motorModel} / {inquiry.motorColor}</td>
+                    <td>
+                      {/* {inquiry.motorBrand} / {inquiry.motorModel} / {inquiry.motorColor} */}
+                      <h6 style={{ fontSize: '14px', fontWeight: '700' }}className="d-flex align-items-center gap-2"><FaMotorcycle /> {inquiry.motorModel}</h6>
+                      <div className="d-flex align-items-center gap-1 text-muted" style={{ fontSize: '12px' }} >
+                        <span className="motor-detail"><b>Brand: </b>{inquiry.motorBrand}</span>
+                        <span> | </span>
+                        <span className="motor-detail"><b>Color: </b>{inquiry.motorColor}</span>
+                      </div>
+                    </td>
                     <td className="text-end">{formatAmount(inquiry.motorCashprice)}</td>
                     <td className="text-end">{formatAmount(inquiry.motorMonthlyinstallment)}</td>
                     <td className="text-center">

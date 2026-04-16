@@ -8,7 +8,7 @@ export const useCreditApplication = (applicationId) => {
   return useQuery({
     queryKey: ['creditApplication', applicationId],
     queryFn: async () => {
-      const res = await api.get(`/evaluation/${applicationId}`);
+      const res = await api.get(`/evaluation/creditapplication/${applicationId}`);
       return res.data.creditapplications;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes

@@ -11,7 +11,8 @@ class InquiryService
         return Inquiry::with([
                 // Limit which customer columns to include using commentted code below
                 //! 'customer:id,customer_id,firstName,lastName,addressnum,addressbldg,addressstreet,addressssubd,addressscity,addresssbrgy,addresssprovince,addresssregion,mobile'
-                'customer.creditApplication'
+                'customer.creditApplication',
+                'creditInvestigation:id,inquiry_id'
             ])
             // Select only the columns you need from inquiries table
             ->select('id', 'inquiry_id', 'customer_id', 'sourceInquiry', 'motorBrand', 'motorModel', 'motorColor', 'motorCashprice', 'motorMonthlyinstallment', 'date_creditinvestigation', 'time_creditinvestigation')

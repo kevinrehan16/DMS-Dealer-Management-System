@@ -74,4 +74,24 @@ class CreditInvestigationPrimary extends Model
 
     protected $customIdPrefix = 'INV-';
     protected $customIdColumn = 'creditInv_id';
+
+    public function otherSourceIncome() {
+        return $this->hasMany(CreditInvestigationOtherSourceIncome::class, 'inquiry_id', 'inquiry_id')
+                    ->select('id', 'osisource', 'osiamount', 'inquiry_id');
+    }
+
+    public function creditReferences() {
+        return $this->hasMany(CreditInvestigationCreditReferences::class, 'inquiry_id', 'inquiry_id')
+                    ->select('id', 'crcreditor', 'craddress', 'crdategranted', 'crorigbalance', 'crpresbalance', 'crmoinstallment', 'inquiry_id');
+    }
+
+    public function personalReferences() {
+        return $this->hasMany(CreditInvestigationPersonalReference::class, 'inquiry_id', 'inquiry_id')
+                    ->select('id', 'prname', 'praddress', 'prcontact', 'prrelation', 'inquiry_id');
+    }
+
+    public function personalPropertiesOwned() {
+        return $this->hasMany(CreditInvestigationPersonalProperty::class, 'inquiry_id', 'inquiry_id')
+                    ->select('id', 'ppkind', 'pplocation', 'ppvalue', 'ppimbursement', 'inquiry_id');
+    }
 }

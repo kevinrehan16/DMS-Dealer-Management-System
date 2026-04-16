@@ -18,11 +18,13 @@ function AdminEvaluation() {
 
   const { inquiriesContext, loading, getInquiriesContext } = useInquiry();
 
-  const [applicationId, setApplicationId] = useState(2);
+  const [applicationId, setApplicationId] = useState(null);
+  const [investigationId, setInvestigationId] = useState(null);
   const [showModalCompare, setShowModalCompare] = useState(false);
 
-  const handleShowModalCompare = (appID) => {
+  const handleShowModalCompare = (appID, invID) => {
     setApplicationId(appID);
+    setInvestigationId(invID);
     setShowModalCompare(true);
   }
 
@@ -103,7 +105,7 @@ function AdminEvaluation() {
                       <td>
                         <Button 
                           disabled={!row.customer?.credit_application}
-                          onClick={()=> handleShowModalCompare(row.customer?.credit_application?.id)}
+                          onClick={()=> handleShowModalCompare(row.customer?.credit_application?.id, row.credit_investigation?.id)}
                           variant="dark" 
                           size="sm" 
                           className={`${!row.customer?.credit_application ? 'd-none' : 'd-flex'} align-items-center p-2 text-white`}>
@@ -123,6 +125,7 @@ function AdminEvaluation() {
         show={showModalCompare}
         handleClose={handleCloseModalCompare}
         applicationId={applicationId}
+        investigationId={investigationId}
       />
 
     </div>

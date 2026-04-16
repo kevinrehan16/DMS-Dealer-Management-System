@@ -6,9 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreCreditInvestigationPrimaryRequest;
 use App\Models\CreditInvestigationPrimary;
+use App\Services\InvestigationService;
+use App\Http\Resources\CreditInvestigationResource;
 
 class CreditInvestigationPrimaryController extends Controller
 {
+    protected $investigationservice;
+    public function __construct(InvestigationService $investigationservice)
+    {
+        $this->investigationservice = $investigationservice;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -48,7 +55,15 @@ class CreditInvestigationPrimaryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $investigation = CreditInvestigationPrimary::findOrFail($id);
+        $this->authorize('view', $investigation);
+
+        $allcreditinvestigation = $this->investigationservice->getCreditInvestigationById($id);
+
+        return response()->json([
+            //! WHEN USING SHOW FUNCTION use this kind of calling the RESOURCES
+            'creditinvestigations' => new CreditInvestigationResource($allcreditinvestigation)
+        ], 200);
     }
 
     /**
