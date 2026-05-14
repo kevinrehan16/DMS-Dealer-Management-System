@@ -1,4 +1,9 @@
 /* src/pages/AdminLayout/AdminLayout.css */
+html, body, #root, .admin-layout-wrapper {
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+}
 
 .adminlayout-container {
   display: flex;
@@ -29,10 +34,22 @@
 }
 
 .adminlayout-body {
-  flex: 1;
-  overflow-y: auto; /* scroll only content area */
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 60px); /* Height minus Navbar */
+  overflow: hidden; 
+  padding: 15px;
   background-color: #f1f3f5;
+  box-sizing: border-box;
+}
+
+/* IMPORTANTE: Ang Outlet ay nag-render ng div sa loob nito. 
+   Dapat itong div na ito ay maging flex din. */
+.adminlayout-body > div {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
 }
 
 /* Simple CSS Skeleton Animation for table LOADING */

@@ -19,6 +19,7 @@ use App\Http\Controllers\CreditInvestigation\CreditInvestigationPrimaryControlle
 use App\Http\Controllers\Settings\Referentials\RequirementController;
 use App\Http\Controllers\Settings\Roles\RolesController;
 use App\Http\Controllers\Settings\setup\ModulePermissionController;
+use App\Http\Controllers\Cashier\CashierController;
 
 /*
 |--------------------------------------------------------------------------
@@ -127,6 +128,15 @@ Route::prefix('requirements')->controller(RequirementController::class)->group(f
 Route::middleware('auth:sanctum')->prefix('evaluation')->group(function () {
     Route::get('/creditapplication/{id}', [CreditApplicationPrimaryController::class, 'show']);
     Route::get('/creditinvestigation/{id}', [CreditInvestigationPrimaryController::class, 'show']);
+});
+
+Route::prefix('cashier')->controller(CashierController::class)->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        // ROLE'S END POINTS
+        Route::get('/', 'index');
+        Route::get('/{cashier}', 'show');
+        Route::post('/', 'store');
+    });
 });
 
 Route::prefix('settings')->controller(RolesController::class)->group(function () {

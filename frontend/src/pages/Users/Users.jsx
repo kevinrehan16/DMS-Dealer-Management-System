@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useCallback } from 'react'
 
 import PageHeader from '../../components/common/PageHeader'
-import { FaUsers, FaUserEdit, FaSearch, FaUserPlus } from 'react-icons/fa'
+import { FaUserEdit, FaSearch, FaUserPlus } from 'react-icons/fa'
+import { FaUsersGear  } from 'react-icons/fa6'
 import { Row, Col, Form, InputGroup, Button, Table } from 'react-bootstrap'
 import { CircularProgress } from '@mui/material'
 
@@ -52,7 +53,7 @@ function Users() {
 
   return (
     <div>
-      <PageHeader title="Users" Icon={FaUsers} />
+      <PageHeader title="Users" Icon={FaUsersGear} />
 
       <div className="content-page">
         <Row>

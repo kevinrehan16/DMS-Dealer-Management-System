@@ -9,8 +9,9 @@ import { FaAppStore,
           FaUserTie, 
           FaChevronDown, 
           FaRegDotCircle, 
-          FaUsers 
+          FaCashRegister
         } from "react-icons/fa";
+import { FaUsersGear } from "react-icons/fa6";
 import { useLocation, Link } from "react-router-dom";
 import "../../assets/css/Sidebar.css";
 import { can } from "../../utils/permission";
@@ -86,10 +87,18 @@ export default function Sidebar() {
 
         <Nav.Link
           as={Link}
+          to="/cashier"
+          className={`d-flex align-items-center gap-2 ${location.pathname === "/cashier" ? "active" : ""}`}
+        >
+          <FaCashRegister /> Cashier
+        </Nav.Link>
+
+        <Nav.Link
+          as={Link}
           to="/users"
           className={`d-flex align-items-center gap-2 ${location.pathname === "/users" ? "active" : ""}`}
         >
-          <FaUsers /> Users
+          <FaUsersGear  /> Users
         </Nav.Link>
 
         <Nav.Link

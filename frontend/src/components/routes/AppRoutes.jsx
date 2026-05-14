@@ -12,8 +12,9 @@ import { AuthProvider } from "../../context/AuthContext/AuthContext";
 import { NotificationProvider } from "../../context/NotificationContext";
 
 import Inquiry from "../../pages/Inquiry/Inquiry";
-import AdminEvaluation from "../../pages/AdminEvaluation/AdminEvaluation";
 import CreditInvestigation from "../../pages/CreditInvestigation/CreditInvestigation";
+import AdminEvaluation from "../../pages/AdminEvaluation/AdminEvaluation";
+import Cashier from "../../pages/Cashier/cashier";
 import Users from "../../pages/Users/Users";
 import Roles from "../../pages/Settings/Roles";
 
@@ -69,6 +70,7 @@ export default function AppRoutes() {
                             <AdminEvaluation />
                           </InquiryProvider>
                         } />
+              <Route path="/cashier" element={<Cashier />} />
               <Route path="/users" element={<Users />} />
               <Route path="/settings/roles" element={<Roles />} />
             </Route>

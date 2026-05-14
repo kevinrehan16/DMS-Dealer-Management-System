@@ -1,0 +1,45 @@
+/* src/assets/css/ci.css */
+@import url('./Variables.css');
+
+.content-page {
+  background: #fff;
+  padding: 15px;
+  border-radius: .35rem;
+  border: 1px solid #e3e6f0;
+  
+  /* Kakainin nito ang natitirang space sa loob ng .adminlayout-body */
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Pipigilan ang white box na lumampas */
+  
+  /* Walang margin-bottom dito dahil padding ng parent ang magsisilbing gap */
+  margin-bottom: 0; 
+}
+
+.table-section {
+  flex: 1; 
+  overflow-y: auto !important ; /* Dito lang lalabas ang scrollbar */
+  overflow-x: auto !important;
+  margin-top: 15px;
+  border: 1px solid #eee;
+  position: relative;
+}
+
+.table-section thead th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: #343a40 !important; /* O kahit anong kulay ng header mo */
+}
+
+.filter-form .form-label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.filter-form input,
+.filter-form select {
+  border-radius: 6px;
+  box-shadow: none;
+}
