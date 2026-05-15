@@ -1,6 +1,6 @@
 import React from 'react'
 
-const FormTitle = ({ title, subTitle }) => {
+const FormTitle = ({ title, subTitle = '' }) => {
   return (
     <div className="mb-4">
       <div className="d-flex align-items-center">

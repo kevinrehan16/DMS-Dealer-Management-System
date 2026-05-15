@@ -1,227 +1,317 @@
 import React, { useState, useCallback } from "react";
-import { Row, Col, Form, Button, InputGroup, Table } from "react-bootstrap";
-import { FaUserPlus, FaSearch, FaEdit, FaEye, FaTrash, FaMotorcycle } from "react-icons/fa";
+import { Row, Col, Form, Button, InputGroup, Table, Badge, Dropdown } from "react-bootstrap";
+import { 
+  FaUserPlus, FaSearch, FaEdit, FaEye, FaTrash, 
+  FaMotorcycle, FaUser, FaCalendarAlt, FaEllipsisV, FaMobileAlt, FaEnvelopeSquare 
+} from "react-icons/fa";
 import { CircularProgress } from "@mui/material";
-import "../../assets/css/Inquiry.css";
-
-import { useInquiry } from "../../hooks/HooksInquiry/useInquiry";
-
-import ModalCreditApplication from "../../components/common/InquiryModals/ModalCreditApplication";
-import ModalInquiry from "../../components/common/InquiryModals/ModalInquiry";
-// import ModalCustomers from "../../components/common/InquiryModals/ModalCustomers";
-
-import { formatAmount } from '../../utils/formatters';
-import SkeletonRowLoading from "../../components/common/Loading/SkeletonRowLoading";
-
-import { can } from "../../utils/permission";
 import { debounce } from "lodash";
 
+import "../../assets/css/Inquiry.css";
+import { useInquiry } from "../../hooks/HooksInquiry/useInquiry";
+import ModalCreditApplication from "../../components/common/InquiryModals/ModalCreditApplication";
+import ModalInquiry from "../../components/common/InquiryModals/ModalInquiry";
+import { formatAmount, formatShowMobile } from '../../utils/formatters';
+import SkeletonRowLoading from "../../components/common/Loading/SkeletonRowLoading";
+import { can } from "../../utils/permission";
+
+
+
 export default function Inquiry() {
+  // --- ORIGINAL LOGIC STATES ---
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [selectedApplicationId, setSelectedApplicationId] = useState(null);
+  const [actionInquiryId, setActionInquiryId] = useState(null);
+  const [hoverId, setHoverId] = useState(null);
   
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
-
-
   const [showModalInquiry, setShowModalInquiry] = useState(false);
-  const handleCloseInquiry = () => setShowModalInquiry(false);
-
+  const [showModalCreditApplication, setshowModalCreditApplication] = useState(false);
+  
   const [searchInfo, setSearchInfo] = useState("");
   const [userFilterBy, setUserFilterBy] = useState("");
-  const [filters, setFilters] = useState(
-    { 
-      search: '', 
-      filterBy: '',
-      status: 'NEW'
-    }
-  );
+  const [filters, setFilters] = useState({ 
+    search: '', filterBy: '', status: 'NEW', from_date: '', to_date: '' 
+  });
 
-  const debouncedSearch = useCallback(
-    debounce((value) => {
+  // --- ORIGINAL FUNCTIONS ---
+  const handleCloseInquiry = () => setShowModalInquiry(false);
+  const handleCloseModalCreditApplication = () => setshowModalCreditApplication(false);
+
+  const debouncedSearch = useCallback(debounce((value) => {
       setFilters(prev => ({ ...prev, search: value }));
-    }, 500),
-    []
-  );
+    }, 500), []);
 
   const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchInfo(value); // Update agad ang textbox para hindi "laggy"
-    debouncedSearch(value); // Tawagin ang debounced function
+    setSearchInfo(e.target.value);
+    debouncedSearch(e.target.value);
   };
-  
+
   const handleTypeChange = (e) => {
     const value = e.target.value;
     setUserFilterBy(value);
     setFilters(prev => ({ ...prev, filterBy: value }));
   };
 
-  const { data: inquiries = [], isLoading, isError, error, refetch, isFetching } = useInquiry(filters);
-
   const handleShowModalInquiry = (customerID) => {
     setSelectedCustomerId(customerID);
     setShowModalInquiry(true);
   }
 
-  const [showModalCreditApplication, setshowModalCreditApplication] = useState(false);
   const handleShowModalCreditApplication = (customer_id, applicationId) => {
     setSelectedCustomerId(customer_id);
     setSelectedApplicationId(applicationId);
     setshowModalCreditApplication(true);
-  } 
-  const handleCloseModalCreditApplication = () => setshowModalCreditApplication(false);
+  }
+
+  const { data: inquiries = [], isLoading, isFetching } = useInquiry(filters);
 
   return (
-    <div>
-      <div className="inquiry-header">
-        <h4>INQUIRY</h4>
-      </div>
+    <div className="d-flex flex-column" style={{ height: '100vh', width: '100%', backgroundColor: '#f8f9fa', overflow: 'hidden' }}>
+      
+      {/* HEADER SECTION */}
+      <div className="bg-white border-bottom shadow-sm px-3 py-2">
+        <div className="d-flex justify-content-between align-items-center">
+          <div className="d-flex align-items-center gap-3">
+            <div className="rounded-3 d-flex align-items-center justify-content-center text-dark shadow-sm" 
+                style={{ width: '45px', height: '45px', background: 'linear-gradient(135deg, #fec92a 0%, #ffc107 100%)' }}>
+              <FaUser size={20}/>
+            </div>
+            <div>
+              <h5 className="fw-bold mb-0 text-dark">Inquiry</h5>
+              <small className="text-muted" style={{ fontSize: '11px' }}>Operational Lead Management</small>
+            </div>
+          </div>
 
-      <div className="inquiry-page">
-        <Row>
-          <Col md={11}>
-            <Form onSubmit={(e) => e.preventDefault()} className="filter-form">
-              <Row className="align-items-end">
-                <Col md={4}>
-                  <Form.Group controlId="search">
-                    <Form.Label>Search</Form.Label>
-                    <InputGroup>
-                      <Form.Control
-                        type="text"
-                        placeholder="Search customer..."
-                        value={searchInfo}
-                        onChange={handleSearchChange}
-                      />
-                      <InputGroup.Text>
-                        {/* Spinner icon kung nag-fe-fetch pa sa background */}
-                        {isFetching ? <CircularProgress size={16} /> : <FaSearch />}
-                      </InputGroup.Text>
-                    </InputGroup>
-                  </Form.Group>
-                </Col>
-
-                <Col md={2}>
-                  <Form.Group controlId="branch">
-                    <Form.Label>Branch</Form.Label>
-                    <Form.Select>
-                      <option value="">All</option>
-                      <option value="Manila">Manila</option>
-                      <option value="Cebu">Cebu</option>
-                      <option value="Davao">Davao</option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-
-                <Col md={2}>
-                  <Form.Group controlId="filterBy">
-                    <Form.Label>Filter By</Form.Label>
-                    <Form.Select value={userFilterBy} onChange={handleTypeChange}>
-                      <option value="">All</option>
-                      <option value="walk-in">Walk-In</option>
-                      <option value="referral">Referral</option>
-                      <option value="hth">HTH</option>
-                      <option value="advertisement">Advertisement</option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-
-                <Col md={4}>
-                  <Row>
-                    <Col>
-                      <Form.Group controlId="dateFrom">
-                        <Form.Label>From</Form.Label>
-                        <Form.Control
-                          type="date"
-                          value={dateFrom}
-                          onChange={(e) => setDateFrom(e.target.value)}
-                          max={new Date().toISOString().split("T")[0]}
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col>
-                      <Form.Group controlId="dateTo">
-                        <Form.Label>To</Form.Label>
-                        <Form.Control
-                          type="date"
-                          value={dateTo}
-                          onChange={(e) => setDateTo(e.target.value)}
-                          max={new Date().toISOString().split("T")[0]}
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                </Col>
-
-              </Row>
-            </Form>
-          </Col>
-          <Col md={1} className="d-flex justify-content-end">
-            {can('create inquiry') && (
-              <Button type="submit" variant="primary" className="mt-auto d-flex align-items-center gap-1" onClick={()=>handleShowModalInquiry(null)}><FaUserPlus /> Inquiry</Button>
-            )}
-          </Col>
-        </Row>
-        <div className="table-section mt-4">
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th width='9%'>Inquiry ID</th>
-                <th width='20%'>Customer Name</th>
-                <th width='12%'>Mobile #</th>
-                <th width='30%'>Motor</th>
-                <th width='9%'>Cash Price</th>
-                <th width='12%'>Mo. Installment</th>
-                <th width='10%'>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                [...Array(5)].map((_, index) => (
-                  <SkeletonRowLoading key={index} columns={8} />
-                ))
-              ) : (
-                inquiries && inquiries.map((inquiry, index) => (
-                  <tr key={index}>
-                    <td>{inquiry.inquiry_id}</td>
-                    <td>{inquiry.customer.firstName} {inquiry.customer.lastName}</td>
-                    <td>{inquiry.customer.mobile}</td>
-                    <td>
-                      {/* {inquiry.motorBrand} / {inquiry.motorModel} / {inquiry.motorColor} */}
-                      <h6 style={{ fontSize: '14px', fontWeight: '700' }}className="d-flex align-items-center gap-2"><FaMotorcycle /> {inquiry.motorModel}</h6>
-                      <div className="d-flex align-items-center gap-1 text-muted" style={{ fontSize: '12px' }} >
-                        <span className="motor-detail"><b>Brand: </b>{inquiry.motorBrand}</span>
-                        <span> | </span>
-                        <span className="motor-detail"><b>Color: </b>{inquiry.motorColor}</span>
-                      </div>
-                    </td>
-                    <td className="text-end">{formatAmount(inquiry.motorCashprice)}</td>
-                    <td className="text-end">{formatAmount(inquiry.motorMonthlyinstallment)}</td>
-                    <td className="text-center">
-                      <Button 
-                        variant="info" 
-                        size="sm" 
-                        className="d-inline-block me-1 text-white"
-                        onClick={()=>handleShowModalInquiry(inquiry.id)}
-                      >
-                        <FaEye />
-                      </Button>
-                      <Button variant="warning" size="sm" className="d-inline-block me-1 text-white" onClick={()=>handleShowModalCreditApplication(inquiry.customer.id, inquiry.customer.credit_application.id)}>
-                        <FaEdit />
-                      </Button>
-                      <Button variant="danger" size="sm" className="d-inline-block me-1 text-white">
-                        <FaTrash />
-                      </Button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </Table>
+          {can('create inquiry') && (
+            <Button variant="primary" className="rounded px-4 fw-medium shadow-sm d-flex align-items-center gap-2 border-0" 
+              onClick={()=>handleShowModalInquiry(null)}>
+              <FaUserPlus /> NEW INQUIRY
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Global reusable modal */}
-      {/* Inquiry's modal */}
+      {/* FILTER & TABLE AREA */}
+      <div className="flex-grow-1 p-3 d-flex flex-column overflow-hidden">
+        <div className="bg-white rounded-3 shadow-sm border d-flex flex-column h-100 overflow-hidden">
+          
+          <div className="px-3 py-2 bg-light border-bottom">
+            <Row className="g-2 align-items-center"> {/* added align-items-center to be sure */}
+              {/* SEARCH INPUT */}
+              <Col md={4} className="d-flex">
+                <InputGroup className="bg-white rounded border shadow-none" style={{ height: '38px' }}>
+                  <InputGroup.Text className="bg-transparent border-0 pe-1">
+                    {isFetching ? <CircularProgress size={14} /> : <FaSearch className="text-muted" size={14} />}
+                  </InputGroup.Text>
+                  <Form.Control 
+                    className="border-0 shadow-none small" 
+                    placeholder="Search..." 
+                    value={searchInfo} 
+                    onChange={handleSearchChange} 
+                    style={{ fontSize: '14px' }}
+                  />
+                </InputGroup>
+              </Col>
+
+              {/* BRANCH SELECT */}
+              <Col md={2} className="d-flex">
+                <Form.Select 
+                  className="rounded border-secondary-subtle shadow-none small" 
+                  style={{ fontSize: '14px', height: '38px' }}
+                >
+                  <option value="">All Branches</option>
+                </Form.Select>
+              </Col>
+
+              {/* SOURCE SELECT */}
+              <Col md={2} className="d-flex">
+                <Form.Select 
+                  className="rounded border-secondary-subtle shadow-none small" 
+                  style={{ fontSize: '14px', height: '38px' }} 
+                  value={userFilterBy} 
+                  onChange={handleTypeChange}
+                >
+                  <option value="">--All Source--</option>
+                  <option value="walk-in">Walk-In</option>
+                  <option value="referral">Referral</option>
+                  <option value="hth">HTH</option>
+                  <option value="advertisement">Advertisement</option>
+                </Form.Select>
+              </Col>
+
+              {/* DATE RANGE */}
+              <Col md={4} className="d-flex">
+                <div 
+                  className="d-flex align-items-center bg-white rounded px-3 border border-secondary-subtle w-100" 
+                  style={{ height: '38px' }}
+                >
+                  <FaCalendarAlt className="text-primary me-2" size={30}/>
+                  <Form.Control 
+                    type="date" 
+                    className="bg-transparent border-0 shadow-none p-0 small" 
+                    style={{ width: '100%', fontSize: '14px', cursor: 'pointer' }} 
+                    value={filters.from_date} 
+                    onChange={(e) => setFilters({...filters, from_date: e.target.value})}
+                  />
+                  <span className="text-muted mx-2">|</span>
+                  <Form.Control 
+                    type="date" 
+                    className="bg-transparent border-0 shadow-none p-0 small" 
+                    style={{ width: '100%', fontSize: '14px', cursor: 'pointer' }} 
+                    value={filters.to_date} 
+                    onChange={(e) => setFilters({...filters, to_date: e.target.value})}
+                  />
+                </div>
+              </Col>
+            </Row>
+          </div>
+
+          <div className="table-responsive flex-grow-1" style={{ overflowY: 'auto' }}>
+            <Table hover className="align-middle mb-0" style={{ minWidth: '1100px' }}>
+              <thead className="bg-dark text-white sticky-top" style={{ zIndex: 10 }}>
+                <tr className="small text-uppercase fw-bold" style={{ fontSize: '12px' }}>
+                  <th width="18%" className="text-warning ps-3 py-3">Customer Information</th>
+                  <th width="18%" className="ps-2 py-3">Contact Details</th>
+                  <th width="10%" className="text-center py-3">Lead Source</th>
+                  <th width="24%" className="ps-3 py-3">Motorcycle Unit</th>
+                  <th width="12%" className="text-end ps-3 py-3 ">Cash Price</th>
+                  <th width="12%" className="text-end ps-3 py-3">Monthly/Term</th>
+                  <th width="8%" className="text-center py-3 ">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  [...Array(8)].map((_, i) => <SkeletonRowLoading key={i} columns={7} />)
+                ) : (
+                  inquiries.map((inquiry, index) => (
+                    <tr key={index} className="border-bottom">
+                      <td className="ps-3 py-2">
+                        <div className="fw-bold text-primary mb-0" style={{ fontSize: '14px' }}>{inquiry.customer.firstName} {inquiry.customer.lastName}</div>
+                        <div className="text-secondary fw-medium" style={{ fontSize: '11px' }}>ID-{inquiry.inquiry_id}</div>
+                      </td>
+                      <td className="text-dark small" style={{ whiteSpace: 'nowrap' }}>
+                        <div style={{ fontSize: '14px' }}> <FaMobileAlt size={10} /> {formatShowMobile(inquiry.customer.mobile)}</div>
+                        <div className="text-secondary fw-medium" style={{ fontSize: '10px' }}><FaEnvelopeSquare /> {inquiry.customer.email}</div>
+                      </td>
+                      <td className="text-center">
+                        <Badge bg="none" className="text-primary border border-primary-subtle bg-primary-subtle rounded-pill px-3 py-1 fw-semibold" style={{ fontSize: '10px', width: '100%' }}>
+                          {inquiry.sourceInquiry || 'WALK-IN'}
+                        </Badge>
+                      </td>
+                      <td>
+                        <div className="d-flex align-items-center">
+                          <div className="bg-light rounded p-2 me-2 d-flex align-items-center justify-content-center">
+                            <FaMotorcycle className="text-secondary" size={14} />
+                          </div>
+                          <div style={{ lineHeight: '1.2' }}>
+                            <div className="fw-bold text-dark mb-0" style={{ fontSize: '12px' }}>{inquiry.motorBrand} {inquiry.motorModel}</div>
+                            <div className="text-muted" style={{ fontSize: '10px' }}>{inquiry.motorColor}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="text-end fw-bold font-monospace text-dark">₱ {formatAmount(inquiry.motorCashprice)}</td>
+                      <td className="text-end">
+                        <div className="fw-bold text-success font-monospace mb-0">₱ {formatAmount(inquiry.motorMonthlyinstallment)}</div>
+                        <div className="text-muted small" style={{ fontSize: '10px' }}>{inquiry.motorInstallmentterm} Months</div>
+                      </td>
+                      <td className="text-center pe-2">
+                        <Dropdown drop="start" onToggle={(isOpen) => isOpen ? setActionInquiryId(inquiry.id) : setActionInquiryId(null)}>
+                          <Dropdown.Toggle variant="link" className="p-1 hide-caret shadow-none"
+                            onMouseEnter={() => setHoverId(inquiry.id)} onMouseLeave={() => setHoverId(null)}
+                            style={{ color: (actionInquiryId === inquiry.id || hoverId === inquiry.id) ? '#ffc107' : '#adb5bd' }}>
+                            <FaEllipsisV />
+                          </Dropdown.Toggle>
+                          <Dropdown.Menu className="shadow border-0 rounded-3">
+                            <Dropdown.Item 
+                              onClick={() => handleShowModalInquiry(inquiry.id)} 
+                              className="small py-2 px-3"
+                            >
+                              <FaEye className="me-2 mb-1 text-info"/> View Inquiry
+                            </Dropdown.Item>
+                            <Dropdown.Item 
+                              onClick={() => handleShowModalCreditApplication(inquiry.customer.id, inquiry.customer.credit_application.id)} 
+                              className="small py-2 px-3"
+                            >
+                              <FaEdit className="me-2 mb-1 text-primary"/> Apply Credit Application
+                            </Dropdown.Item>
+                            <Dropdown.Divider />
+                            <Dropdown.Item 
+                              className="small py-2 px-3 text-danger"
+                            >
+                              <FaTrash className="me-2 mb-1"/> Remove Inquiry
+                            </Dropdown.Item>
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </Table>
+          </div>
+          {/* Ilagay ito sa ilalim ng iyong table container */}
+          <div className="d-flex justify-content-between align-items-center px-3 py-2 bg-white border-top shadow-sm rounded-bottom-4">
+            
+            {/* Left Side: Summary Info */}
+            <div className="text-muted small">
+              Showing <span className="fw-bold text-dark">1</span> to <span className="fw-bold text-dark">10</span> of <span className="fw-bold text-dark">150</span> inquiries
+            </div>
+
+            {/* Right Side: Pagination Controls */}
+            <nav aria-label="Inquiry pagination">
+              <ul className="pagination pagination-sm mb-0 gap-1">
+                
+                {/* Previous Button */}
+                <li className="page-item disabled">
+                  <button className="page-link rounded-2 border-0 bg-light text-muted px-3" tabIndex="-1">
+                    Previous
+                  </button>
+                </li>
+
+                {/* Page Numbers */}
+                <li className="page-item active shadow-sm" aria-current="page">
+                  <button className="page-link rounded-2 border-0 px-3 fw-bold" 
+                    style={{ background: 'linear-gradient(45deg, #ffc107, #e0a800)', color: '#000' }}>
+                    1
+                  </button>
+                </li>
+                
+                <li className="page-item">
+                  <button className="page-link rounded-2 border-0 text-dark px-3 hover-bg-light">
+                    2
+                  </button>
+                </li>
+                
+                <li className="page-item d-none d-md-block">
+                  <button className="page-link rounded-2 border-0 text-dark px-3 hover-bg-light">
+                    3
+                  </button>
+                </li>
+
+                <li className="page-item disabled">
+                  <span className="page-link border-0 bg-transparent">...</span>
+                </li>
+
+                <li className="page-item">
+                  <button className="page-link rounded-2 border-0 text-dark px-3 hover-bg-light">
+                    15
+                  </button>
+                </li>
+
+                {/* Next Button */}
+                <li className="page-item">
+                  <button className="page-link rounded-2 border-0 bg-light text-dark px-3 fw-medium" 
+                    style={{ border: '1px solid #dee2e6' }}>
+                    Next
+                  </button>
+                </li>
+
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+
       {showModalCreditApplication &&
         <ModalCreditApplication
           show={showModalCreditApplication}
@@ -230,14 +320,12 @@ export default function Inquiry() {
           applicationId={selectedApplicationId}
       />}
 
-      
       <ModalInquiry
         show={showModalInquiry}
         handleClose={handleCloseInquiry}
-        title="New Inquiry"
+        title={selectedCustomerId ? "Update Inquiry" : "New Inquiry"}
         customerID={selectedCustomerId}
       />
-
     </div>
   );
 }

@@ -90,3 +90,8 @@ export const formatCapitalize = (string) => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 };
+
+export const formatShowMobile = (number) => {
+  if (!number) return "N/A";
+  return number.replace(/^\+(\d{2})-/, '(+$1) ').replace(/-/g, '-');
+};

@@ -25,7 +25,8 @@ class InquiryService
                 'motorMonthlyinstallment',
                 'date_creditinvestigation',
                 'time_creditinvestigation',
-                'inquiry_status'
+                'inquiry_status',
+                'motorInstallmentterm'
             )
             // SEARCH LOGIC
             ->where(function ($query) use ($search) {

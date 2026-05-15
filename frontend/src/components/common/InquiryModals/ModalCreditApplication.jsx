@@ -5,6 +5,7 @@ import { CircularProgress } from '@mui/material';
 import { useForm, useFieldArray } from 'react-hook-form';
 
 import ModalAddress from '../AddressModals/ModalAddress';
+import FormTitle from '../FormTitle';
 
 import { useAddressManager } from '../../../hooks/HooksAddress/useAddressManager';
 import { useCreditApplication, useCreateNewCreditApp } from '../../../hooks/HooksCreditApp/useCreditApplication';
@@ -582,8 +583,8 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
                 <Card.Body>
                   <Row>
                     <Col md={7}>
+                      <h5 className='text-warning'>Other Sources Of Income</h5>
                       <div className="table-section">
-                        <h5 className='text-warning'>Other Sources Of Income</h5>
                         <Table striped bordered hover responsive>
                           <thead>
                             <tr>
@@ -654,8 +655,8 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
                 <Card.Body>
                   <Row>
                     <Col md={12}>
+                      <h5 className='text-warning'>Credit References</h5>
                       <div className="table-section">
-                        <h5 className='text-warning'>Credit References</h5>
                         <Table striped bordered hover responsive>
                           <thead>
                             <tr>
@@ -750,8 +751,8 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
 
                   <Row>
                     <Col md={12}>
+                      <h5 className='text-warning'>Personal References</h5>
                       <div className="table-section">
-                        <h5 className='text-warning'>Personal References</h5>
                         <Table striped bordered hover responsive>
                           <thead>
                             <tr>
@@ -840,8 +841,8 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
                 <Card.Body>
                   <Row>
                     <Col md={12}>
+                      <h5 className='text-warning'>Real and/or Personal Properties Owned</h5>
                       <div className="table-section">
-                        <h5 className='text-warning'>Real and/or Personal Properties Owned</h5>
                         <Table striped bordered hover responsive>
                           <thead>
                             <tr>
@@ -931,8 +932,8 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
                 <Card.Body>
                   <Row>
                     <Col md={12}>
+                      <h5 className='text-warning'>Documents</h5>
                       <div className="table-section">
-                        <h5 className='text-warning'>Documents</h5>
                         <Table striped bordered hover responsive>
                           <thead>
                             <tr>

@@ -9,6 +9,7 @@ import { FaSave, FaTimes, FaUserCog, FaMotorcycle  } from "react-icons/fa";
 import "../../../assets/css/Modal.css";
 import ModalMotors from './ModalMotors';
 import ModalCustomers from './ModalCustomers';
+import FormTitle from '../FormTitle';
 
 import { formatAmount, handleAmountBlur, handleAmountFocus, cleanToDouble } from '../../../utils/formatters';
 import { computeMotorFinance } from '../../../utils/computations';
@@ -229,7 +230,7 @@ const ModalInquiry = ({ show, handleClose, title, customerID }) => {
 
           <Modal.Body style={{ maxHeight: '70vh', overflowY: 'auto' }}>
             <Row className='my-3 mx-1'>
-              <h5>Customer Information</h5>
+              <FormTitle title="Customer Information" />
               <br /><br />
               <Col md={6} sm={6} className='px-4'>
                 {/* Hidden IDs here.. */}
@@ -410,10 +411,8 @@ const ModalInquiry = ({ show, handleClose, title, customerID }) => {
               </Col>
             </Row>
 
-            <hr className='dotted' />
-
             <Row className='my-3 mx-1'>
-              <h5>Motorcycle Interested In</h5>
+              <FormTitle title="Motorcycle Interested In" />
               <br /><br />
               <Col md={6} sm={6} className='px-4'>
                 <Form.Group controlId="formBrand" className="mb-2">
