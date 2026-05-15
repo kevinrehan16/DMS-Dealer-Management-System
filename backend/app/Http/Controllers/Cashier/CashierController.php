@@ -25,7 +25,7 @@ class CashierController extends Controller
      */
     public function index(Request $request)
     {
-        $payments = Cashier::with(['inquiry', 'cashier'])
+        $payments = Cashier::with(['inquiry', 'cashier', 'inquiry.customer:id,firstName,lastName'])
             ->when($request->search, function($query, $search) {
                 $query->where('or_number', 'like', "%{$search}%")
                       ->orWhereHas('inquiry', function($q) use ($search) {
@@ -54,7 +54,7 @@ class CashierController extends Controller
         $validated = $request->validate([
             'inquiry_id'       => 'required|exists:inquiries,id',
             'or_number'        => 'required|unique:cashiers,or_number',
-            'payment_type'     => 'required|in:MONTHLY_INSTALLMENT,FULL_CASH',
+            'payment_type'     => 'required|in:MONTHLY_INSTALLMENT,FULL_CASH,RESERVATION,DOWNPAYMENT,PARTIAL_PAYMENT,PENALTY_PAYMENT,ADVANCE_PAYMENT',
             'amount_collected' => 'required|numeric|min:1',
             'payment_mode'     => 'required|string',
             'transaction_date' => 'required|date',

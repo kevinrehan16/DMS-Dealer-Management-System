@@ -2,20 +2,32 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Request;
 use App\Models\Inquiry;
 
 class InquiryService
 {
-    public function listInquiries($search = null, $filterBy = null)
+    public function listInquiries($search = null, $filterBy = null, $status = null)
     {
         return Inquiry::with([
-                // Limit which customer columns to include using commentted code below
-                //! 'customer:id,customer_id,firstName,lastName,addressnum,addressbldg,addressstreet,addressssubd,addressscity,addresssbrgy,addresssprovince,addresssregion,mobile'
                 'customer.creditApplication',
                 'creditInvestigation:id,inquiry_id'
             ])
-            // Select only the columns you need from inquiries table
-            ->select('id', 'inquiry_id', 'customer_id', 'sourceInquiry', 'motorBrand', 'motorModel', 'motorColor', 'motorCashprice', 'motorMonthlyinstallment', 'date_creditinvestigation', 'time_creditinvestigation')
+            ->select(
+                'id',
+                'inquiry_id',
+                'customer_id',
+                'sourceInquiry',
+                'motorBrand',
+                'motorModel',
+                'motorColor',
+                'motorCashprice',
+                'motorMonthlyinstallment',
+                'date_creditinvestigation',
+                'time_creditinvestigation',
+                'inquiry_status'
+            )
+            // SEARCH LOGIC
             ->where(function ($query) use ($search) {
                 if ($search) {
                     $query->whereRaw('inquiry_id ILIKE ?', ["%{$search}%"])
@@ -25,11 +37,42 @@ class InquiryService
                         });
                 }
             })
+            // FILTER BY SOURCE
             ->when($filterBy, function ($query, $filterBy) {
                 $query->whereRaw('"sourceInquiry" ILIKE ?', ["%{$filterBy}%"]);
             })
+            // FILTER BY STATUS (Para sa Evaluation/Investigation modules)
+            ->when($status, function ($query, $status) {
+                if (is_array($status)) {
+                    return $query->whereIn('inquiry_status', $status);
+                }
+                return $query->where('inquiry_status', $status);
+            })
             ->orderBy('id', 'desc')
             ->get();
+    }
+
+    public function getInquiriesForDropdown(Request $request)
+    {
+        $search = $request->query('search');
+
+        $inquiries = Inquiry::with(['customer:id,firstName,lastName'])
+            ->select('id', 'customer_id', 'inquiry_id')
+            ->whereHas('customer', function ($query) use ($search) {
+                if ($search && $search !== '') {
+                    $query->where('firstName', 'ILIKE', "%{$search}%")
+                        ->orWhere('lastName', 'ILIKE', "%{$search}%");
+                }
+            })
+            ->orderBy('id', 'desc')
+            ->limit(20)
+            ->get();
+
+        return $inquiries->map(fn($iq) => [
+            'id' => $iq->id,
+            'inquiry_id' => $iq->inquiry_id,
+            'full_name' => $iq->customer->firstName . ' ' . $iq->customer->lastName
+        ]);
     }
 
     public function saveInquiry(array $data): Inquiry

@@ -24,7 +24,7 @@ class CashierService
             'processed_by'   => auth()->id(),
             'principal_paid' => $principalPortion,
             'interest_paid'  => $interestPortion,
-            'status'         => 'posted'
+            'status'         => 'POSTED'
         ]));
     }
 

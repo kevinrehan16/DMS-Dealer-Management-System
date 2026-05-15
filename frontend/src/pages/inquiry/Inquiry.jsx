@@ -32,7 +32,8 @@ export default function Inquiry() {
   const [filters, setFilters] = useState(
     { 
       search: '', 
-      filterBy: '' 
+      filterBy: '',
+      status: 'NEW'
     }
   );
 

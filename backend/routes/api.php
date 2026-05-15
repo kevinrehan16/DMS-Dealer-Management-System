@@ -58,12 +58,14 @@ Route::middleware('auth:sanctum')->prefix('customers')->group(function () {
 
 Route::middleware('auth:sanctum')->prefix('inquiries')->group(function () {
     Route::get('/', [InquiryController::class, 'index']);
+    Route::get('/information', [InquiryController::class, 'getInquiriesForDropdown']);
     Route::post('/', [InquiryController::class, 'store']);
     Route::get('{inquiry}', [InquiryController::class, 'show']);
     Route::put('{inquiry}', [InquiryController::class, 'update']);
     Route::delete('{inquiry}', [InquiryController::class, 'destroy']);
 
     Route::patch('/assignschedule', [InquiryController::class, 'assignschedule']);
+    Route::post('/bulk-status-update', [InquiryController::class, 'bulkStatusUpdate']);
 });
 
 Route::middleware('auth:sanctum')->prefix('motors')->group(function () {

@@ -29,8 +29,20 @@ class InquiryController extends Controller
 
         $search = $request->input('search');
         $filterBy = $request->input('filterBy');
+        $status = $request->input('status');
 
-        $inquiries = $this->inquiryService->listInquiries($search, $filterBy);
+        $inquiries = $this->inquiryService->listInquiries($search, $filterBy, $status);
+
+        return response()->json([
+            'inquiries' => InquiryResource::collection($inquiries),
+        ], 200);
+    }
+
+    public function getInquiriesForDropdown(Request $request)
+    {
+        $this->authorize('viewAny', Inquiry::class);
+
+        $inquiries = $this->inquiryService->getInquiriesForDropdown($request);
 
         return response()->json([
             'inquiries' => InquiryResource::collection($inquiries),
@@ -114,6 +126,21 @@ class InquiryController extends Controller
         return response()->json([
             'message' => 'Schedule updated successfully.'
         ], 200);
+    }
+
+    public function bulkStatusUpdate(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'status' => 'required|string'
+        ]);
+
+        // Update lahat ng IDs na pinasa sa isang bagsakan
+        Inquiry::whereIn('id', $request->ids)->update([
+            'inquiry_status' => $request->status
+        ]);
+
+        return response()->json(['message' => 'Updated successfully']);
     }
 
 }

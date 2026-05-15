@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { inquiryService, createNewInquiry } from '../../services/ServiceInquiry/inquiryService';
+import { inquiryService } from '../../services/ServiceInquiry/inquiryService';
 import Swal from 'sweetalert2';
 
 const QUERY_KEY = 'inquiries';
@@ -13,6 +13,16 @@ export const useInquiry = (filters = {}) => {
     // Ipasa ang filters sa service function
     queryFn: () => inquiryService.getAllInquiries(filters), // Mas malinis na!
     staleTime: 5 * 60 * 1000,
+    retry: 3,
+    retryDelay: 1000,
+  });
+};
+
+export const useInquiryLookup = (search = '') => {
+  return useQuery({
+    queryKey: ['inquiryLookup', search],
+    queryFn: () => inquiryService.getInquiryLookup(search),
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
     retry: 3,
     retryDelay: 1000,
   });
@@ -54,5 +64,23 @@ export const useEditInquiry = (id) => {
     queryKey: ['inquiry', id],
     queryFn: () => inquiryService.getInquiryById(id),
     enabled: !!id, // Tatakbo lang ito kung may ID (Edit mode)
+  });
+};
+
+export const useUpdateBulkStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    // Ang mutationFn ay tumatanggap ng bulkData kapag tinawag na ang mutate()
+    mutationFn: (bulkData) => inquiryService.updateBulkStatus(bulkData),
+    
+    onSuccess: () => {
+      // I-refresh ang listahan ng inquiries pagkatapos ng update
+      queryClient.invalidateQueries(['inquiries']); 
+      alert("Successfully updated!");
+    },
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+    }
   });
 };

@@ -11,6 +11,13 @@ export const inquiryService = {
     return res.data.inquiries;
   },
 
+  getInquiryLookup: async (search = '') => {
+    const response = await api.get(`${BASE_ROUTE}/information`, {
+      params: { search }
+    });
+    return response.data.inquiries;
+  },
+
   createNewInquiry: async (inquiryData) => {
     const res = await api.post(`${BASE_ROUTE}`, inquiryData);
     return res.data;
@@ -20,5 +27,10 @@ export const inquiryService = {
     const res = await api.get(`${BASE_ROUTE}/${id}`);
     return res.data;
   },
+
+  updateBulkStatus: async (bulkData) => {
+    const res = await api.post(`${BASE_ROUTE}/bulk-status-update`, bulkData);
+    return res.data;
+  }
 
 }
