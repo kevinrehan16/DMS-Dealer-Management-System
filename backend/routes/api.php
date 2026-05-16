@@ -57,8 +57,10 @@ Route::middleware('auth:sanctum')->prefix('customers')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->prefix('inquiries')->group(function () {
-    Route::get('/', [InquiryController::class, 'index']);
     Route::get('/information', [InquiryController::class, 'getInquiriesForDropdown']);
+    Route::get('/schedule-ci', [InquiryController::class, 'getScheduledInquiries']);
+
+    Route::get('/', [InquiryController::class, 'index']);
     Route::post('/', [InquiryController::class, 'store']);
     Route::get('{inquiry}', [InquiryController::class, 'show']);
     Route::put('{inquiry}', [InquiryController::class, 'update']);

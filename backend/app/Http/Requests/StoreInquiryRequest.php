@@ -35,6 +35,9 @@ class StoreInquiryRequest extends FormRequest
             'motorBranchcode' => ['required','string','max:30'],
             'motorInstallmentterm' => ['required','numeric','max:120'],
             'motorCustomertype' => ['required','string','max:20'],
+            'unit_type' => ['required','string','max:15'],
+            'payment_type' => ['required','string','max:15'],
+            'inquiry_status' => ['required', 'string'],
         ];
 
         $numericFields = [
@@ -112,6 +115,8 @@ class StoreInquiryRequest extends FormRequest
             'motorInstallmentPrice' => 'Installment Price',
             'motorAmountfinance' => 'Amount Financed',
             'motorMonthlyuid' => 'Monthly UID',
+            'unit_type' => 'Unit Type',
+            'payment_type' => 'Payment Type',
         ];
     }
 }

@@ -26,7 +26,9 @@ class InquiryService
                 'date_creditinvestigation',
                 'time_creditinvestigation',
                 'inquiry_status',
-                'motorInstallmentterm'
+                'motorInstallmentterm',
+                'unit_type',
+                'payment_type'
             )
             // SEARCH LOGIC
             ->where(function ($query) use ($search) {
@@ -104,6 +106,9 @@ class InquiryService
             'motorAmountfinance' => $data['motorAmountfinance'],
             'motorMonthlyuid' => $data['motorMonthlyuid'],
             'motorCustomertype' => $this->formatName($data['motorCustomertype']),
+            'unit_type' => $data['unit_type'],
+            'payment_type' => $data['payment_type'],
+            'inquiry_status' => $this->formatNameUpper($data['inquiry_status']),
         ]);
     }
 
@@ -116,8 +121,15 @@ class InquiryService
     {
         return Inquiry::whereIn('id', $inquiryIds)
             ->update([
-                'date_creditinvestigation' => $schedule['date_schedule'],
-                'time_creditinvestigation' => $schedule['time_schedule'],
+                // Idagdag itong bagong field
+                'investigator_id'          => $schedule['investigator_id'],
+
+                // Siguraduhin na ang keys dito ay tugma sa pinasa mo mula sa Controller
+                'date_creditinvestigation' => $schedule['date_creditinvestigation'],
+                'time_creditinvestigation' => $schedule['time_creditinvestigation'],
+
+                // Optional: Kung gusto mo ring baguhin ang status pagka-assign
+                'inquiry_status'           => 'FOR_INVESTIGATION',
             ]);
     }
 

@@ -64,6 +64,8 @@ export default function Inquiry() {
   }
 
   const { data: inquiries = [], isLoading, isFetching } = useInquiry(filters);
+  
+  const [filterType, setFilterType] = useState('ALL');
 
   return (
     <div className="d-flex flex-column" style={{ height: '100vh', width: '100%', backgroundColor: '#f8f9fa', overflow: 'hidden' }}>
@@ -72,14 +74,33 @@ export default function Inquiry() {
       <div className="bg-white border-bottom shadow-sm px-3 py-2">
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center gap-3">
-            <div className="rounded-3 d-flex align-items-center justify-content-center text-dark shadow-sm" 
-                style={{ width: '45px', height: '45px', background: 'linear-gradient(135deg, #fec92a 0%, #ffc107 100%)' }}>
+            <div className="icon-box-float text-dark">
               <FaUser size={20}/>
             </div>
             <div>
               <h5 className="fw-bold mb-0 text-dark">Inquiry</h5>
               <small className="text-muted" style={{ fontSize: '11px' }}>Operational Lead Management</small>
             </div>
+          </div>
+          <div className="d-flex gap-2 bg-white p-2 rounded shadow-sm border">
+            <button 
+                className={`btn btn-sm px-4 rounded-pill ${filterType === 'ALL' ? 'btn-secondary' : 'btn-outline-secondary'}`}
+                onClick={() => setFilterType('ALL')}
+            >
+                All Units
+            </button>
+            <button 
+                className={`btn btn-sm px-4 rounded-pill ${filterType === 'Brand New' ? 'btn-success' : 'btn-outline-success'}`}
+                onClick={() => setFilterType('Brand New')}
+            >
+                Brand New
+            </button>
+            <button 
+                className={`btn btn-sm px-4 rounded-pill ${filterType === 'Used/Repo' ? 'btn-danger' : 'btn-outline-danger'}`}
+                onClick={() => setFilterType('Used/Repo')}
+            >
+                Used/Repo
+            </button>
           </div>
 
           {can('create inquiry') && (
@@ -172,8 +193,8 @@ export default function Inquiry() {
                 <tr className="small text-uppercase fw-bold" style={{ fontSize: '12px' }}>
                   <th width="18%" className="text-warning ps-3 py-3">Customer Information</th>
                   <th width="18%" className="ps-2 py-3">Contact Details</th>
-                  <th width="10%" className="text-center py-3">Lead Source</th>
                   <th width="24%" className="ps-3 py-3">Motorcycle Unit</th>
+                  <th width="10%" className="text-center py-3">Lead Source</th>
                   <th width="12%" className="text-end ps-3 py-3 ">Cash Price</th>
                   <th width="12%" className="text-end ps-3 py-3">Monthly/Term</th>
                   <th width="8%" className="text-center py-3 ">Actions</th>
@@ -181,7 +202,7 @@ export default function Inquiry() {
               </thead>
               <tbody>
                 {isLoading ? (
-                  [...Array(8)].map((_, i) => <SkeletonRowLoading key={i} columns={7} />)
+                  [...Array(5)].map((_, i) => <SkeletonRowLoading key={i} columns={7} />)
                 ) : (
                   inquiries.map((inquiry, index) => (
                     <tr key={index} className="border-bottom">
@@ -193,15 +214,10 @@ export default function Inquiry() {
                         <div style={{ fontSize: '14px' }}> <FaMobileAlt size={10} /> {formatShowMobile(inquiry.customer.mobile)}</div>
                         <div className="text-secondary fw-medium" style={{ fontSize: '10px' }}><FaEnvelopeSquare /> {inquiry.customer.email}</div>
                       </td>
-                      <td className="text-center">
-                        <Badge bg="none" className="text-primary border border-primary-subtle bg-primary-subtle rounded-pill px-3 py-1 fw-semibold" style={{ fontSize: '10px', width: '100%' }}>
-                          {inquiry.sourceInquiry || 'WALK-IN'}
-                        </Badge>
-                      </td>
                       <td>
                         <div className="d-flex align-items-center">
-                          <div className="bg-light rounded p-2 me-2 d-flex align-items-center justify-content-center">
-                            <FaMotorcycle className="text-secondary" size={14} />
+                          <div className={`rounded p-2 me-2 d-flex align-items-center justify-content-center border ${inquiry.unit_type === 'Brand_New' ? 'border-success-subtle bg-success-subtle text-success' : 'border-danger-subtle bg-danger-subtle text-danger'}`}>
+                            <FaMotorcycle size={14} />
                           </div>
                           <div style={{ lineHeight: '1.2' }}>
                             <div className="fw-bold text-dark mb-0" style={{ fontSize: '12px' }}>{inquiry.motorBrand} {inquiry.motorModel}</div>
@@ -209,13 +225,27 @@ export default function Inquiry() {
                           </div>
                         </div>
                       </td>
+                      <td className="text-center">
+                        <Badge bg="none" className="text-primary border border-primary-subtle bg-primary-subtle rounded-pill px-3 py-1 fw-semibold" style={{ fontSize: '10px', width: '100%' }}>
+                          {inquiry.sourceInquiry || 'WALK-IN'}
+                        </Badge>
+                      </td>
                       <td className="text-end fw-bold font-monospace text-dark">₱ {formatAmount(inquiry.motorCashprice)}</td>
                       <td className="text-end">
                         <div className="fw-bold text-success font-monospace mb-0">₱ {formatAmount(inquiry.motorMonthlyinstallment)}</div>
                         <div className="text-muted small" style={{ fontSize: '10px' }}>{inquiry.motorInstallmentterm} Months</div>
                       </td>
                       <td className="text-center pe-2">
-                        <Dropdown drop="start" onToggle={(isOpen) => isOpen ? setActionInquiryId(inquiry.id) : setActionInquiryId(null)}>
+                        <Dropdown 
+                          drop="start" 
+                          onToggle={(isOpen) => {
+                            if (isOpen) {
+                              setActionInquiryId(inquiry.id);
+                            } else {
+                              setActionInquiryId(prev => (prev === inquiry.id ? null : prev));
+                            }
+                          }}
+                        >
                           <Dropdown.Toggle variant="link" className="p-1 hide-caret shadow-none"
                             onMouseEnter={() => setHoverId(inquiry.id)} onMouseLeave={() => setHoverId(null)}
                             style={{ color: (actionInquiryId === inquiry.id || hoverId === inquiry.id) ? '#ffc107' : '#adb5bd' }}>

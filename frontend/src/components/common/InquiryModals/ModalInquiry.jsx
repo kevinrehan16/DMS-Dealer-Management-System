@@ -5,7 +5,7 @@ import { useCreateNewInquiry, useEditInquiry } from '../../../hooks/HooksInquiry
 
 import { Modal, Button, Row, Col, Form, InputGroup } from 'react-bootstrap'
 import { CircularProgress } from '@mui/material';
-import { FaSave, FaTimes, FaUserCog, FaMotorcycle  } from "react-icons/fa";
+import { FaSave, FaTimes, FaUserCog, FaMotorcycle, FaWallet, FaClock } from "react-icons/fa";
 import "../../../assets/css/Modal.css";
 import ModalMotors from './ModalMotors';
 import ModalCustomers from './ModalCustomers';
@@ -183,7 +183,7 @@ const ModalInquiry = ({ show, handleClose, title, customerID }) => {
         motorMonthlyinstallment: formatAmount(raw.motorMonthlyinstallment),
       };
       
-        // console.log(formattedData);
+        console.log(formattedData);
         reset(formattedData);
       } else {
         // ADD MODE: Linisin ang form
@@ -217,6 +217,9 @@ const ModalInquiry = ({ show, handleClose, title, customerID }) => {
           motorAmountfinance: "0.00",
           motorMonthlyuid: "0.00",
           motorCustomertype: '',
+          unit_type: 'Brand_New',
+          payment_type: 'Installment',
+          inquiry_status: 'NEW'
         });
       }
     }, [customerID, inquiryData, reset, show, user]);
@@ -418,6 +421,40 @@ const ModalInquiry = ({ show, handleClose, title, customerID }) => {
                 <Form.Group controlId="formBrand" className="mb-2">
                   <Row>
                     <Col xs={4} className="d-flex align-items-center">
+                      <Form.Label className="mb-0">Unit Type</Form.Label>
+                    </Col>
+                    <Col xs={8}>
+                      <div className="btn-group w-100 shadow-sm rounded overflow-hidden" role="group">
+                        <input
+                          type="radio"
+                          className="btn-check"
+                          name="unit_type"
+                          id="brandNew"
+                          value="Brand_New"
+                          {...register("unit_type")}
+                        />
+                        <label className="btn btn-outline-dark text-warning py-2 fw-medium border-secondary-subtle" htmlFor="brandNew">
+                          Brand New
+                        </label>
+
+                        <input
+                          type="radio"
+                          className="btn-check"
+                          name="unit_type"
+                          id="usedRepo"
+                          value="Used_Repo"
+                          {...register("unit_type")}
+                        />
+                        <label className="btn btn-outline-dark text-warning py-2 fw-medium border-secondary-subtle" htmlFor="usedRepo">
+                          Used / Repo
+                        </label>
+                      </div>
+                    </Col>
+                  </Row>
+                </Form.Group>
+                <Form.Group controlId="formBrand" className="mb-2">
+                  <Row>
+                    <Col xs={4} className="d-flex align-items-center">
                       <Form.Label className="mb-0">Brand</Form.Label>
                     </Col>
                     <Col xs={8}>
@@ -606,6 +643,40 @@ const ModalInquiry = ({ show, handleClose, title, customerID }) => {
                 </Form.Group>
               </Col>
               <Col md={6} sm={6} className='px-4'>
+                <Form.Group controlId="formBrand" className="mb-2">
+                  <Row>
+                    <Col xs={4} className="d-flex align-items-center">
+                      <Form.Label className="mb-0">Payment Type</Form.Label>
+                    </Col>
+                    <Col xs={8}>
+                      <div className="btn-group w-100 shadow-sm rounded overflow-hidden" role="group">
+                        <input
+                          type="radio"
+                          className="btn-check"
+                          name="payment_type"
+                          id="cash"
+                          value="Cash"
+                          {...register("payment_type")}
+                        />
+                        <label className="btn btn-outline-warning py-2 fw-medium border-secondary-subtle" htmlFor="cash">
+                          <FaWallet className="me-2 mb-1" /> Full Cash
+                        </label>
+
+                        <input
+                          type="radio"
+                          className="btn-check"
+                          name="payment_type"
+                          id="installment"
+                          value="Installment"
+                          {...register("payment_type")}
+                        />
+                        <label className="btn btn-outline-warning py-2 fw-medium border-secondary-subtle" htmlFor="installment">
+                          <FaClock className="me-2 mb-1" /> Installment
+                        </label>
+                      </div>
+                    </Col>
+                  </Row>
+                </Form.Group>
                 <Form.Group controlId="formBranchCode" className="mb-2">
                   <Row>
                     <Col xs={4} className="d-flex align-items-center">

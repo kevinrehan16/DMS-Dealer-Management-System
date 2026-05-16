@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Resources\InquiryResource;
 use App\Services\InquiryService;
 use App\Http\Requests\StoreInquiryRequest;
+use App\Http\Requests\UpdateInvestigatorRequest;
 
 class InquiryController extends Controller
 {
@@ -111,21 +112,50 @@ class InquiryController extends Controller
         //
     }
 
-    public function assignschedule(Request $request, Inquiry $inquiry)
+    public function assignschedule(UpdateInvestigatorRequest $request, Inquiry $inquiry)
     {
+        // 1. Authorization check (Existing)
         $this->authorize('assign', $inquiry);
 
-        $validated = $request->validate([
-            'id' => 'required|array',
-            'schedule.date_schedule' => 'required|date',
-            'schedule.time_schedule' => 'required'
-        ]);
+        // 2. Kunin ang validated data mula sa iyong New Request File
+        $validated = $request->validated();
 
-        $this->inquiryService->assignSchedule($validated['id'], $validated['schedule']);
+        /**
+         * Dito natin ipapasa ang investigator_id at schedule details.
+         * Note: Dahil array ang 'id' sa luma mong logic (bulk assignment),
+         * kailangan din nating ipasa yung investigator_id doon.
+         */
+        $this->inquiryService->assignSchedule(
+            $validated['id'], // Array ng Inquiry IDs
+            [
+                'investigator_id' => $validated['investigator_id'],
+                'date_creditinvestigation' => $validated['date_creditinvestigation'],
+                'time_creditinvestigation' => $validated['time_creditinvestigation'],
+            ]
+        );
 
         return response()->json([
-            'message' => 'Schedule updated successfully.'
+            'message' => 'Schedule and Investigator assigned successfully.'
         ], 200);
+    }
+
+    public function getScheduledInquiries()
+    {
+        $scheduled = Inquiry::whereNotNull('investigator_id')
+            ->whereNotNull('date_creditinvestigation')
+            ->with('investigator:id,firstName,lastName','customer:id,firstName,lastName') // Para makita kung sino ang naka-assign
+            ->get();
+
+        // I-format para sa FullCalendar
+        $events = $scheduled->map(function($inquiry) {
+            return [
+                'id'    => $inquiry->id,
+                'title' => "CI: ".$inquiry->investigator->firstName.", ".$inquiry->investigator->lastName . " - (By:" . $inquiry->customer->firstName.", ".$inquiry->customer->lastName. ")",
+                'start' => $inquiry->date_creditinvestigation . 'T' . $inquiry->time_creditinvestigation,
+            ];
+        });
+
+        return response()->json($events);
     }
 
     public function bulkStatusUpdate(Request $request)

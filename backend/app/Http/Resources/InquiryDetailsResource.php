@@ -67,6 +67,8 @@ class InquiryDetailsResource extends JsonResource
             'date_creditinvestigation' => $this->date_creditinvestigation,
             'time_creditinvestigation' => $this->time_creditinvestigation,
             'createdAt' => $this->created_at,
+            'unit_type' => $this->unit_type,
+            'payment_type' => $this->payment_type
         ];
     }
 }

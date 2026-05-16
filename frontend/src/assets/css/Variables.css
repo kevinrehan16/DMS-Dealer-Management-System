@@ -118,6 +118,11 @@
   color: var(--card-bg) !important;
 }
 
+.modal-title {
+  color: var(--text-black) !important;
+  font-weight: 900 !important;
+}
+
 .custom-modal {
   max-width: 90% !important;
 }
@@ -143,4 +148,24 @@ input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* Custom utility class para sa "floating" icon */
+.icon-box-float {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(145deg, #ffe082 0%, #ffc107 50%, #e6a700 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem; /* Pareho ng rounded-3 */
+  
+  /* Ang "Floating" effect */
+  box-shadow: 0 10px 20px rgba(255, 193, 7, 0.35); 
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.icon-box-float:hover {
+  transform: translateY(-3px); /* Talagang lulutang pag tinapatan */
+  box-shadow: 0 15px 25px rgba(255, 193, 7, 0.45);
 }
