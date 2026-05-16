@@ -5,8 +5,14 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { FaUserSecret, FaCalendarAlt, FaClock } from 'react-icons/fa';
 
+import { useGetAllScheduleCi } from '../../../hooks/HooksInquiry/useInquiry';
+import { useUsers } from '../../../hooks/HooksUser/useUsers';
+
 const AssignScheduleModal = ({ show, handleClose, assignSchedule, setAssignSchedule, investigators, events, handleSave }) => {
-    
+
+  const { data: scheduleci, loading: loadingSchedule } = useGetAllScheduleCi();
+  const { data:  users = [], loading: loadingUsers } = useUsers('');
+
   // Auto-fill date pag clinick sa calendar
   const handleDateClick = (arg) => {
       setAssignSchedule(prev => ({ ...prev, date_schedule: arg.dateStr }));
@@ -17,38 +23,6 @@ const AssignScheduleModal = ({ show, handleClose, assignSchedule, setAssignSched
       setAssignSchedule(prev => ({ ...prev, [name]: value }));
   };
 
-  const dummyInvestigators = [
-      { id: 1, name: "Bong Go" },
-      { id: 2, name: "Cardo Dalisay" },
-      { id: 3, name: "Lito Lapid" },
-      { id: 4, name: "Raffy Tulfo" },
-      { id: 5, name: "Robin Padilla" }
-  ];
-
-  const dummyEvents = [
-      { 
-          id: '1', 
-          title: 'Cardo - Juan Dela Cruz', 
-          start: '2026-05-18T14:00:00', 
-          backgroundColor: '#007bff', 
-          borderColor: '#007bff' 
-      },
-      { 
-          id: '2', 
-          title: 'Bong - Maria Clara', 
-          start: '2026-05-18T14:30:00', 
-          backgroundColor: '#28a745', 
-          borderColor: '#28a745' 
-      },
-      { 
-          id: '3', 
-          title: 'Tulfo - Jose Rizal', 
-          start: '2026-05-18T14:00:00', 
-          backgroundColor: '#dc3545', 
-          borderColor: '#dc3545' 
-      }
-  ];
-
   return (
     <Modal show={show} onHide={handleClose} size="xl" centered scrollable={false}>
       <Modal.Header closeButton>
@@ -58,32 +32,28 @@ const AssignScheduleModal = ({ show, handleClose, assignSchedule, setAssignSched
       <Modal.Body className="p-0">
         <Row className="g-0">
           {/* LEFT SIDE: CALENDAR AREA */}
-          <Col md={8} className="border-end d-flex flex-column" style={{ height: '80vh' }}>
-            <div className="flex-grow-1 p-3 custom-calendar-scroll" style={{ overflowY: 'auto' }}>
-
-              <div className="border rounded bg-white shadow-sm calendar-wrapper">
-                <FullCalendar
-                  plugins={[dayGridPlugin, interactionPlugin]}
-                  initialView="dayGridMonth"
-                  height="auto" 
-                  stickyHeaderDates={true} // Eto ang kailangan para sa Sun-Sat
-                  headerToolbar={{ 
-                    left: 'prev,next today', 
-                    center: 'title', 
-                    right: '' 
-                  }}
-                  dayHeaderFormat={{ weekday: 'short' }}
-                  events={dummyEvents}
-                  dayMaxEvents={2}
-                  // Form Autofill logic
-                  dateClick={(info) => setAssignSchedule({...assignSchedule, date_schedule: info.dateStr})}
-                  eventContent={(eventInfo) => (
-                    <div className="fc-custom-badge" style={{ backgroundColor: eventInfo.event.backgroundColor }}>
-                      <b>{eventInfo.timeText}</b> {eventInfo.event.title}
-                    </div>
-                  )}
-                />
-              </div>
+          <Col md={8} className="border-end d-flex flex-column" style={{ height: '80vh', overflow: 'hidden' }}>
+            <div className="flex-grow-1 px-3 pb-3 custom-calendar-scroll">
+              <FullCalendar
+                plugins={[dayGridPlugin, interactionPlugin]}
+                initialView="dayGridMonth"
+                height="auto" 
+                stickyHeaderDates={true} 
+                headerToolbar={{ 
+                  left: 'prev,next today', 
+                  center: 'title', 
+                  right: '' 
+                }}
+                dayHeaderFormat={{ weekday: 'short' }}
+                events={scheduleci}
+                dayMaxEvents={2}
+                dateClick={(info) => setAssignSchedule({...assignSchedule, date_schedule: info.dateStr})}
+                eventContent={(eventInfo) => (
+                  <div className="fc-custom-badge bg-dark border border-1 border-gray-800 text-white">
+                    <b>{eventInfo.timeText}</b> {eventInfo.event.title}
+                  </div>
+                )}
+              />
             </div>
           </Col>
 
@@ -104,7 +74,15 @@ const AssignScheduleModal = ({ show, handleClose, assignSchedule, setAssignSched
                       className="bg-light"
                     >
                       <option value="">Choose Personnel...</option>
-                      {/* {dummyInvestigators.map(i => <option key={i.id} value={i.id}>{i.name}</option>)} */}
+                      {users
+                          .slice() // Gawa muna ng kopya para hindi ma-mutate ang original array
+                          .sort((a, b) => a.firstName.localeCompare(b.firstName)) // Alphabetical order by First Name
+                          .map(u => (
+                              <option key={u.id} value={u.id}>
+                                  {u.firstName} {u.lastName}
+                              </option>
+                          ))
+                      }
                     </Form.Select>
                   </div>
                 </ListGroup.Item>

@@ -33,64 +33,100 @@
   box-shadow: none;
 }
 
-/* 1. STICKY HEADERS (MONTH + DAYS) */
+/* 1. Ang main scroll area */
+.custom-calendar-scroll {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: 100% !important;
+    position: relative;
+    padding-top: 15px; /* Ito ang buffer sa taas */
+}
+
+/* 2. STICKY MONTH HEADER (Toolbar) */
 .fc .fc-header-toolbar {
     position: sticky !important;
-    top: 0;
+    top: -15px !important; /* Offset para sa padding-top ng parent */
     background: #ffffff !important;
-    z-index: 10 !important;
-    padding: 10px 10px !important;
+    z-index: 1000 !important;
+    padding: 5px 0 !important;
     margin-bottom: 0 !important;
     border-bottom: 1px solid #dee2e6;
 }
 
-.fc .fc-col-header {
-    position: sticky !important;
-    top: 60px !important; /* Nakadikit sa ilalim ng Month toolbar */
-    background: #ffffff !important;
-    z-index: 9 !important;
+.fc .fc-toolbar-title {
+    font-size: 1rem !important; /* Default nito ay malaki, ginawa nating 1rem */
+    font-weight: 700 !important;
 }
 
-/* 2. IBALIK ANG BORDERS NA NAWALA */
+.fc .fc-button {
+    padding: 2px 8px !important; /* Compact buttons */
+    font-size: 0.75rem !important;
+    height: auto !important;
+    text-transform: capitalize !important;
+}
+
+.fc .fc-icon {
+    font-size: 0.9rem !important;
+    margin-bottom: 2px !important;
+}
+
+.fc-more-link {
+    margin-top: 4px !important;
+    padding: 3px !important;
+    margin-right: 0 auto !important;
+    text-align: center !important;
+    width: 100% !important;
+}
+
+/* 3. STICKY DAYS ROW (SUN-SAT) */
+/* Eto ang pinaka-kritikal na part para hindi sila maghiwalay */
+.fc .fc-scrollgrid-section-header th {
+    position: sticky !important;
+    top: 35px !important; /* Sakto sa ilalim ng toolbar */
+    background: #ffffff !important;
+    z-index: 999 !important;
+    padding: 0 !important;
+}
+
+/* 4. DESIGN FIXES (Ibinabalik ang design mo) */
 .fc-theme-standard td, 
 .fc-theme-standard th, 
 .fc-theme-standard .fc-scrollgrid {
     border: 1px solid #e0e0e0 !important;
 }
 
-/* 3. TANGGALIN ANG UNDERLINE AT AYUSIN ANG DAYS HEADER */
-.fc a {
-    text-decoration: none !important;
-    color: #212529 !important;
-}
-
 .fc .fc-col-header-cell-cushion {
     text-decoration: none !important;
-    padding: 12px 0 !important;
-    font-size: 0.75rem !important;
+    padding: 8px 0 !important;
+    font-size: 0.7rem !important;
     font-weight: 800 !important;
     text-transform: uppercase;
     display: block !important;
+    color: #0d6efd !important; /* Ibinabalik ang blue headers mo */
 }
 
-/* 4. EVENT BADGE DESIGN */
+.fc .fc-col-header {
+    position: sticky !important;
+    top: 38px !important; /* Hula ko lang 'to, i-inspect element mo para sakto */
+    background: #ffffff !important;
+    z-index: 99 !important;
+}
+
+/* Para sa day numbers */
+.fc .fc-daygrid-day-number {
+    text-decoration: none !important;
+    color: #212529 !important;
+    padding: 4px 8px !important;
+}
+
+/* 5. CUSTOM BADGE (Dark design mo) */
 .fc-custom-badge {
     width: 100%;
     padding: 3px 6px;
-    color: white !important;
     border-radius: 4px;
     font-size: 10.5px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
-}
-
-/* 5. FIX PARA SA SCROLLBAR AREA */
-.custom-calendar-scroll::-webkit-scrollbar {
-    width: 6px;
-}
-.custom-calendar-scroll::-webkit-scrollbar-thumb {
-    background: #d1d1d1;
-    border-radius: 10px;
 }

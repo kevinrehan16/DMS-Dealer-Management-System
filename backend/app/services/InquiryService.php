@@ -11,12 +11,14 @@ class InquiryService
     {
         return Inquiry::with([
                 'customer.creditApplication',
-                'creditInvestigation:id,inquiry_id'
+                'creditInvestigation:id,inquiry_id',
+                'investigator:id,lastName,firstName'
             ])
             ->select(
                 'id',
                 'inquiry_id',
                 'customer_id',
+                'investigator_id',
                 'sourceInquiry',
                 'motorBrand',
                 'motorModel',

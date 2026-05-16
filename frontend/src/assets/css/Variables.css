@@ -150,6 +150,47 @@ input[type=number]::-webkit-outer-spin-button {
   margin: 0;
 }
 
+/* Wrapper para sa shadow effect */
+.checkbox-design-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2px;
+}
+
+/* Custom design para sa Form.Check */
+.custom-check-shadow .form-check-input {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+    background-color: #ffffff;
+    border: 2px solid #ced4da;
+    
+    /* Box shadow para mahalata (Glow effect) */
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Kapag naka-check, gawing mas matapang ang kulay at shadow */
+.custom-check-shadow .form-check-input:checked {
+    background-color: #ffc107; /* O kahit anong highlight color mo */
+    border-color: #ffc107;
+    box-shadow: 0 0 12px rgba(255, 193, 7, 0.5);
+    transform: scale(1.1); /* Lumalaki ng konti para pansinin */
+}
+
+/* Hover effect */
+.custom-check-shadow .form-check-input:hover {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    border-color: #ffffff;
+}
+
+/* Focus ring fix */
+.custom-check-shadow .form-check-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
+}
+
 /* Custom utility class para sa "floating" icon */
 .icon-box-float {
   width: 48px;

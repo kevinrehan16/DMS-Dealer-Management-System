@@ -31,6 +31,11 @@ export const inquiryService = {
   updateBulkStatus: async (bulkData) => {
     const res = await api.post(`${BASE_ROUTE}/bulk-status-update`, bulkData);
     return res.data;
-  }
+  },
+
+  getAllScheduleCi: async () => {
+    const res = await api.get(`${BASE_ROUTE}/schedule-ci`);
+    return res.data;
+  },
 
 }

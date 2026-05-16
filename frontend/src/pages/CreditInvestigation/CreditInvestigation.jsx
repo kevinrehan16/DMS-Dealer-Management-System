@@ -175,14 +175,17 @@ function CreditInvestigation() {
             <Table hover className="align-middle mb-0" style={{ minWidth: '1100px' }}>
               <thead className="bg-dark text-white sticky-top" style={{ zIndex: 10 }}>
                 <tr className="small text-uppercase fw-bold" style={{ fontSize: '12px' }}>
-                  <th width='3%' className='text-center'>
-                    <Form>
-                      <Form.Check
-                        type="checkbox"
-                        checked={selectedIds.length === inquiriesContext.length}
-                        onChange={toggleSelectAll}
-                      />
-                    </Form>
+                  <th width='3%' className='text-center ps-2 py-3'>
+                    <div className="checkbox-design-wrapper">
+                      <Form>
+                        <Form.Check
+                          type="checkbox"
+                          className="custom-check-shadow"
+                          checked={selectedIds.length === inquiriesContext.length}
+                          onChange={toggleSelectAll}
+                        />
+                      </Form>
+                    </div>
                   </th>
                   <th width='20%' className="ps-2 py-3">Customer Name</th>
                   <th width='25%' className="ps-2 py-3">Motorcycle Unit</th>
@@ -203,13 +206,16 @@ function CreditInvestigation() {
                   inquiriesContext.map((row, index) => (
                     <tr key={index}>
                       <td className='text-center'>
-                        <Form>
-                          <Form.Check
-                            type="checkbox"
-                            checked={selectedIds.includes(row.id)}
-                            onChange={() => toggleRow(row.id)}
-                          />
-                        </Form>
+                        <div className="checkbox-design-wrapper">
+                          <Form>
+                            <Form.Check
+                              type="checkbox"
+                              className="custom-check-shadow"
+                              checked={selectedIds.includes(row.id)}
+                              onChange={() => toggleRow(row.id)}
+                            />
+                          </Form>
+                        </div>
                       </td>
                       <td className="ps-3 py-2">
                         <div className="fw-bold text-primary mb-0" style={{ fontSize: '14px' }}>{row.customer.firstName} {row.customer.lastName}</div>

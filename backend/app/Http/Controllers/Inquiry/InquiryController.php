@@ -150,7 +150,7 @@ class InquiryController extends Controller
         $events = $scheduled->map(function($inquiry) {
             return [
                 'id'    => $inquiry->id,
-                'title' => "CI: ".$inquiry->investigator->firstName.", ".$inquiry->investigator->lastName . " - (By:" . $inquiry->customer->firstName.", ".$inquiry->customer->lastName. ")",
+                'title' => "CI: ".$inquiry->customer->firstName.", ".$inquiry->customer->lastName." - (By:" . $inquiry->investigator->firstName.", ".$inquiry->investigator->lastName.")",
                 'start' => $inquiry->date_creditinvestigation . 'T' . $inquiry->time_creditinvestigation,
             ];
         });

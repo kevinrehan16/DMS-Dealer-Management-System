@@ -84,3 +84,13 @@ export const useUpdateBulkStatus = () => {
     }
   });
 };
+
+export const useGetAllScheduleCi = () => {
+  return useQuery({
+    queryKey: ['scheduleci'],
+    queryFn: () => inquiryService.getAllScheduleCi(),
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    retry: 3,
+    retryDelay: 1000,
+  });
+}
