@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import "../../assets/css/CreditInvestigation.css"
 import { Row, Col, Form, InputGroup, Button, Table } from 'react-bootstrap'
-import { FaSearch, FaCalendarDay , FaTrash, FaEdit, FaTimes, FaSave, FaUserSecret, FaMotorcycle, FaRegCalendarAlt } from 'react-icons/fa'
+import { FaSearch, FaCalendarDay , FaTrash, FaEdit, FaUserAltSlash, FaUserSecret, FaMotorcycle, FaRegCalendarAlt } from 'react-icons/fa'
 
-import { useInquiry } from '../../context/InquiryContext/InquiryContext'
+// import { useInquiry } from '../../context/InquiryContext/InquiryContext'
+import { useInquiry } from '../../hooks/HooksInquiry/useInquiry'
 
+import SkeletonRowLoading from '../../components/common/Loading/SkeletonRowLoading'
 import GlobalModal from '../../components/common/GlobalModal'
 // import ModalCreditInvestigation from '../../components/common/CreditInvestigationModals/ModalCreditInvestigation-BACKUP'
 import ModalCreditInvestigation from '../../components/common/CreditInvestigationModals/ModalCreditInvestigation'
@@ -16,14 +18,13 @@ import Swal from 'sweetalert2'
 
 
 function CreditInvestigation() {
-  const API_URL = process.env.REACT_APP_API_URL;
-  const token = sessionStorage.getItem('token');
+  const { data: inquiries = [], isLoading: loadingInquiry, isFetching: fetchingInquiry, refetch: refetchInquiry } = useInquiry('')
 
   const [thisInquiryid, setThisInquiryid] = useState(0);
   const [showModalCreditInvestigation, setShowModalCreditInvestigation] = useState(false);
   const [showModalScheduleCi, setShowModalScheduleCi] = useState(false);
 
-  const { inquiriesContext, loading, getInquiriesContext } = useInquiry();
+  // const { inquiriesContext, loading, getInquiriesContext } = useInquiry();
   const [selectedIds, setSelectedIds] = useState([]);
   const [assignSchedule, setAssignSchedule] = useState({
     date_schedule: '',
@@ -44,7 +45,7 @@ function CreditInvestigation() {
 
   const toggleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedIds(inquiriesContext.map(user => user.id));
+      setSelectedIds(inquiries.map(user => user.id));
     } else {
       setSelectedIds([]);
     }
@@ -56,52 +57,52 @@ function CreditInvestigation() {
     );
   };
 
-  const saveAssignSchedule = async () => {
-    const selectedInquiries = inquiriesContext.filter(user =>
-      selectedIds.includes(user.id)
-    );
+  // const saveAssignSchedule = async () => {
+  //   const selectedInquiries = inquiriesContext.filter(user =>
+  //     selectedIds.includes(user.id)
+  //   );
 
-    if (selectedInquiries.length === 0) {
-      alert("Please select at least one inquiry.");
-      return;
-    }
+  //   if (selectedInquiries.length === 0) {
+  //     alert("Please select at least one inquiry.");
+  //     return;
+  //   }
 
-    if (!assignSchedule.date_schedule || !assignSchedule.time_schedule) {
-      alert("Please select Date and Time.");
-      return;
-    }
+  //   if (!assignSchedule.date_schedule || !assignSchedule.time_schedule) {
+  //     alert("Please select Date and Time.");
+  //     return;
+  //   }
 
-    const forScheduleInquiries = {
-      id: selectedIds,
-      schedule: {
-        date_schedule: assignSchedule.date_schedule,
-        time_schedule: assignSchedule.time_schedule
-      }
-    };
+  //   const forScheduleInquiries = {
+  //     id: selectedIds,
+  //     schedule: {
+  //       date_schedule: assignSchedule.date_schedule,
+  //       time_schedule: assignSchedule.time_schedule
+  //     }
+  //   };
 
-    try {
-      const res = await axios.patch(`${API_URL}/inquiries/assignschedule`, forScheduleInquiries, {
-        headers:{
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-      // console.log(res.data);
-      Swal.fire({
-        icon: "success",
-        title: "Schedule assigned successfully",
-        text: "Selected customer's schedule has been updated!",
-      });
+  //   try {
+  //     const res = await axios.patch(`${API_URL}/inquiries/assignschedule`, forScheduleInquiries, {
+  //       headers:{
+  //         Authorization: `Bearer ${token}`,
+  //         Accept: 'application/json',
+  //         'Content-Type': 'application/json'
+  //       }
+  //     });
+  //     // console.log(res.data);
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "Schedule assigned successfully",
+  //       text: "Selected customer's schedule has been updated!",
+  //     });
 
-      getInquiriesContext();
-      setSelectedIds([]);
-      setAssignSchedule({ date_schedule: '', time_schedule: '' });
-      handleCloseScheduleCi();
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  //     getInquiriesContext();
+  //     setSelectedIds([]);
+  //     setAssignSchedule({ date_schedule: '', time_schedule: '' });
+  //     handleCloseScheduleCi();
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // }
 
   const handleAssignSchedule = (e) => {
     setAssignSchedule({
@@ -181,29 +182,25 @@ function CreditInvestigation() {
                         <Form.Check
                           type="checkbox"
                           className="custom-check-shadow"
-                          checked={selectedIds.length === inquiriesContext.length}
+                          checked={selectedIds.length === inquiries.length}
                           onChange={toggleSelectAll}
                         />
                       </Form>
                     </div>
                   </th>
-                  <th width='20%' className="ps-2 py-3">Customer Name</th>
+                  <th width='19%' className="ps-2 py-3">Customer Name</th>
+                  <th width='12%' className="ps-2 py-3">Schedule</th>
+                  <th width='19%' className="ps-2 py-3">Investigator</th>
                   <th width='25%' className="ps-2 py-3">Motorcycle Unit</th>
-                  <th width='12%' className="text-end ps-2 py-3">Monthly/Term</th>
-                  <th width='17%' className="ps-2 py-3">Investigator</th>
-                  <th width='15%' className="ps-2 py-3">Schedule</th>
+                  <th width='14%' className="text-end ps-2 py-3">Monthly/Term</th>
                   <th width='8%' className="ps-2 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan="8" className="text-center">
-                      Loading data...
-                    </td>
-                  </tr>
+                {loadingInquiry ? (
+                  [...Array(5)].map((_, i) => <SkeletonRowLoading key={i} columns={7} />)
                 ) : (
-                  inquiriesContext.map((row, index) => (
+                  inquiries.map((row, index) => (
                     <tr key={index}>
                       <td className='text-center'>
                         <div className="checkbox-design-wrapper">
@@ -221,24 +218,7 @@ function CreditInvestigation() {
                         <div className="fw-bold text-primary mb-0" style={{ fontSize: '14px' }}>{row.customer.firstName} {row.customer.lastName}</div>
                         <div className="text-secondary fw-medium" style={{ fontSize: '11px' }}>ID-{row.inquiry_id}</div>
                       </td>
-                      <td className="text-dark small" style={{ whiteSpace: 'nowrap' }}>
-                        <div className="d-flex align-items-center">
-                          <div className={`rounded p-2 me-2 d-flex align-items-center justify-content-center border ${row.unit_type === 'Brand_New' ? 'border-success-subtle bg-success-subtle text-success' : 'border-danger-subtle bg-danger-subtle text-danger'}`}>
-                            <FaMotorcycle size={14} />
-                          </div>
-                          <div style={{ lineHeight: '1.2' }}>
-                            <div className="fw-bold text-dark mb-0" style={{ fontSize: '12px' }}>{row.motorBrand} {row.motorModel}</div>
-                            <div className="text-muted" style={{ fontSize: '10px' }}>{row.motorColor}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="text-end">
-                        <div className="fw-bold text-success font-monospace mb-0">₱ {formatAmount(row.motorMonthlyinstallment)}</div>
-                        <div className="text-muted small" style={{ fontSize: '10px' }}>{row.motorInstallmentterm} Months</div>
-                      </td>
-                      <td>Investigator</td>
                       <td>
-                        {/* {row.date_creditinvestigation && row.time_creditinvestigation ? `${dateFormat(row.date_creditinvestigation)} | ${timeFormat(row.time_creditinvestigation)}` : ''} */}
                         <div className="d-flex align-items-center">
                           <div className={`rounded p-2 me-2 d-flex align-items-center justify-content-center border 'border-secondary-subtle bg-secondary-subtle text-secondary`}>
                             <FaRegCalendarAlt size={14} />
@@ -259,10 +239,37 @@ function CreditInvestigation() {
                           </div>
                         </div>  
                       </td>
+                      <td>
+                        {row?.investigator?.firstName ? (
+                          <>
+                          <div className="d-flex align-items-center gap-1 fw-normal mb-0" style={{ fontSize: '14px' }}>
+                            <FaUserSecret size={12} className='text-dark' />  {row?.investigator?.firstName} {row?.investigator?.lastName}
+                          </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="d-flex align-items-center text-secondary gap-1 mb-0" style={{ fontSize: '14px' }}>
+                            <FaUserAltSlash size={14} className='text-secondary' />  Unassigned
+                          </div>
+                          </>
+                        )}
+                      </td>
+                      <td className="text-dark small" style={{ whiteSpace: 'nowrap' }}>
+                        <div className="d-flex align-items-center">
+                          <div className={`rounded p-2 me-2 d-flex align-items-center justify-content-center border ${row.unit_type === 'Brand_New' ? 'border-success-subtle bg-success-subtle text-success' : 'border-danger-subtle bg-danger-subtle text-danger'}`}>
+                            <FaMotorcycle size={14} />
+                          </div>
+                          <div style={{ lineHeight: '1.2' }}>
+                            <div className="fw-bold text-dark mb-0" style={{ fontSize: '12px' }}>{row.motorBrand} {row.motorModel}</div>
+                            <div className="text-muted" style={{ fontSize: '10px' }}>{row.motorColor}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="text-end">
+                        <div className="fw-bold text-success font-monospace mb-0">₱ {formatAmount(row.motorMonthlyinstallment)}</div>
+                        <div className="text-muted small" style={{ fontSize: '10px' }}>{row.motorInstallmentterm} Months</div>
+                      </td>
                       <td className='text-center'>
-                        {/* <Button variant="info" size="sm" className="d-inline-block me-1 text-white" onClick={handleShowScheduleCi}>
-                          <FaCalendarDay />
-                        </Button> */}
                         <Button 
                           onClick={()=> handleShowModalCreditInvestigation(row.id)}
                           variant="warning" 
@@ -280,10 +287,70 @@ function CreditInvestigation() {
               </tbody>
             </Table>
           </div>
+          {/* Ilagay ito sa ilalim ng iyong table container */}
+          <div className="d-flex justify-content-between align-items-center px-3 py-2 bg-white border-top shadow-sm rounded-bottom-4">
+            
+            {/* Left Side: Summary Info */}
+            <div className="text-muted small">
+              Showing <span className="fw-bold text-dark">1</span> to <span className="fw-bold text-dark">10</span> of <span className="fw-bold text-dark">150</span> inquiries
+            </div>
+
+            {/* Right Side: Pagination Controls */}
+            <nav aria-label="Inquiry pagination">
+              <ul className="pagination pagination-sm mb-0 gap-1">
+                
+                {/* Previous Button */}
+                <li className="page-item disabled">
+                  <button className="page-link rounded-2 border-0 bg-light text-muted px-3" tabIndex="-1">
+                    Previous
+                  </button>
+                </li>
+
+                {/* Page Numbers */}
+                <li className="page-item active shadow-sm" aria-current="page">
+                  <button className="page-link rounded-2 border-0 px-3 fw-bold" 
+                    style={{ background: 'linear-gradient(45deg, #ffc107, #e0a800)', color: '#000' }}>
+                    1
+                  </button>
+                </li>
+                
+                <li className="page-item">
+                  <button className="page-link rounded-2 border-0 text-dark px-3 hover-bg-light">
+                    2
+                  </button>
+                </li>
+                
+                <li className="page-item d-none d-md-block">
+                  <button className="page-link rounded-2 border-0 text-dark px-3 hover-bg-light">
+                    3
+                  </button>
+                </li>
+
+                <li className="page-item disabled">
+                  <span className="page-link border-0 bg-transparent">...</span>
+                </li>
+
+                <li className="page-item">
+                  <button className="page-link rounded-2 border-0 text-dark px-3 hover-bg-light">
+                    15
+                  </button>
+                </li>
+
+                {/* Next Button */}
+                <li className="page-item">
+                  <button className="page-link rounded-2 border-0 bg-light text-dark px-3 fw-medium" 
+                    style={{ border: '1px solid #dee2e6' }}>
+                    Next
+                  </button>
+                </li>
+
+              </ul>
+            </nav>
+          </div>
         </div>
       </div>
 
-      <GlobalModal
+      {/* <GlobalModal
         show={scheduleCi}
         handleClose={handleCloseScheduleCi}
         title="Schedule"
@@ -335,11 +402,14 @@ function CreditInvestigation() {
             </Form>
           </Col>
         </Row>
-      </GlobalModal>
+      </GlobalModal> */}
 
       <ModalScheduleCi 
         show={showModalScheduleCi}
         handleClose = {()=>setShowModalScheduleCi(false)}
+        selectedIds = {selectedIds}
+        setSelectedIds={setSelectedIds}
+        onSuccess={refetchInquiry}
       />
 
       <ModalCreditInvestigation 

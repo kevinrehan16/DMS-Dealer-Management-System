@@ -40,26 +40,27 @@
     height: 100% !important;
     position: relative;
     padding-top: 15px; /* Ito ang buffer sa taas */
+    background-color: #ffffff; /* Siguraduhin na solid ang likod */
 }
 
-/* 2. STICKY MONTH HEADER (Toolbar) */
+/* 2. STICKY MONTH HEADER (Toolbar - May 2026) */
 .fc .fc-header-toolbar {
     position: sticky !important;
     top: -15px !important; /* Offset para sa padding-top ng parent */
-    background: #ffffff !important;
-    z-index: 1000 !important;
-    padding: 5px 0 !important;
+    background: #ffffff !important; /* Solid background para hindi kita ang likod */
+    z-index: 1001 !important; /* Pinakamataas na layer */
+    padding: 10px 0 !important;
     margin-bottom: 0 !important;
     border-bottom: 1px solid #dee2e6;
 }
 
 .fc .fc-toolbar-title {
-    font-size: 1rem !important; /* Default nito ay malaki, ginawa nating 1rem */
+    font-size: 1rem !important;
     font-weight: 700 !important;
 }
 
 .fc .fc-button {
-    padding: 2px 8px !important; /* Compact buttons */
+    padding: 2px 8px !important;
     font-size: 0.75rem !important;
     height: auto !important;
     text-transform: capitalize !important;
@@ -70,22 +71,15 @@
     margin-bottom: 2px !important;
 }
 
-.fc-more-link {
-    margin-top: 4px !important;
-    padding: 3px !important;
-    margin-right: 0 auto !important;
-    text-align: center !important;
-    width: 100% !important;
-}
-
 /* 3. STICKY DAYS ROW (SUN-SAT) */
-/* Eto ang pinaka-kritikal na part para hindi sila maghiwalay */
+/* Dito natin tatalunin yung "anino" sa likod */
 .fc .fc-scrollgrid-section-header th {
     position: sticky !important;
-    top: 35px !important; /* Sakto sa ilalim ng toolbar */
-    background: #ffffff !important;
-    z-index: 999 !important;
+    top: 32px !important; /* Naka-align sa ilalim ng toolbar */
+    background: #ffffff !important; /* Eto ang magtatakip sa lumalampas na dates */
+    z-index: 1000 !important; /* Mas mababa sa toolbar pero mas mataas sa content */
     padding: 0 !important;
+    border-bottom: 2px solid #e0e0e0 !important;
 }
 
 /* 4. DESIGN FIXES (Ibinabalik ang design mo) */
@@ -97,26 +91,22 @@
 
 .fc .fc-col-header-cell-cushion {
     text-decoration: none !important;
-    padding: 8px 0 !important;
+    padding: 12px 0 !important; /* Dinagdagan konti para mas solid ang takip */
     font-size: 0.7rem !important;
-    font-weight: 800 !important;
+    font-weight: 700 !important;
     text-transform: uppercase;
     display: block !important;
-    color: #0d6efd !important; /* Ibinabalik ang blue headers mo */
+    color: #ffc107 !important; /* Blue headers mo */
+    background: #1e1f26 !important; /* Double safety background */
 }
 
-.fc .fc-col-header {
-    position: sticky !important;
-    top: 38px !important; /* Hula ko lang 'to, i-inspect element mo para sakto */
-    background: #ffffff !important;
-    z-index: 99 !important;
-}
-
-/* Para sa day numbers */
+/* Day Numbers - Siguraduhin na nasa ilalim sila ng header pag nag-scroll */
 .fc .fc-daygrid-day-number {
     text-decoration: none !important;
     color: #212529 !important;
     padding: 4px 8px !important;
+    position: relative;
+    z-index: 1; /* Mababang layer lang */
 }
 
 /* 5. CUSTOM BADGE (Dark design mo) */
@@ -129,4 +119,126 @@
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
+    z-index: 1;
+}
+
+/* Extra fix para sa line separator */
+.fc .fc-scrollgrid {
+    border-top: none !important;
+}
+
+.fc-more-link {
+    margin-top: 4px !important;
+    padding: 3px !important;
+    text-align: center !important;
+    width: 100% !important;
+    display: block;
+}
+
+/* --- BLACK BADGE (MORE LINK) STYLING --- */
+.fc-daygrid-more-link {
+    display: block !important;
+    width: 100% !important;
+    text-decoration: none !important;
+    margin-top: 2px !important;
+}
+
+.fc-daygrid-dot-event {
+    display: none !important; /* Hide default dots */
+}
+
+/* --- POPOVER DESIGN (Yung parang May 18 list) --- */
+.fc-popover {
+    /* 1. Eto ang magic para sa dynamic width */
+    width: max-content !important; 
+    min-width: 200px !important; /* Hindi liliit sa 200px */
+    max-width: 400px !important; /* Limit para hindi lumampas sa screen */
+    
+    /* 2. Siguraduhin na hindi mag-o-overflow ang text */
+    overflow: hidden !important; 
+    
+    border-radius: 8px !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+    border: none !important;
+    z-index: 9999 !important;
+}
+
+.fc-popover-header {
+    background: #f8f9fa !important;
+    padding: 10px !important;
+    font-weight: bold;
+    font-size: 0.9rem;
+    border-top-left-radius: 8px !important;
+    border-top-right-radius: 8px !important;
+}
+
+/* Siguraduhin na ang text sa loob ng popover ay hindi putol */
+.fc-popover-body .fc-daygrid-event {
+    background-color: transparent !important;
+    display: block !important;
+}
+
+/* Para maganda ang spacing ng listahan sa loob */
+.fc-popover-body {
+    padding: 12px !important;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+/* Force dark background sa loob ng listahan */
+.fc-popover-body .bg-dark {
+    /* 3. Para kung sakaling umabot sa max-width, bababa ang words */
+    white-space: normal !important; 
+    word-wrap: break-word !important; 
+    display: block !important;
+    width: 100% !important;
+    padding: 8px 12px !important;
+}
+
+/* Siguraduhin na ang container ng calendar ay hindi "pinapatay" ang popover */
+.custom-calendar-scroll, 
+.fc-view-harness,
+.fc-scroller {
+    overflow: visible !important; 
+}
+
+/* Para maging plain white yung mga cells na hindi kasama sa current month */
+.fc-day-disabled, .fc-day-other {
+    background-color: #ffffff !important;
+    border: none !important; /* Optional: kung gusto mo walang guhit */
+}
+
+/* Para siguradong hindi clickable yung mga empty spaces */
+.fc-day-other .fc-daygrid-day-top {
+    display: none !important;
+}
+
+/* I-target ang bawat araw/grid cell sa month view */
+.fc-daygrid-day {
+    transition: background-color 0.2s ease; /* Para smooth ang transition */
+}
+
+/* Kapag ni-hover ang mouse sa box */
+.fc-daygrid-day:hover {
+    background-color: #e4e4e4 !important; /* Bahagyang gray o pili ka ng kulay mo */
+    cursor: pointer !important; /* Gagawing kamay (pointer) ang cursor */
+}
+
+/* Kung gusto mo pati yung number sa loob ay mag-iba ng kulay pag hover */
+.fc-daygrid-day:hover .fc-daygrid-day-number {
+    color: #000000 !important; /* Blue color pag na-hover */
+    font-weight: bold;
+}
+
+/* Para hindi ma-hover yung mga "ghost dates" (dates ng ibang buwan) */
+.fc-day-other:hover {
+    background-color: transparent !important; /* Huwag baguhin kulay */
+    cursor: default !important; /* Default arrow lang */
+}
+
+.modal-content { 
+    border-radius: 10px !important; /* Taasan natin para halata yung kurbada */
+    overflow: hidden !important;   /* IMPORTANTE: Para hindi tumagos ang kanto */
+    border: none !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
 }
