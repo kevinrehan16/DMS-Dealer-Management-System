@@ -164,11 +164,11 @@ function Inventory() {
                         <div className="d-flex flex-column gap-1" style={{ fontSize: '13px' }}>
                           <div className="d-flex align-items-center justify-content-between">
                             <span className="text-muted" style={{ fontSize: '10px', textTransform: 'uppercase' }}>Cost:</span>
-                            <span className="fw-bold text-dark">₱{formatAmount(inventory.motorcycle.unit_cost || 0)}</span>
+                            <span className="fw-bold font-monospace text-dark">₱{formatAmount(inventory.motorcycle.unit_cost || 0)}</span>
                           </div>
                           <div className="d-flex align-items-center justify-content-between">
                             <span className="text-muted" style={{ fontSize: '10px', textTransform: 'uppercase' }}>SRP Value:</span>
-                            <span className="fw-bold text-primary">₱{formatAmount(inventory.motorcycle.srp_value || 0)}</span>
+                            <span className="fw-bold font-monospace text-primary">₱{formatAmount(inventory.motorcycle.srp_value || 0)}</span>
                           </div>
                         </div>
                       </td>
@@ -178,18 +178,18 @@ function Inventory() {
                         <div className="d-flex flex-column gap-1" style={{ fontSize: '13px' }}>
                           <div className="d-flex align-items-center justify-content-between">
                             <span className="text-muted" style={{ fontSize: '10px', textTransform: 'uppercase' }}>Cash:</span>
-                            <span className="fw-bold text-success">₱{formatAmount(inventory.motorcycle.cash_price || 0)}</span>
+                            <span className="fw-bold font-monospace text-success">₱{formatAmount(inventory.motorcycle.cash_price || 0)}</span>
                           </div>
                           <div className="d-flex align-items-center justify-content-between">
                             <span className="text-muted" style={{ fontSize: '10px', textTransform: 'uppercase' }}>Installment:</span>
-                            <span className="fw-bold text-warning">₱{formatAmount(inventory.motorcycle.installment_price || 0)}</span>
+                            <span className="fw-bold font-monospace text-warning">₱{formatAmount(inventory.motorcycle.installment_price || 0)}</span>
                           </div>
                         </div>
                       </td>
                       <td className="text-center ps-2 py-2">
                         {inventory.motorcycle?.interest ? (
                           <div className="d-flex align-items-center justify-content-center px-2 py-1 rounded-pill bg-light border border-secondary-subtle">
-                            <span className="fw-medium text-dark" style={{ fontSize: '12px' }}>
+                            <span className="fw-bold font-monospace text-dark" style={{ fontSize: '12px' }}>
                               {parseFloat(inventory.motorcycle.interest)}%
                             </span>
                           </div>
