@@ -51,7 +51,7 @@ function Inventory() {
 
       <div className="flex-grow-1 p-3 d-flex flex-column overflow-hidden">
         <div className="bg-white rounded-3 shadow-sm border d-flex flex-column h-100 overflow-hidden">
-          <div className="px-3 py-2 bg-light border-bottom">
+          <div className="px-2 py-2 bg-light border-bottom">
             <Row className="g-2 align-items-center">
               {/* SEARCH INPUT */}
               <Col md={4} className="d-flex">
@@ -114,9 +114,9 @@ function Inventory() {
                   <th width='17%' className="ps-3 py-3">UNIT Identifier</th>
                   <th width='15%' className="text-end ps-3 py-3">Cost & SRP Value</th>
                   <th width='15%' className="text-end ps-3 py-3">Unit Prices</th>
-                  <th width='8%' className="text-center ps-3 py-3">Interest</th>
-                  <th width='12%' className='text-center ps-3 py-3'>Status</th>
-                  <th width='8%' className='text-center ps-3 py-3'>Actions</th>
+                  <th width='8%' className="text-center ps-2 py-3">Interest</th>
+                  <th width='12%' className='text-center ps-2 py-3'>Status</th>
+                  <th width='8%' className='text-center ps-2 py-3'>Actions</th>
                 </tr>
               </thead>
               <tbody>

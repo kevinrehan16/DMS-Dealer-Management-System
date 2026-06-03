@@ -59,7 +59,7 @@ function Cashier() {
 
       <div className="flex-grow-1 p-3 d-flex flex-column overflow-hidden">
         <div className="bg-white rounded-3 shadow-sm border d-flex flex-column h-100 overflow-hidden">
-          <div className="px-3 py-2 bg-light border-bottom">
+          <div className="px-2 py-2 bg-light border-bottom">
             <Row className="g-2 align-items-center">
               {/* SEARCH INPUT */}
               <Col md={4} className="d-flex">
@@ -121,10 +121,10 @@ function Cashier() {
                   <th width="12%" className="ps-3 py-3">OR NUMBER</th>
                   <th width="18%" className="ps-3 py-3">CUSTOMER INFORMATION</th>
                   <th width="25%" className="ps-3 py-3">MOTORCYCLE UNIT</th>
-                  <th width="14%" className="text-center ps-3 py-3">PAYMENT TYPE</th>
+                  <th width="14%" className="text-center ps-2 py-3">PAYMENT TYPE</th>
                   <th width="12%" className="text-end ps-3 py-3">AMOUNT PAID</th>
-                  <th width="10%" className="text-center ps-3 py-3">STATUS</th>
-                  <th width="9%" className="text-center ps-3 py-3">ACTIONS</th>
+                  <th width="10%" className="text-center ps-2 py-3">STATUS</th>
+                  <th width="9%" className="text-center ps-2 py-3">ACTIONS</th>
                 </tr>
               </thead>
               <tbody>

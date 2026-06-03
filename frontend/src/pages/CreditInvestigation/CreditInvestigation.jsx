@@ -159,7 +159,7 @@ function CreditInvestigation() {
       <div className="flex-grow-1 p-3 d-flex flex-column overflow-hidden">
         <div className="bg-white rounded-3 shadow-sm border d-flex flex-column h-100 overflow-hidden">
           
-          <div className="px-3 py-2 bg-light border-bottom">
+          <div className="px-2 py-2 bg-light border-bottom">
             <Row className="g-2 align-items-center"> {/* added align-items-center to be sure */}
               {/* SEARCH INPUT */}
               <Col md={4} className="d-flex">
@@ -216,7 +216,7 @@ function CreditInvestigation() {
               <thead className="bg-dark text-white sticky-top" style={{ zIndex: 10 }}>
                 <tr className="small text-uppercase fw-bold" style={{ fontSize: '12px' }}>
                   <th width='3%' className='text-center ps-2 py-3'>
-                    <div className="checkbox-design-wrapper">
+                    <div className="checkbox-design-wrapper p-0">
                       <Form>
                         <Form.Check
                           type="checkbox"
@@ -227,7 +227,7 @@ function CreditInvestigation() {
                       </Form>
                     </div>
                   </th>
-                  <th width='19%' className="ps-2 py-3">Customer Name</th>
+                  <th width='19%' className="ps-2 py-3">Customer Information</th>
                   <th width='12%' className="ps-2 py-3">Schedule</th>
                   <th width='19%' className="ps-2 py-3">Investigator</th>
                   <th width='25%' className="ps-2 py-3">Motorcycle Unit</th>
@@ -253,7 +253,7 @@ function CreditInvestigation() {
                           </Form>
                         </div>
                       </td>
-                      <td className="ps-3 py-2">
+                      <td className="ps-2 py-2">
                         <div className="fw-bold text-primary mb-0" style={{ fontSize: '14px' }}>{row.customer.firstName} {row.customer.lastName}</div>
                         <div className="text-secondary fw-medium" style={{ fontSize: '11px' }}>ID-{row.inquiry_id}</div>
                       </td>
