@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Row, Col, Table, Button } from 'react-bootstrap';
-import { FaMapMarkerAlt, FaInfoCircle, FaTimes } from "react-icons/fa";
+import { FaUserTimes, FaUserCheck, FaUserSlash, FaTimes } from "react-icons/fa";
+import { CircularProgress } from '@mui/material';
 
 import CreditApplication from './ModalChild/CreditApplication';
 import CreditInvestigation from './ModalChild/CreditInvestigation';
@@ -20,13 +21,7 @@ const DataBlock = ({ label, value }) => ( // Add 'value' here
   </div>
 );
 
-// const DataHeader = ({ title }) => (
-//   <h5 className="text-primary border-bottom pb-2 mb-3 fs-6 fw-bold uppercase_text">
-//     {title || '---'} {/* Add this to display the value */}
-//   </h5>
-// );
-
-const ModalCompare = ({ show, handleClose, applicationId, investigationId }) => {
+const ModalCompare = ({ show, handleClose, applicationId, investigationId, onUpdateStatus, isUpdating, stats }) => {
 
   return (
     <Modal show={show} onHide={handleClose} size="xl" backdrop="static" keyboard={false} dialogClassName="custom-modal">
@@ -50,170 +45,6 @@ const ModalCompare = ({ show, handleClose, applicationId, investigationId }) => 
             }}
           >
             <CreditApplication applicationId={applicationId} />
-            {/* <h4 className="text-muted text-center pb-2 mb-4 fw-bold uppercase_text">
-              CREDIT APPLICATION
-            </h4>
-
-            <DataHeader title="Customer Information"></DataHeader>
-            <Row className="g-2">
-              <Col md={4}><DataBlock label="Last Name" value={creditinfo.lastName}/></Col>
-              <Col md={4}><DataBlock label="First Name" value={creditinfo.firstName}/></Col>
-              <Col md={4}><DataBlock label="Middle Name" value={creditinfo.middleName}/></Col>
-            </Row>
-
-            <Row className="g-2">
-              <Col md={4}><DataBlock label="Birthday" /></Col>
-              <Col md={4}><DataBlock label="Age" /></Col>
-              <Col md={4}><DataBlock label="Gender" /></Col>
-            </Row>
-
-            <Row className="g-2">
-              <Col md={4}><DataBlock label="Civil Status" /></Col>
-              <Col md={4}><DataBlock label="Education" /></Col>
-              <Col md={4}><DataBlock label="Mobile #" /></Col>
-            </Row>
-
-            <hr className='dotted' />
-
-            <Row className="g-2">
-              <Col md={4}><DataBlock label="Spouse Name" /></Col>
-              <Col md={4}><DataBlock label="Birthday" /></Col>
-              <Col md={4}><DataBlock label="Age" /></Col>
-            </Row>
-
-            <Row className="g-2">
-              <Col md={4}><DataBlock label="No. of Children" /></Col>
-              <Col md={4}><DataBlock label="No. of Studying" /></Col>
-              <Col md={4}><DataBlock label="No. of Dependent" /></Col>
-            </Row>
-
-            <DataBlock label="Full Address" />
-
-            <hr className='dotted' />
-
-            <DataHeader title="Income Information"></DataHeader>
-            <h6 className="mt-1 text-muted small fw-medium">Other Sources Of Income</h6>
-            <Row>
-              <Col md={8}>
-                <Table bordered hover size="sm" className="small shadow-sm">
-                  <thead className="table-secondary">
-                    <tr>
-                      <th>Nature</th>
-                      <th>Address</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td style={{ height: '30px' }}></td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </Col>
-            </Row>
-
-            <hr className='dotted' />
-
-            <DataHeader title="References Information"></DataHeader>
-            <h6 className="mt-1 text-muted small fw-medium">Credit References</h6>
-            <Row>
-              <Col md={12}>
-                <Table bordered hover size="sm" className="small shadow-sm">
-                  <thead className="table-secondary">
-                    <tr>
-                      <th>Creditor</th>
-                      <th>Address</th>
-                      <th>Date Granted</th>
-                      <th>Original Balance</th>
-                      <th>Present Balance</th>
-                      <th>Monthly Installment</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td style={{ height: '30px' }}></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </Col>
-            </Row>
-            <hr className='dotted'/>
-            <h6 className="mt-1 text-muted small fw-medium">Personal References</h6>
-            <Row>
-              <Col md={12}>
-                <Table bordered hover size="sm" className="small shadow-sm">
-                  <thead className="table-secondary">
-                    <tr>
-                      <th>Full Name</th>
-                      <th>Address</th>
-                      <th>Contact Number</th>
-                      <th>Relationship</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td style={{ height: '30px' }}></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </Col>
-            </Row>
-
-            <hr className='dotted' />
-
-            <DataHeader title="Other Information"></DataHeader>
-            <h6 className="mt-1 text-muted small fw-medium">Real and/or Personal Properties Owned</h6>
-            <Row>
-              <Col md={12}>
-                <Table bordered hover size="sm" className="small shadow-sm">
-                  <thead className="table-secondary">
-                    <tr>
-                      <th>Kind</th>
-                      <th>Location</th>
-                      <th>Value</th>
-                      <th>Imbursement</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td style={{ height: '30px' }}></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </Col>
-            </Row>
-
-            <hr className='dotted' />
-
-            <DataHeader title="Attachment Information"></DataHeader>
-            <h6 className="mt-1 text-muted small fw-medium">Documents</h6>
-            <Row>
-              <Col md={12}>
-                <Table bordered hover size="sm" className="small shadow-sm">
-                  <thead className="table-secondary">
-                    <tr>
-                      <th>File name</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td style={{ height: '30px' }}></td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </Col>
-            </Row> */}
           </Col>
 
           {/* RIGHT COLUMN: FORM 2 STRUCTURE */}
@@ -233,7 +64,40 @@ const ModalCompare = ({ show, handleClose, applicationId, investigationId }) => 
       </Modal.Body>
 
       <Modal.Footer className="bg-light">
-        <Button className="d-flex align-items-center justify-content-center gap-1" variant="danger" onClick={handleClose}>
+        <Button 
+          className="d-flex align-items-center justify-content-center gap-1" 
+          variant="success" 
+          disabled={isUpdating}
+          onClick={()=>onUpdateStatus('APPROVED')}>
+          {isUpdating && stats === "APPROVED" ? 
+            (<><CircularProgress size={10} color="inherit" /> Applying...</>)
+            :
+            (<><FaUserCheck /> Approve</>)
+          }
+        </Button>
+        <Button 
+          className="d-flex align-items-center justify-content-center gap-1" 
+          variant="danger" 
+          disabled={isUpdating}
+          onClick={()=>onUpdateStatus('DISAPPROVED')}>
+          {isUpdating && stats === "DISAPPROVED" ? 
+            (<><CircularProgress size={10} color="inherit" /> Applying...</>)
+            :
+            (<><FaUserSlash /> Disapprove</>)
+          }
+        </Button>
+        <Button 
+          className="d-flex align-items-center justify-content-center gap-1 text-white" 
+          variant="warning" 
+          disabled={isUpdating}
+          onClick={()=>onUpdateStatus('REASSESS')}>
+          {isUpdating && stats === "REASSESS" ? 
+            (<><CircularProgress size={10} color="inherit" /> Applying...</>)
+            :
+            (<><FaUserTimes /> Reassess</>)
+          }
+        </Button>
+        <Button className="d-flex align-items-center justify-content-center gap-1" variant="secondary" onClick={handleClose}>
           <FaTimes /> Close
         </Button>
       </Modal.Footer>

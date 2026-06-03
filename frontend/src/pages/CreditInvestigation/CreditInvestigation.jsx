@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import "../../assets/css/CreditInvestigation.css"
 import { Row, Col, Form, InputGroup, Button, Table } from 'react-bootstrap'
-import { FaSearch, FaCalendarDay , FaTrash, FaEdit, FaUserAltSlash, FaUserSecret, FaMotorcycle, FaRegCalendarAlt } from 'react-icons/fa'
+import { FaSearch, FaCalendarDay , FaTrash, FaEdit, FaUserAltSlash, FaUserSecret, FaMotorcycle, FaRegCalendarAlt, FaCalendarAlt, FaCalendarCheck, FaCalendarTimes, FaRegCalendarPlus, FaRegCalendarTimes, FaRegCalendarCheck } from 'react-icons/fa'
 
 // import { useInquiry } from '../../context/InquiryContext/InquiryContext'
 import { useInquiry } from '../../hooks/HooksInquiry/useInquiry'
@@ -10,6 +10,7 @@ import SkeletonRowLoading from '../../components/common/Loading/SkeletonRowLoadi
 import GlobalModal from '../../components/common/GlobalModal'
 // import ModalCreditInvestigation from '../../components/common/CreditInvestigationModals/ModalCreditInvestigation-BACKUP'
 import ModalCreditInvestigation from '../../components/common/CreditInvestigationModals/ModalCreditInvestigation'
+import ModalAllScheduleCi from '../../components/common/CreditInvestigationModals/ModalAllScheduleCi'
 import ModalScheduleCi from '../../components/common/CreditInvestigationModals/ModalScheduleCi'
 
 import { dateFormat, timeFormat, formatAmount } from '../../utils/formatters'
@@ -23,6 +24,7 @@ function CreditInvestigation() {
   const [thisInquiryid, setThisInquiryid] = useState(0);
   const [showModalCreditInvestigation, setShowModalCreditInvestigation] = useState(false);
   const [showModalScheduleCi, setShowModalScheduleCi] = useState(false);
+  const [showModalAllScheduleCi, setShowModalAllScheduleCi] = useState(false);
 
   // const { inquiriesContext, loading, getInquiriesContext } = useInquiry();
   const [selectedIds, setSelectedIds] = useState([]);
@@ -129,15 +131,27 @@ function CreditInvestigation() {
               <small className="text-muted" style={{ fontSize: '11px' }}>Application for Credit Investigaiton Management</small>
             </div>
           </div>
-          <Button 
-            variant="info" 
-            size="md" 
-            className="rounded px-4 fw-medium shadow-sm d-flex align-items-center gap-2 border-0 text-white" 
-            // onClick={handleShowScheduleCi}
-            onClick={()=>setShowModalScheduleCi(true)}
-          >
-              <FaCalendarDay /> Set Schedule
-          </Button>
+          <div className="d-flex align-items-center gap-2">
+            <Button 
+              variant="secondary" 
+              size="md" 
+              className="rounded px-4 fw-medium shadow-sm d-flex align-items-center gap-2 border-0 text-white" 
+              // onClick={handleShowScheduleCi}
+              onClick={()=>setShowModalAllScheduleCi(true)}
+            >
+                <FaCalendarAlt /> View Calendar
+            </Button>
+            <Button 
+              variant="info" 
+              size="md" 
+              className="rounded px-4 fw-medium shadow-sm d-flex align-items-center gap-2 border-0 text-white" 
+              // onClick={handleShowScheduleCi}
+              onClick={()=>setShowModalScheduleCi(true)}
+            >
+                <FaCalendarDay /> Set Schedule
+            </Button>
+          </div>
+          
         </div>
       </div>
 
@@ -151,7 +165,7 @@ function CreditInvestigation() {
               <Col md={4} className="d-flex">
                 <InputGroup className="bg-white rounded border shadow-none" style={{ height: '38px' }}>
                   <InputGroup.Text className="bg-transparent border-0 pe-1">
-                    <FaSearch className="text-muted" size={14} />
+                    <FaSearch className="text-primary" size={14} />
                   </InputGroup.Text>
                   <Form.Control 
                     className="border-0 shadow-none small" 
@@ -167,8 +181,33 @@ function CreditInvestigation() {
                   className="rounded border-secondary-subtle shadow-none small" 
                   style={{ fontSize: '14px', height: '38px' }}
                 >
-                  <option value="">All Branches</option>
+                  <option value="">--All Branches--</option>
                 </Form.Select>
+              </Col>
+              <Col md={2}>
+              </Col>
+              <Col md={4}>
+                <div 
+                  className="d-flex align-items-center bg-white rounded px-3 border border-secondary-subtle w-100" 
+                  style={{ height: '38px' }}
+                >
+                  <FaCalendarAlt className="text-primary me-2" size={30}/>
+                  <Form.Control 
+                    type="date" 
+                    className="bg-transparent border-0 shadow-none p-0 small" 
+                    style={{ width: '100%', fontSize: '14px', cursor: 'pointer' }} 
+                    // value={filters.from_date} 
+                    // onChange={(e) => setFilters({...filters, from_date: e.target.value})}
+                  />
+                  <span className="text-muted mx-2">|</span>
+                  <Form.Control 
+                    type="date" 
+                    className="bg-transparent border-0 shadow-none p-0 small" 
+                    style={{ width: '100%', fontSize: '14px', cursor: 'pointer' }} 
+                    // value={filters.to_date} 
+                    // onChange={(e) => setFilters({...filters, to_date: e.target.value})}
+                  />
+                </div>
               </Col>
             </Row>
           </div>
@@ -193,7 +232,7 @@ function CreditInvestigation() {
                   <th width='19%' className="ps-2 py-3">Investigator</th>
                   <th width='25%' className="ps-2 py-3">Motorcycle Unit</th>
                   <th width='14%' className="text-end ps-2 py-3">Monthly/Term</th>
-                  <th width='8%' className="ps-2 py-3">Actions</th>
+                  <th width='8%' className="text-center ps-2 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -220,9 +259,15 @@ function CreditInvestigation() {
                       </td>
                       <td>
                         <div className="d-flex align-items-center">
-                          <div className={`rounded p-2 me-2 d-flex align-items-center justify-content-center border 'border-secondary-subtle bg-secondary-subtle text-secondary`}>
-                            <FaRegCalendarAlt size={14} />
-                          </div>
+                          {row.date_creditinvestigation && row.time_creditinvestigation ? (
+                            <div className={`rounded p-2 me-2 d-flex align-items-center justify-content-center border 'border-info-subtle bg-info-subtle text-info`}>
+                              <FaRegCalendarCheck size={14} />
+                            </div>
+                          ) : (
+                            <div className={`rounded p-2 me-2 d-flex align-items-center justify-content-center border 'border-warning-subtle bg-warning-subtle text-warning`}>
+                              <FaRegCalendarTimes size={14} />
+                            </div>
+                          )}
                           <div style={{ lineHeight: '1.2' }}>
                             {row.date_creditinvestigation && row.time_creditinvestigation ? 
                             (<>
@@ -232,7 +277,7 @@ function CreditInvestigation() {
                             :
                             (
                               <>
-                                <div className="fw-bold text-dark mb-0" style={{ fontSize: '12px' }}>No schedule</div>
+                                <div className="fw-bold text-muted mb-0" style={{ fontSize: '12px' }}>No schedule</div>
                                 <div className="text-muted" style={{ fontSize: '10px' }}>00:00:00</div>
                               </>
                             )}
@@ -403,6 +448,11 @@ function CreditInvestigation() {
           </Col>
         </Row>
       </GlobalModal> */}
+
+      <ModalAllScheduleCi 
+        show={showModalAllScheduleCi}
+        handleClose = {()=>setShowModalAllScheduleCi(false)}
+      />
 
       <ModalScheduleCi 
         show={showModalScheduleCi}

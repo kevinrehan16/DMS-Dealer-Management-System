@@ -91,7 +91,7 @@
 
 .fc .fc-col-header-cell-cushion {
     text-decoration: none !important;
-    padding: 12px 0 !important; /* Dinagdagan konti para mas solid ang takip */
+    padding: 10px 0 !important; /* Dinagdagan konti para mas solid ang takip */
     font-size: 0.7rem !important;
     font-weight: 700 !important;
     text-transform: uppercase;
@@ -161,6 +161,9 @@
     box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
     border: none !important;
     z-index: 9999 !important;
+    top: 20% !important; /* Centered vertically */
+    left: 50% !important; /* Centered horizontally */
+    transform: translate(-50%, -50%) !important;
 }
 
 .fc-popover-header {

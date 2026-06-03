@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { Row, Col, Form, Button, InputGroup, Table, Badge, Dropdown } from "react-bootstrap";
 import { 
-  FaUserPlus, FaSearch, FaEdit, FaEye, FaTrash, 
+  FaUserPlus, FaSearch, FaEdit, FaEye, FaTrash, FaFilter, 
   FaMotorcycle, FaUser, FaCalendarAlt, FaEllipsisV, FaMobileAlt, FaEnvelopeSquare 
 } from "react-icons/fa";
 import { CircularProgress } from "@mui/material";
@@ -82,26 +82,32 @@ export default function Inquiry() {
               <small className="text-muted" style={{ fontSize: '11px' }}>Operational Lead Management</small>
             </div>
           </div>
-          <div className="d-flex gap-2 bg-white p-2 rounded shadow-sm border">
-            <button 
-                className={`btn btn-sm px-4 rounded-pill ${filterType === 'ALL' ? 'btn-secondary' : 'btn-outline-secondary'}`}
-                onClick={() => setFilterType('ALL')}
-            >
-                All Units
-            </button>
-            <button 
-                className={`btn btn-sm px-4 rounded-pill ${filterType === 'Brand New' ? 'btn-success' : 'btn-outline-success'}`}
-                onClick={() => setFilterType('Brand New')}
-            >
-                Brand New
-            </button>
-            <button 
-                className={`btn btn-sm px-4 rounded-pill ${filterType === 'Used/Repo' ? 'btn-danger' : 'btn-outline-danger'}`}
-                onClick={() => setFilterType('Used/Repo')}
-            >
-                Used/Repo
-            </button>
-          </div>
+
+          <Row>
+            <Col md={12}>
+              <div 
+                className="d-flex align-items-center bg-white rounded px-3 border border-secondary-subtle w-100" 
+                style={{ height: '38px' }}
+              >
+                <FaCalendarAlt className="text-primary me-2" size={30}/>
+                <Form.Control 
+                  type="date" 
+                  className="bg-transparent border-0 shadow-none p-0 small" 
+                  style={{ width: '100%', fontSize: '14px', cursor: 'pointer' }} 
+                  value={filters.from_date} 
+                  onChange={(e) => setFilters({...filters, from_date: e.target.value})}
+                />
+                <span className="text-muted mx-2">|</span>
+                <Form.Control 
+                  type="date" 
+                  className="bg-transparent border-0 shadow-none p-0 small" 
+                  style={{ width: '100%', fontSize: '14px', cursor: 'pointer' }} 
+                  value={filters.to_date} 
+                  onChange={(e) => setFilters({...filters, to_date: e.target.value})}
+                />
+              </div>
+            </Col>
+          </Row>
 
           {can('create inquiry') && (
             <Button variant="primary" className="rounded px-4 fw-medium shadow-sm d-flex align-items-center gap-2 border-0" 
@@ -122,7 +128,7 @@ export default function Inquiry() {
               <Col md={4} className="d-flex">
                 <InputGroup className="bg-white rounded border shadow-none" style={{ height: '38px' }}>
                   <InputGroup.Text className="bg-transparent border-0 pe-1">
-                    {isFetching ? <CircularProgress size={14} /> : <FaSearch className="text-muted" size={14} />}
+                    {isFetching ? <CircularProgress className="text-primary" size={14} /> : <FaSearch className="text-primary" size={14} />}
                   </InputGroup.Text>
                   <Form.Control 
                     className="border-0 shadow-none small" 
@@ -161,27 +167,27 @@ export default function Inquiry() {
               </Col>
 
               {/* DATE RANGE */}
-              <Col md={4} className="d-flex">
-                <div 
-                  className="d-flex align-items-center bg-white rounded px-3 border border-secondary-subtle w-100" 
-                  style={{ height: '38px' }}
-                >
-                  <FaCalendarAlt className="text-primary me-2" size={30}/>
-                  <Form.Control 
-                    type="date" 
-                    className="bg-transparent border-0 shadow-none p-0 small" 
-                    style={{ width: '100%', fontSize: '14px', cursor: 'pointer' }} 
-                    value={filters.from_date} 
-                    onChange={(e) => setFilters({...filters, from_date: e.target.value})}
-                  />
-                  <span className="text-muted mx-2">|</span>
-                  <Form.Control 
-                    type="date" 
-                    className="bg-transparent border-0 shadow-none p-0 small" 
-                    style={{ width: '100%', fontSize: '14px', cursor: 'pointer' }} 
-                    value={filters.to_date} 
-                    onChange={(e) => setFilters({...filters, to_date: e.target.value})}
-                  />
+              <Col md={4}>
+                <div className="d-flex align-items-center justify-content-evenly gap-2 bg-white p-1 rounded shadow-sm border">
+                  <FaFilter className="text-primary ms-1" size={15}/>
+                  <button 
+                      className={`btn btn-sm px-4 rounded ${filterType === 'ALL' ? 'btn-secondary' : 'btn-outline-secondary'}`}
+                      onClick={() => setFilterType('ALL')}
+                  >
+                      All Units
+                  </button>
+                  <button 
+                      className={`btn btn-sm px-4 rounded ${filterType === 'Brand New' ? 'btn-success' : 'btn-outline-success'}`}
+                      onClick={() => setFilterType('Brand New')}
+                  >
+                      Brand New
+                  </button>
+                  <button 
+                      className={`btn btn-sm px-4 rounded ${filterType === 'Used/Repo' ? 'btn-danger' : 'btn-outline-danger'}`}
+                      onClick={() => setFilterType('Used/Repo')}
+                  >
+                      Used/Repo
+                  </button>
                 </div>
               </Col>
             </Row>

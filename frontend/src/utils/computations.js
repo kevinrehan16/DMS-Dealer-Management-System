@@ -22,16 +22,32 @@ export const computeMotorFinance = ({
   let promissoryNote = 0;
   let uid = 0;
 
-  if (lcp > 0) {
-    totalFinance = ((price * lcp) - down) - subsidy;
-  } else {
-    totalFinance = (price - (down + reservation)) - subsidy;
+  // KUNG WALANG TERM O WALANG PRESYO, IBALIK SA ZERO LAHAT PARA HINDI MAG-ERROR SA SCREEN
+  if (price === 0 || terms === 0) {
+    return { totalFinance, monthlyInstallment, promissoryNote, uid };
   }
 
-  totalFinance = totalFinance < 0 ? 0 : totalFinance;
-  monthlyInstallment = terms > 0 ? (totalFinance * rate) / terms : 0;
-  promissoryNote = terms > 0 ? monthlyInstallment * terms : 0;
-  uid = terms > 0 ? (promissoryNote - totalFinance) / terms : 0;
+  // 1. TAMANG UNANG HAKBANG: I-plus (+) ang LCP sa Installment Price (hindi i-multiply!)
+  const netPrice = price + lcp;
+
+  // 2. TAMANG PANGALAWANG HAKBANG: Ibawas ang LAHAT ng binayad na agad (Downpayment + Reservation + Subsidy)
+  totalFinance = netPrice - down - reservation - subsidy;
+  totalFinance = totalFinance < 0 ? 0 : totalFinance; // Iwasan mag-negative
+
+  // 3. KWENTAHAN NG MONTHLY, PROMNOTE, AT UID (Gamit ang factory rate multiplier mo)
+  if (rate > 0) {
+    // Ang 'promissoryNote' ang kabuuang utang kapag may interes (Amount Finance * Rate)
+    promissoryNote = totalFinance * rate;
+    // Ang 'monthlyInstallment' ay ang Promissory Note hinati sa kung ilang buwan
+    monthlyInstallment = promissoryNote / terms;
+    // Ang 'uid' (Unearned Interest Income) ay ang kabuuang interes na hinati sa buwan
+    uid = (promissoryNote - totalFinance) / terms;
+  } else {
+    // Fallback kapag walang rate o zero rate (walang patong na interes)
+    monthlyInstallment = totalFinance / terms;
+    promissoryNote = totalFinance;
+    uid = 0;
+  }
 
   return {
     totalFinance,

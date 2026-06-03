@@ -103,7 +103,7 @@ const AssignScheduleModal = ({ show, handleClose, selectedIds, setSelectedIds, o
   }, [scheduleci, assignSchedule.investigator_id]);
 
   return (
-    <Modal show={show} onHide={handleClose} size="xl" centered scrollable={false}>
+    <Modal show={show} onHide={handleClose} size="xl" scrollable={false}>
       <Modal.Header closeButton>
         <Modal.Title>Schedule Credit Investigation</Modal.Title>
       </Modal.Header>
