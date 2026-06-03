@@ -20,6 +20,8 @@ use App\Http\Controllers\Settings\Referentials\RequirementController;
 use App\Http\Controllers\Settings\Roles\RolesController;
 use App\Http\Controllers\Settings\setup\ModulePermissionController;
 use App\Http\Controllers\Cashier\CashierController;
+use App\Http\Controllers\Inventory\InventoryController;
+use App\Http\Controllers\Motorcycle\MotorcycleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +44,7 @@ Route::prefix('users')->controller(UserController::class)->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', 'index');
+        Route::post('/', 'store');
         Route::get('/{id}', 'show');
         Route::put('/{id}', 'update');
         Route::delete('/{id}', 'destroy');
@@ -154,6 +157,21 @@ Route::prefix('settings')->controller(RolesController::class)->group(function ()
         // PERMISSION'S END POINTS
         Route::post('/setup/permissions', [ModulePermissionController::class,'createModulePermissions']);
         Route::post('/setup/assign-to-role', [ModulePermissionController::class, 'assignModulesToRole']);
+    });
+});
+
+Route::prefix('inventory')->controller(InventoryController::class)->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        // ROLE'S END POINTS
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+    });
+});
+
+Route::prefix('motorcycle')->controller(MotorcycleController::class)->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        // ROLE'S END POINTS
+        Route::post('/', 'store');
     });
 });
 

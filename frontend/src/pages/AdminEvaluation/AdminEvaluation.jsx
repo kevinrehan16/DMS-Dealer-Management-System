@@ -309,7 +309,7 @@ function AdminEvaluation() {
                         <div className="d-flex flex-column align-items-center">
                           <Badge 
                               bg={row.inquiry_status === 'APPROVED' ? 'success' : row.inquiry_status === 'DISAPPROVED' ? 'danger' : row.inquiry_status === 'REASSESS' ? 'warning' : 'info'} 
-                              className="rounded-pill px-3 py-1"
+                              className="rounded-pill px-3 py-1 shadow-sm"
                               style={{ fontSize: '10px', letterSpacing: '0.5px', width: '100%', textAlign: 'center' }}
                           >
                             {row.inquiry_status || 'FOR APPROVAL'}

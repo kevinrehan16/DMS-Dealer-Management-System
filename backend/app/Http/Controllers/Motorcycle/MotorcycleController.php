@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Motorcycle;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Motorcycle;
+use Illuminate\Support\Facades\Auth;
 
 class MotorcycleController extends Controller
 {
@@ -28,7 +30,28 @@ class MotorcycleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'brand'             => 'required|string|max:255',
+            'model_name'        => 'required|string|max:255',
+            'color'             => 'required|string|max:100',
+            'cash_price'        => 'required|numeric|min:0',
+            'original_price'    => 'required|numeric|min:0',
+            'unit_cost'         => 'required|numeric|min:0',
+            'srp_value'         => 'required|numeric|min:0',
+            'installment_price' => 'required|numeric|min:0',
+            'interest'          => 'required|numeric|min:0',
+        ]);
+
+        // I-attach ang user_id ng kasalukuyang naka-login na admin/user
+        $validated['user_id'] = Auth::id();
+
+        $motorcycle = Motorcycle::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Motorcycle model added successfully!',
+            'data'    => $motorcycle
+        ], 201);
     }
 
     /**
