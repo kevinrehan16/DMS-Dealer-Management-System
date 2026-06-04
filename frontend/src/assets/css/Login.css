@@ -4,6 +4,17 @@
    ========================================= */
 
 /* ========== Layout ========== */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+}
+
+/* Optional: Add custom fonts if needed */
+.MuiButton-containedPrimary {
+  background-color: #1e1f26 !important;
+}
+
 .login-container {
   display: flex;
   justify-content: center;

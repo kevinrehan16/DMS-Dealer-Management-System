@@ -40,7 +40,7 @@ function Inventory() {
                 <FaFileExport /> Export
               </Button>
               <Button size="md"  variant="primary" className="shadow-sm fw-bold px-4 rounded-3 d-flex align-items-center gap-2">
-                <FaPlus /> NEW PAYMENT
+                <FaPlus /> NEW UNIT
               </Button>
             </div>
             

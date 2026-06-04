@@ -59,6 +59,7 @@ function CreditInvestigation() {
     );
   };
 
+  // TODO: Remove this commented code later, this is for reference only
   // const saveAssignSchedule = async () => {
   //   const selectedInquiries = inquiriesContext.filter(user =>
   //     selectedIds.includes(user.id)
