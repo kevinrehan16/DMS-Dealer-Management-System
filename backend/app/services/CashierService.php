@@ -14,30 +14,40 @@ class CashierService
     {
         return DB::transaction(function () use ($data) {
             $inquiry = Inquiry::findOrFail($data['inquiry_id']);
-
-            // 1. Dito natin idedefine ang variables para hindi sila maging "Undefined"
             $isMonthly = ($data['payment_type'] === 'MONTHLY_INSTALLMENT');
-            $targetBalance = $isMonthly ? ($inquiry->motorPromnote ?? 0) : ($inquiry->motorDownpayment ?? 0);
-            $status = $isMonthly ? 'ACTIVE' : 'DOWNPAYMENT';
 
-            // 2. Sync Account Configuration
-            // Isinama na natin ang $targetBalance sa array para walang Not-Null error
-            $account = Account::updateOrCreate(
-                ['inquiry_id' => $inquiry->id],
-                [
-                    'account_status'       => $status,
-                    'total_contract_price' => $inquiry->motorPromnote ?? 0,
-                    'payment_term_months'  => $inquiry->motorInstallmentterm,
-                    'monthly_amortization' => $inquiry->motorMonthlyinstallment ?? 0,
-                    'outstanding_balance'  => $targetBalance,
-                ]
-            );
+            // 1. KUNIN ang account (kung wala pa, mag-i-instantiate)
+            $account = Account::firstOrNew(['inquiry_id' => $inquiry->id]);
 
-            // 3. Compute Principal at Interest
+            // 2. TRAP / VALIDATION: 
+            // Kung Monthly ang babayaran, siguraduhing bayad na ang DP
+            if ($isMonthly) {
+                // I-check kung may existing account na at kung may balance pa ang DP
+                // Note: Ang logic na ito ay gagana kung ang status ng DP ay 'DOWNPAYMENT'
+                if ($account->exists && $account->account_status === 'DOWNPAYMENT' && $account->outstanding_balance > 0) {
+                    throw new \Exception("Hindi pwedeng mag-Monthly Installment. Pakibayaran muna ang natitirang Downpayment.");
+                }
+            }
+
+            // 3. I-fill ang configuration
+            $account->account_status = $isMonthly ? 'ACTIVE' : 'DOWNPAYMENT';
+            $account->total_contract_price = $inquiry->motorPromnote ?? 0;
+            $account->payment_term_months = $inquiry->motorInstallmentterm;
+            $account->monthly_amortization = $inquiry->motorMonthlyinstallment ?? 0;
+
+            // 4. Logic para sa Stage Transition (Initialization)
+            if (!$account->exists) {
+                $account->account_status = 'DOWNPAYMENT';
+                $account->outstanding_balance = $inquiry->motorDownpayment ?? 0;
+            }
+
+            $account->save();
+
+            // 5. Compute Payment
             $interestPortion = $isMonthly ? ($inquiry->monthly_uid ?? 0) : 0;
             $principalPortion = $data['amount_collected'] - $interestPortion;
 
-            // 4. Create Cashier Record
+            // 6. Create Cashier Record
             $payment = Cashier::create(array_merge($data, [
                 'account_id'     => $account->id,
                 'transaction_no' => 'TXN-' . strtoupper(bin2hex(random_bytes(6))),
@@ -47,12 +57,18 @@ class CashierService
                 'status'         => 'POSTED'
             ]));
 
-            // 5. Update Balances
+            // 7. Update Balance
             $account->increment('total_amount_paid', $data['amount_collected']);
 
-            // Dito natin binabawasan ang outstanding_balance base sa kinalkula nating balance
-            $newBalance = max(0, $account->outstanding_balance - $data['amount_collected']);
+            $currentBalance = $account->fresh()->outstanding_balance;
+            $newBalance = max(0, $currentBalance - $data['amount_collected']);
+
             $account->update(['outstanding_balance' => $newBalance]);
+
+            // 8. Opsyonal: Kung na-zero na ang DP, automatic i-switch ang status sa ACTIVE
+            if ($account->account_status === 'DOWNPAYMENT' && $newBalance <= 0) {
+                $account->update(['account_status' => 'ACTIVE', 'outstanding_balance' => $inquiry->motorPromnote ?? 0]);
+            }
 
             return $payment;
         });
