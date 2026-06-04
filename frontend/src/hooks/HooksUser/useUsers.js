@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { userService, createNewUser } from '../../services/ServiceUser/userService';
+import { userService } from '../../services/ServiceUser/userService.js';
 import Swal from 'sweetalert2';
 
 // Dagdagan ng 'filters' na parameter

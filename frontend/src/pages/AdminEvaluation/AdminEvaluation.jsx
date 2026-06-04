@@ -345,9 +345,15 @@ function AdminEvaluation() {
             </Table>
             
             {!isLoading && inquiries?.length === 0 && (
-              <div className="text-center p-5 text-muted">
-                <FaSearch size={40} className="mb-3 opacity-25" />
-                <p>No transactions found matching your filters.</p>
+              <div 
+                className="w-100 d-flex flex-column justify-content-center align-items-center" 
+                style={{ minHeight: '400px' }} // Gawin mong mas malaki ang value para mas bumaba sa gitna
+              >
+                <div className="text-center text-muted">
+                  <FaSearch size={80} className="mb-3 opacity-25" />
+                  <h5>No Results Found</h5>
+                  <p className="mb-0">No transactions found matching your filters.</p>
+                </div>
               </div>
             )}
           </div>

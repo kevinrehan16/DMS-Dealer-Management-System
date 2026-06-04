@@ -30,7 +30,7 @@ export default function Inquiry() {
   const [searchInfo, setSearchInfo] = useState("");
   const [userFilterBy, setUserFilterBy] = useState("");
   const [filters, setFilters] = useState({ 
-    search: '', filterBy: '', status: 'NEW', from_date: '', to_date: '' 
+    search: '', filterBy: '', status: ['NEW', 'INVESTIGATION'], from_date: '', to_date: '' 
   });
 
   // --- ORIGINAL FUNCTIONS ---
@@ -264,7 +264,7 @@ export default function Inquiry() {
                               <FaEye className="me-2 mb-1 text-info"/> View Inquiry
                             </Dropdown.Item>
                             <Dropdown.Item 
-                              onClick={() => handleShowModalCreditApplication(inquiry.customer.id, inquiry.customer.credit_application.id)} 
+                              onClick={() => handleShowModalCreditApplication(inquiry?.customer?.id, inquiry?.customer?.credit_application?.id)} 
                               className="small py-2 px-3"
                             >
                               <FaEdit className="me-2 mb-1 text-primary"/> Apply Credit Application

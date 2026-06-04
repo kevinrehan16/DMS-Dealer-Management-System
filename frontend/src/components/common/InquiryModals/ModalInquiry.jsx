@@ -142,7 +142,7 @@ const ModalInquiry = ({ show, handleClose, title, customerID }) => {
           response.data.message || "New Inquiry Saved!", 
           "New inquiry has beed saved successfully.",
           "success",
-          "New Inquiry Saved."
+          "Saving Inquiry."
         );
         // console.log("Successfully Added Data from Server:", response.data);
         reset();
@@ -183,7 +183,7 @@ const ModalInquiry = ({ show, handleClose, title, customerID }) => {
         motorMonthlyinstallment: formatAmount(raw.motorMonthlyinstallment),
       };
       
-        console.log(formattedData);
+        // console.log(formattedData);
         reset(formattedData);
       } else {
         // ADD MODE: Linisin ang form

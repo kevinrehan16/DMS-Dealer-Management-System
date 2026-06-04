@@ -38,4 +38,9 @@ class Cashier extends Model
     {
         return $this->belongsTo(User::class, 'processed_by');
     }
+
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
 }

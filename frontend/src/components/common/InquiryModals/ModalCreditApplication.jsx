@@ -13,7 +13,7 @@ import { useNotification } from '../../../context/NotificationContext';
 import { fetchWithRetry } from '../../../utils/network';
 
 function ModalCreditApplication({show, handleClose, customerId, applicationId}) {
-  const API_URL = process.env.REACT_APP_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL;
   const token = sessionStorage.getItem('token');
   const notify = useNotification();
   
@@ -269,15 +269,6 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
           <Modal.Title>Credit Application</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-
-          {/* MODAL FOR ADDRESS HERE.. */}
-          <ModalAddress 
-            show={addressConfig.show} 
-            handleClose={closeAddress} 
-            onSelect={handleSelect}
-          />
-          {/* END MODAL FOR ADDRESS HERE.. */}
-
           <Row>
             <Col md={12}>
               <Card>
@@ -1027,6 +1018,14 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* MODAL FOR ADDRESS HERE.. */}
+      <ModalAddress 
+        show={addressConfig.show} 
+        handleClose={closeAddress} 
+        onSelect={handleSelect}
+      />
+      {/* END MODAL FOR ADDRESS HERE.. */}
     </div>
   )
 }

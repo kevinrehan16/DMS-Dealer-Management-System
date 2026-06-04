@@ -14,7 +14,7 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 
 const AssignScheduleModal = ({ show, handleClose, selectedIds, setSelectedIds, onSuccess }) => {
-  const API_URL = process.env.REACT_APP_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL;
   const token = sessionStorage.getItem('token');
   const [isAssigning, setIsAssigning] = useState(false);
 

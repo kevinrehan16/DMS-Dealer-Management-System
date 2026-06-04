@@ -16,7 +16,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   
   const navigate = useNavigate();
-  const API_URL = process.env.REACT_APP_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL;
   const [form, setForm] = useState({ email: '', password: '' });
 
   const handleChange = (e) => {
@@ -112,10 +112,18 @@ const Login = () => {
               fullWidth type="submit" variant="contained" size="large" disabled={loading}
               sx={{ 
                 mt: 3, py: 1.5, borderRadius: 2, bgcolor: '#1e1f26', color: '#ffc107',
-                '&:hover': { bgcolor: '#343a40' }, fontWeight: 'bold' 
+                '&:hover': { bgcolor: '#ffc107 !important', color: '#000', boxShadow: '0 8px 20px rgba(0,0,0,0.15)' },
+                transition: 'all 150ms ease-in-out', fontWeight: 'bold' 
               }}
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : <><FaSignInAlt style={{marginRight: 8}}/> LOGIN</>}
+              {loading ? (
+                <>
+                  <CircularProgress size={18} sx={{ mr: 1, color: '#ffffff' }} />
+                  <span style={{ color: '#ffffff' }}>LOGGING IN...</span>
+                </>
+              ) : (
+                <><FaSignInAlt style={{marginRight: 8}}/> LOGIN</>
+              )}
             </Button>
           </form>
 

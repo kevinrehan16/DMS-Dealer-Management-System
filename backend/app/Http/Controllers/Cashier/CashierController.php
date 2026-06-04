@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Cashier;
 use App\Services\CashierService;
 use App\Http\Resources\CashierResource;
+use App\Http\Requests\StoreCashierRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -26,11 +27,11 @@ class CashierController extends Controller
     public function index(Request $request)
     {
         $payments = Cashier::with(['inquiry', 'cashier', 'inquiry.customer:id,firstName,lastName'])
-            ->when($request->search, function($query, $search) {
+            ->when($request->search, function ($query, $search) {
                 $query->where('or_number', 'like', "%{$search}%")
-                      ->orWhereHas('inquiry', function($q) use ($search) {
-                          $q->where('customer_name', 'like', "%{$search}%");
-                      });
+                    ->orWhereHas('inquiry', function ($q) use ($search) {
+                        $q->where('customer_name', 'like', "%{$search}%");
+                    });
             })
             ->latest()
             ->paginate($request->per_page ?? 10);
@@ -49,30 +50,20 @@ class CashierController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCashierRequest $request)
     {
-        $validated = $request->validate([
-            'inquiry_id'       => 'required|exists:inquiries,id',
-            'or_number'        => 'required|unique:cashiers,or_number',
-            'payment_type'     => 'required|in:MONTHLY_INSTALLMENT,FULL_CASH,RESERVATION,DOWNPAYMENT,PARTIAL_PAYMENT,PENALTY_PAYMENT,ADVANCE_PAYMENT',
-            'amount_collected' => 'required|numeric|min:1',
-            'payment_mode'     => 'required|string',
-            'transaction_date' => 'required|date',
-            'branch_code'      => 'required|string',
-        ]);
-
         try {
-            return DB::transaction(function () use ($validated) {
-                // Pinapasa natin sa Service ang logic ng computation
-                $payment = $this->cashierService->processPayment($validated);
+            $payment = $this->cashierService->processPayment($request->validated());
 
-                return response()->json([
-                    'message' => 'Payment processed successfully',
-                    'data' => new CashierResource($payment)
-                ], 201);
-            });
+            return response()->json([
+                'message' => 'Payment processed successfully',
+                'data'    => new CashierResource($payment)
+            ], 201);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 422);
+            return response()->json([
+                'error'   => 'Failed to process payment',
+                'details' => $e->getMessage()
+            ], 422);
         }
     }
 

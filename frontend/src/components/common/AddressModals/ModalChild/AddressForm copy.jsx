@@ -96,21 +96,23 @@ const AddressForm = ({ setFormValue, register, errors }) => {
       <Form.Group as={Row} className="mb-2">
         <Form.Label column sm={4}>Region</Form.Label>
         <Col sm={8}>
-          <Form.Select 
-            value={codes.regCode || ""}
-            onChange={(e) => {
-              const val = e.target.value;
-              const selected = data.regions.find(c => c.value === val);
-              setCodes({ regCode: val, provCode: null, citymunCode: null, brgyCode: null });
-              setFormValue("addresssregion", selected?.label || "");
-              setFormValue("addresssprovince", "");
-              setFormValue("addressscity", "");
-              setFormValue("addresssbrgy", "");
+          <Select 
+            // Hanapin ang selected option based sa codes.regCode
+            value={data.regions?.find(c => c.value === codes.regCode) || null}
+            options={data.regions}
+            onChange={(opt) => { 
+                setCodes({ regCode: opt?.value, provCode: null, citymunCode: null, brgyCode: null });
+                setFormValue("addresssregion", opt?.label || ""); 
+                setFormValue("addresssprovince", "");
+                setFormValue("addressscity", "");
+                setFormValue("addresssbrgy", "");
             }}
-          >
-            <option value="">Select Region...</option>
-            {data.regions?.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-          </Form.Select>
+            placeholder="Search region..."
+            styles={customStyles}
+            menuPortalTarget={document.body} 
+            isLoading={loading.regions}
+            isClearable
+          />
         </Col>
       </Form.Group>
 
@@ -118,42 +120,40 @@ const AddressForm = ({ setFormValue, register, errors }) => {
       <Form.Group as={Row} className="mb-2">
         <Form.Label column sm={4}>Province</Form.Label>
         <Col sm={8}>
-          <Form.Select 
-            disabled={!codes.regCode}
-            value={codes.provCode || ""}
-            onChange={(e) => {
-              const val = e.target.value;
-              const selected = data.provinces.find(c => c.value === val);
-              setCodes({ ...codes, provCode: val, citymunCode: null, brgyCode: null });
-              setFormValue("addresssprovince", selected?.label || "");
-              setFormValue("addressscity", "");
-              setFormValue("addresssbrgy", "");
+          <Select 
+            value={data.provinces?.find(c => c.value === codes.provCode) || null}
+            options={data.provinces}
+            onChange={(opt) => { 
+                setCodes({ ...codes, provCode: opt?.value, citymunCode: null, brgyCode: null });
+                setFormValue("addresssprovince", opt?.label || "");
+                setFormValue("addressscity", "");
+                setFormValue("addresssbrgy", "");
             }}
-          >
-            <option value="">Select Province...</option>
-            {data.provinces?.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-          </Form.Select>
+            // ... (ibang props gaya ng styles, etc)
+            isDisabled={!codes.regCode}
+            isLoading={loading.provinces}
+            isClearable
+          />
         </Col>
       </Form.Group>
 
       {/* CITY */}
       <Form.Group as={Row} className="mb-2">
-        <Form.Label column sm={4}>City/Municipality</Form.Label>
+        <Form.Label column sm={4}>City</Form.Label>
         <Col sm={8}>
-          <Form.Select 
-            disabled={!codes.provCode}
-            value={codes.citymunCode || ""}
-            onChange={(e) => {
-              const val = e.target.value;
-              const selected = data.cities.find(c => c.value === val);
-              setCodes({ ...codes, citymunCode: val, brgyCode: null });
-              setFormValue("addressscity", selected?.label || "");
-              setFormValue("addresssbrgy", "");
+          <Select 
+            value={data.cities?.find(c => c.value === codes.citymunCode) || null}
+            options={data.cities}
+            onChange={(opt) => { 
+                setCodes({ ...codes, citymunCode: opt?.value, brgyCode: null });
+                setFormValue("addressscity", opt?.label || "");
+                setFormValue("addresssbrgy", "");
             }}
-          >
-            <option value="">Select City...</option>
-            {data.cities?.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-          </Form.Select>
+            // ... (ibang props)
+            isDisabled={!codes.provCode}
+            isLoading={loading.cities}
+            isClearable
+          />
         </Col>
       </Form.Group>
 
@@ -161,19 +161,18 @@ const AddressForm = ({ setFormValue, register, errors }) => {
       <Form.Group as={Row} className="mb-2">
         <Form.Label column sm={4}>Barangay</Form.Label>
         <Col sm={8}>
-          <Form.Select 
-            disabled={!codes.citymunCode}
-            value={codes.brgyCode || ""}
-            onChange={(e) => {
-              const val = e.target.value;
-              const selected = data.barangays.find(c => c.value === val);
-              setCodes({ ...codes, brgyCode: val });
-              setFormValue("addresssbrgy", selected?.label || "");
+          <Select 
+            value={data.barangays?.find(c => c.value === codes.brgyCode) || null}
+            options={data.barangays}
+            onChange={(opt) => { 
+                setCodes({ ...codes, brgyCode: opt?.value });
+                setFormValue("addresssbrgy", opt?.label || "");
             }}
-          >
-            <option value="">Select Barangay...</option>
-            {data.barangays?.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-          </Form.Select>
+            // ... (ibang props)
+            isDisabled={!codes.citymunCode}
+            isLoading={loading.barangays}
+            isClearable
+          />
         </Col>
       </Form.Group>
     </div>
