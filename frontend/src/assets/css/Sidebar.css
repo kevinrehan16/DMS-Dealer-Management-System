@@ -15,10 +15,23 @@
 
 .sidebar-title {
   font-size: 1.5rem;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   display: flex;
   align-items: center;
   gap: 10px;
+  font-weight: bold;
+}
+
+.logo-circle-container {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow para sa "lutang" effect */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: 2px solid #ffffff; /* optional: para magmukhang mas malinis ang borders */
+}
+
+.logo-circle-container:hover {
+  transform: translateY(-5px); /* Aangat */
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2); /* Mas lalalim ang shadow para lalong "umangat" */
 }
 
 /* Main Nav Links */

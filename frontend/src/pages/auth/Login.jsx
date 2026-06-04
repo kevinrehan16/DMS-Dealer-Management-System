@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Paper, TextField, Button, CircularProgress, Typography, IconButton, InputAdornment } from '@mui/material';
 import { useAuth } from '../../context/AuthContext/AuthContext';
 import { FaSignInAlt, FaRegEye, FaRegEyeSlash } from "react-icons/fa";
-import { logo } from '../../assets';
+// import { logo } from '../../../public/dms.png';
 import axios from 'axios';
 import '../../assets/css/Login.css';
 import { useNotification } from '../../context/NotificationContext';
@@ -79,7 +79,7 @@ const Login = () => {
       <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', p: 4 }}>
         <Paper elevation={0} sx={{ width: '100%', maxWidth: 400, bgcolor: 'transparent' }}>
           <Box mb={4} textAlign="center">
-            <img src={logo} alt="Logo" style={{ width: 140, marginBottom: 20 }} />
+            <img src="/dms.png" alt="Logo" style={{ width: 140, marginBottom: 20 }} />
             <Typography variant="h5" fontWeight="bold" color="#343a40">Sign In</Typography>
             <Typography color="textSecondary">Access your secure dashboard</Typography>
           </Box>

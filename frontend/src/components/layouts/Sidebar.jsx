@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Nav } from "react-bootstrap";
+import { Nav, Image } from "react-bootstrap";
 import { FaAppStore, 
           FaChartPie, 
           FaUser, 
@@ -44,7 +44,45 @@ export default function Sidebar() {
 
   return (
     <div className="sidebar">
-      <h3 className="sidebar-title"><FaAppStore className="text-warning" size={30} /> DMS</h3>
+      <h3 className="sidebar-title">
+        <div className="d-flex align-items-center">
+          <div 
+            className="logo-circle-container" 
+            style={{ 
+              width: 35, 
+              height: 35, 
+              borderRadius: '50%', 
+              overflow: 'hidden', 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#fff', 
+              flexShrink: 0
+            }}
+          >
+            <Image 
+                src="/dms.png" 
+                width={35} 
+                height={35} 
+                alt="Logo" 
+                style={{ 
+                    width: '80%',      // Ginawa nating 80% para may space sa paligid
+                    height: '80%', 
+                    objectFit: 'contain' // Ito ang sikreto para hindi maputol ang image
+                }} 
+            />
+          </div>
+          <div className="ms-2">
+            <div className="fw-bold text-white" style={{ fontSize: "0.9rem" }}>
+              Dealer Management
+            </div>
+
+            <div className="fw-light" style={{ fontSize: "0.65rem", color: "#ffc107" }}>
+              Enterprise Solutions
+            </div>
+          </div>
+        </div>
+      </h3>
       <Nav className="flex-column">
         {can('view dashboard') && (
           <Nav.Link
