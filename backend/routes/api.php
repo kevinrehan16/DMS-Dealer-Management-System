@@ -66,7 +66,7 @@ Route::middleware('auth:sanctum')->prefix('inquiries')->group(function () {
     Route::get('/', [InquiryController::class, 'index']);
     Route::post('/', [InquiryController::class, 'store']);
     Route::get('{inquiry}', [InquiryController::class, 'show']);
-    Route::put('{inquiry}', [InquiryController::class, 'update']);
+    Route::put('/{inquiry}', [InquiryController::class, 'update']);
     Route::delete('{inquiry}', [InquiryController::class, 'destroy']);
 
     Route::patch('/assignschedule', [InquiryController::class, 'assignschedule']);
@@ -114,6 +114,7 @@ Route::prefix('credit-application')->middleware('auth:sanctum')->group(function 
 
     // Batch save
     Route::post('/save-all', [CreditApplicationBatchController::class, 'store']);
+    Route::put('/update-all/{id}', [CreditApplicationBatchController::class, 'update']);
 });
 
 Route::prefix('credit-investigation')->middleware('auth:sanctum')->group(function () {
@@ -151,11 +152,11 @@ Route::prefix('settings')->controller(RolesController::class)->group(function ()
         // ROLE'S END POINTS
         Route::get('/roles', 'index');
         Route::post('/roles', 'store');
-        Route::post('/permissions', [RolesController::class,'storePermission']);
-        Route::post('/assign-role', [RolesController::class,'assignRoleToUser']);
+        Route::post('/permissions', [RolesController::class, 'storePermission']);
+        Route::post('/assign-role', [RolesController::class, 'assignRoleToUser']);
 
         // PERMISSION'S END POINTS
-        Route::post('/setup/permissions', [ModulePermissionController::class,'createModulePermissions']);
+        Route::post('/setup/permissions', [ModulePermissionController::class, 'createModulePermissions']);
         Route::post('/setup/assign-to-role', [ModulePermissionController::class, 'assignModulesToRole']);
     });
 });
@@ -182,5 +183,3 @@ Route::prefix('address')->controller(AddressController::class)->group(function (
     // citymunCode naman ang gagamitin natin di,to
     Route::get('/barangays/{citymunCode}', 'getBarangays');
 });
-
-

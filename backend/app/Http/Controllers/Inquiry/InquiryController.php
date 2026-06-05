@@ -53,10 +53,7 @@ class InquiryController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-
-    }
+    public function create() {}
 
     /**
      * Store a newly created resource in storage.
@@ -99,9 +96,28 @@ class InquiryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(StoreInquiryRequest $request, string $id)
     {
-        // $this->authorize('update', $inquiry);
+        // $this->authorize('edit', Inquiry::class);
+        try {
+            // 1. Kunin ang validated data
+            $validatedData = $request->validated();
+
+            // 2. I-update ang inquiry gamit ang service
+            $inquiry = $this->inquiryService->updateInquiry($id, $validatedData);
+
+            // 3. I-return ang response
+            return response()->json([
+                'message' => 'Inquiry updated successfully.',
+                'data'    => new InquiryResource($inquiry),
+            ], 200);
+        } catch (\Exception $e) {
+            // 4. I-log ang specific error para malaman natin kung sa
+            return response()->json([
+                'message' => 'An error occurred while updating the inquiry.',
+                'error'   => $e->getMessage() // I-remove ito sa production para sa security
+            ], 500);
+        }
     }
 
     /**
@@ -143,16 +159,16 @@ class InquiryController extends Controller
     {
         $scheduled = Inquiry::whereNotNull('investigator_id')
             ->whereNotNull('date_creditinvestigation')
-            ->with('investigator:id,firstName,lastName','customer:id,firstName,lastName') // Para makita kung sino ang naka-assign
+            ->with('investigator:id,firstName,lastName', 'customer:id,firstName,lastName') // Para makita kung sino ang naka-assign
             ->get();
 
         // I-format para sa FullCalendar
-        $events = $scheduled->map(function($inquiry) {
+        $events = $scheduled->map(function ($inquiry) {
             return [
                 'id'    => $inquiry->id,
                 'investigator_id' => $inquiry->investigator->id,
-                'title' => "C.I: ".$inquiry->customer->firstName.", ".$inquiry->customer->lastName." - (By:" . $inquiry->investigator->firstName.", ".$inquiry->investigator->lastName.")",
-                'subTitle' => "C.I: ".$inquiry->customer->firstName.", ".$inquiry->customer->lastName,
+                'title' => "C.I: " . $inquiry->customer->firstName . ", " . $inquiry->customer->lastName . " - (By:" . $inquiry->investigator->firstName . ", " . $inquiry->investigator->lastName . ")",
+                'subTitle' => "C.I: " . $inquiry->customer->firstName . ", " . $inquiry->customer->lastName,
                 'start' => $inquiry->date_creditinvestigation . 'T' . $inquiry->time_creditinvestigation,
             ];
         });
@@ -174,5 +190,4 @@ class InquiryController extends Controller
 
         return response()->json(['message' => 'Updated successfully']);
     }
-
 }

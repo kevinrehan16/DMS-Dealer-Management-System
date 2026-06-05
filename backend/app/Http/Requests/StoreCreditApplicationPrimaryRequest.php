@@ -27,6 +27,5 @@ class StoreCreditApplicationPrimaryRequest extends FormRequest
             // 'phone' => 'nullable|string|max:20',
             // Add other fields as needed
         ];
-
     }
 }

@@ -23,20 +23,20 @@ class StoreInquiryRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'customer_id' => ['required','integer'],
-            'sourceInquiry' => ['required','string','max:30'],
-            'salesPersonid' => ['required','string','max:30'],
-            'employmentStatus' => ['required','string','max:30'],
-            'motorBrand' => ['required','string','max:30'],
-            'motorModel' => ['required','string','max:30'],
-            'motorSeries' => ['required','string','max:30'],
-            'motorColor' => ['required','string','max:30'],
-            'motorChassis' => ['required','string','max:30'],
-            'motorBranchcode' => ['required','string','max:30'],
-            'motorInstallmentterm' => ['required','numeric','max:120'],
-            'motorCustomertype' => ['required','string','max:20'],
-            'unit_type' => ['required','string','max:15'],
-            'payment_type' => ['required','string','max:15'],
+            'customer_id' => ['required', 'integer'],
+            'sourceInquiry' => ['required', 'string', 'max:30'],
+            'salesPersonid' => ['required', 'string', 'max:30'],
+            'employmentStatus' => ['required', 'string', 'max:30'],
+            'motorBrand' => ['required', 'string', 'max:30'],
+            'motorModel' => ['required', 'string', 'max:30'],
+            'motorSeries' => ['required', 'string', 'max:30'],
+            'motorColor' => ['required', 'string', 'max:30'],
+            'motorChassis' => ['required', 'string', 'max:30'],
+            'motorBranchcode' => ['required', 'string', 'max:30'],
+            'motorInstallmentterm' => ['required', 'numeric', 'max:120'],
+            'motorCustomertype' => ['required', 'string', 'max:20'],
+            'unit_type' => ['required', 'string', 'max:15'],
+            'payment_type' => ['required', 'string', 'max:15'],
             'inquiry_status' => ['required', 'string'],
         ];
 
@@ -67,7 +67,7 @@ class StoreInquiryRequest extends FormRequest
         }
 
         $rules['motorInstallmentterm'] = array_merge(
-            ['required','numeric','max:120'],
+            ['required', 'numeric', 'max:120'],
             $this->input('motorBranchcode') !== 'BTK' ? ['gt:0'] : ['gte:0']
         );
 

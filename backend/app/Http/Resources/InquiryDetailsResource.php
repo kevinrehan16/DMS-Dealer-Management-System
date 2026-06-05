@@ -28,7 +28,7 @@ class InquiryDetailsResource extends JsonResource
 
         return [
             'id'            => $this->customer->id, // internal DB ID, not exposed to clients
-            'customer_id'   => $this->customer->customer_id, // always business-facing ID
+            'customer_id'   => $this->customer->id, // always business-facing ID
             'fullName'      => trim($this->customer->firstName . ' ' . $this->customer->lastName),
             'middleName'    => $this->customer->middleName,
             'title'         => $this->customer->title,

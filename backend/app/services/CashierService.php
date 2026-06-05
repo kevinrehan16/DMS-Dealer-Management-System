@@ -12,6 +12,8 @@ class CashierService
 
     public function processPayment(array $data)
     {
+        // TODO: Add function for RESERVATION first scenario.
+
         return DB::transaction(function () use ($data) {
             $inquiry = Inquiry::findOrFail($data['inquiry_id']);
             $isMonthly = ($data['payment_type'] === 'MONTHLY_INSTALLMENT');
@@ -25,7 +27,7 @@ class CashierService
                 // I-check kung may existing account na at kung may balance pa ang DP
                 // Note: Ang logic na ito ay gagana kung ang status ng DP ay 'DOWNPAYMENT'
                 if ($account->exists && $account->account_status === 'DOWNPAYMENT' && $account->outstanding_balance > 0) {
-                    throw new \Exception("Hindi pwedeng mag-Monthly Installment. Pakibayaran muna ang natitirang Downpayment.");
+                    throw new \Exception("Transaction declined. Monthly installment payments cannot be processed until the downpayment balance has been fully settled.");
                 }
             }
 

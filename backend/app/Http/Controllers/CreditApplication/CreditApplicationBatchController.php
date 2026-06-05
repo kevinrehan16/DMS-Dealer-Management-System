@@ -15,15 +15,18 @@ use App\Models\CreditApplicationIncome;
 use App\Models\CreditApplicationProperties;
 use App\Models\CreditApplicationAttachments;
 use App\Services\InquiryService; // Import ang service
+use App\Http\Requests\StoreCreditApplicationRequest;
+use App\Services\ApplicationService;
 
 class CreditApplicationBatchController extends Controller
 {
-    protected $inquiryService;
+    protected $inquiryService, $applicationService;
 
     // Dependency Injection via Constructor
-    public function __construct(InquiryService $inquiryService)
+    public function __construct(InquiryService $inquiryService, ApplicationService $applicationService)
     {
         $this->inquiryService = $inquiryService;
+        $this->applicationService = $applicationService;
     }
     /**
      * Display a listing of the resource.
@@ -44,93 +47,33 @@ class CreditApplicationBatchController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCreditApplicationRequest $request, ApplicationService $service)
     {
-        DB::beginTransaction();
+        // 1. VALIDATION: Kung invalid ang request, automatic na magbabalik
+        // ang Laravel ng error (422) at hindi na magtutuloy sa code na ito.
+        $validated = $request->validated();
 
+        // 2. DATA PREPARATION:
+        $primaryData = is_string($request->primary)
+            ? json_decode($request->primary, true)
+            : $request->primary;
+
+        // 3. SERVICE CALL: Ipapasa natin ang data sa Service
         try {
-            // IMPORTANT: I-decode ang 'primary' dahil String ito galing sa FormData
-            $primaryData = is_string($request->input('primary'))
-                ? json_decode($request->input('primary'), true)
-                : $request->input('primary');
+            $service->store(
+                $primaryData,
+                $request->file('attachments'),
+                $primaryData['attachments_meta'] ?? [],
+                $this->inquiryService
+            );
 
-            $mainTableData = collect($primaryData)->except([
-                'preferenceRows', 'referenceRows', 'incomeRows', 'propertyRows', 'attachments_meta'
-            ])->toArray();
-            // I-save ang main application
-            $primary = CreditApplicationPrimary::create($mainTableData);
-            $primary->refresh();
-
-            $primaryId = $primary->id;
-            $creditAppId = $primary->creditApp_id;
-            $customerId = $primary->customer_id;
-
-            $this->inquiryService->updateStatus($customerId, 'investigation');
-
-            // Listahan ng arrays na kailangang i-loop mula sa loob ng $primaryData
-            $nestedArrays = [
-                'preferenceRows' => CreditApplicationPreferences::class,
-                'referenceRows'  => CreditApplicationReferences::class,
-                'incomeRows'      => CreditApplicationIncome::class,
-                'propertyRows'  => CreditApplicationProperties::class,
-            ];
-
-            foreach ($nestedArrays as $key => $modelClass) {
-                // Kunin ang array mula sa loob ng decoded primary data
-                $rows = $primaryData[$key] ?? [];
-                foreach ($rows as $row) {
-                    // Siguraduhin na hindi empty ang row bago i-save
-                    if (!empty(array_filter($row))) {
-                        $modelClass::create(array_merge($row, [
-                            'credit_application_primary_id' => $primaryId,
-                            'creditAppPrimary_id' => $creditAppId
-                        ]));
-                    }
-                }
-            }
-
-            // --- ATTACHMENTS LOGIC ---
-            if ($request->hasFile('attachments')) {
-                $files = $request->file('attachments');
-
-                // Kunin ang meta mula sa primary data (ito yung filtered meta galing React)
-                $metaData = $primaryData['attachments_meta'] ?? [];
-
-                foreach ($files as $index => $file) {
-                    // Dahil filtered na sa React, ang $index 0 ng $files
-                    // ay siguradong $index 0 din ng $metaData.
-                    $meta = $metaData[$index] ?? [];
-
-                    $moduleName = $meta['attReq'] ?? 'Requirement';
-                    $moduleNameSafe = preg_replace('/[^A-Za-z0-9_\-]/', '_', $moduleName);
-                    $extension = $file->getClientOriginalExtension();
-
-                    // Dagdagan ng microtime para kahit mabilis ang upload, unique ang filename
-                    $filename = "{$moduleNameSafe}_" . time() . "_{$index}.{$extension}";
-
-                    // I-store sa: storage/app/public/credit_app_attachments/APP-2024-001/filename.jpg
-                    $path = $file->storeAs("credit_app_attachments/{$creditAppId}", $filename, 'public');
-
-                    // I-save sa database record
-                    CreditApplicationAttachments::create([
-                        'credit_application_primary_id' => $primaryId,
-                        'customer_id'           => $customerId,
-                        'creditAppPrimary_id'   => $creditAppId,
-                        'attModule'             => $meta['attModule'] ?? '',
-                        'attReq'                => $moduleName,
-                        'attFileName'           => $path,
-                        'attFileType'           => $file->getMimeType(),
-                        'attFileSize'           => $file->getSize(),
-                    ]);
-                }
-            }
-
-            DB::commit();
-            return response()->json(['message' => 'Credit application saved successfully.']);
-
+            return response()->json([
+                'message' => 'Credit application saved successfully.'
+            ], 201);
         } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'error' => 'Failed to save application: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -153,9 +96,24 @@ class CreditApplicationBatchController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(StoreCreditApplicationRequest $request, $id)
     {
-        //
+        // I-pass ang validated data at files sa Service
+        try {
+            $this->applicationService->updateApplication(
+                $request->validated(),
+                $id,
+                $request->file('attachments')
+            );
+
+            return response()->json([
+                'message' => 'Credit application updated successfully!'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to update application: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
