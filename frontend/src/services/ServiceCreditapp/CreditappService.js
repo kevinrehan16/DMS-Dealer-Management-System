@@ -12,4 +12,14 @@ export const creditappService = {
     return res.data;
   },
 
+  updateCreditApp: async (applicationId, updatedData) => {
+    const res = await api.post(`/credit-application/update-all/${applicationId}`, updatedData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', 
+        'X-HTTP-Method-Override': 'PUT'
+      }
+    });
+    return res.data;
+  },
+
 };

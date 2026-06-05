@@ -11,7 +11,7 @@ import "../../assets/css/Inquiry.css";
 import { useInquiry } from "../../hooks/HooksInquiry/useInquiry";
 import ModalCreditApplication from "../../components/common/InquiryModals/ModalCreditApplication";
 import ModalInquiry from "../../components/common/InquiryModals/ModalInquiry";
-import { formatAmount, formatShowMobile } from '../../utils/formatters';
+import { formatAmount, formatShowMobile, formatUpperCase } from '../../utils/formatters';
 import SkeletonRowLoading from "../../components/common/Loading/SkeletonRowLoading";
 import { can } from "../../utils/permission";
 
@@ -30,7 +30,7 @@ export default function Inquiry() {
   const [searchInfo, setSearchInfo] = useState("");
   const [userFilterBy, setUserFilterBy] = useState("");
   const [filters, setFilters] = useState({ 
-    search: '', filterBy: '', status: ['NEW', 'INVESTIGATION'], from_date: '', to_date: '' 
+    search: '', filterBy: '', status: ['NEW', 'CREDIT_APPLICATION'], from_date: '', to_date: '' 
   });
 
   // --- ORIGINAL FUNCTIONS ---
@@ -231,8 +231,8 @@ export default function Inquiry() {
                         </div>
                       </td>
                       <td className="text-center">
-                        <Badge bg="none" className="text-primary border border-primary-subtle bg-primary-subtle rounded-pill px-3 py-1 fw-semibold" style={{ fontSize: '10px', width: '100%' }}>
-                          {inquiry.sourceInquiry || 'WALK-IN'}
+                        <Badge bg="none" className="text-dark border border-dark-subtle bg-dark-subtle rounded-pill px-3 py-1 fw-semibold shadow-sm" style={{ fontSize: '10px', width: '100%' }}>
+                          {formatUpperCase(inquiry.sourceInquiry) || 'WALK-IN'}
                         </Badge>
                       </td>
                       <td className="text-end fw-bold font-monospace text-dark">₱ {formatAmount(inquiry.motorCashprice)}</td>

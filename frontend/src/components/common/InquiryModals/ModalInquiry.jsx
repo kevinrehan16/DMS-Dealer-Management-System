@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { useForm } from 'react-hook-form';
-import { useCreateNewInquiry, useEditInquiry } from '../../../hooks/HooksInquiry/useInquiry';
+import { useCreateNewInquiry, useUpdateInquiry, useEditInquiry } from '../../../hooks/HooksInquiry/useInquiry';
 
 import { Modal, Button, Row, Col, Form, InputGroup } from 'react-bootstrap'
 import { CircularProgress } from '@mui/material';
@@ -22,6 +22,7 @@ const ModalInquiry = ({ show, handleClose, title, customerID }) => {
   const notify = useNotification();
   const { user } = useAuth();
   const { mutate: createInquiry, isPending: isCreating } = useCreateNewInquiry();
+  const { mutate: updateInquiry, isPending: isUpdating } = useUpdateInquiry();
   const { data: inquiryData, isLoading: isFetching } = useEditInquiry(customerID);
   const { register, handleSubmit, watch, setValue, reset, setError, formState: { errors } } = useForm();
 
@@ -136,27 +137,28 @@ const ModalInquiry = ({ show, handleClose, title, customerID }) => {
       motorInstallmentterm: parseInt(data.motorInstallmentterm || 0),
     };
     
-    createInquiry(payload, {
+    const mutation = customerID ? updateInquiry : createInquiry;
+    // Gawing object ang argument para sa update, o ipasa ang payload lang para sa create
+    const mutationArgs = customerID ? { id: customerID, inquiryData: payload } : payload;
+
+    mutation(mutationArgs, {
       onSuccess: (response) => {
         notify.alertMsg(
-          response.data.message || "New Inquiry Saved!", 
-          "New inquiry has beed saved successfully.",
+          response.data.message || (customerID ? "Inquiry Updated!" : "New Inquiry Saved!"),
+          (customerID ? "Inquiry has been updated successfully." : "New inquiry has been saved successfully."),
           "success",
-          "Saving Inquiry."
+          (customerID ? "Updating Inquiry." : "Saving Inquiry.")
         );
-        // console.log("Successfully Added Data from Server:", response.data);
         reset();
         handleClose();
       },
       onError: (error) => {
-        // Check kung validation error galing sa Laravel (Status 422)
-        if (error.response && error.response.status === 422) {
+        if (error.response?.status === 422) {
           const backendErrors = error.response.data.errors;
-          // I-loop ang errors para mag-pula ang textboxes
           Object.keys(backendErrors).forEach((field) => {
             setError(field, {
               type: "server",
-              message: backendErrors[field][0], // Kunin yung unang error message
+              message: backendErrors[field][0],
             });
           });
         }
@@ -351,7 +353,7 @@ const ModalInquiry = ({ show, handleClose, title, customerID }) => {
                         required>
                           <option value="">-- Select Employment Status --</option>
                           <option value="Employed">Employed</option>
-                          <option value="Self-Employed">Self-Employed</option>
+                          <option value="Self-employed">Self-Employed</option>
                           <option value="Unemployed">Unemployed</option>
                           <option value="Student">Student</option>
                       </Form.Select>

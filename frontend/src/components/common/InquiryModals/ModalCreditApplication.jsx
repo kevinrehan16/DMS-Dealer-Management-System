@@ -8,14 +8,16 @@ import ModalAddress from '../AddressModals/ModalAddress';
 import FormTitle from '../FormTitle';
 
 import { useAddressManager } from '../../../hooks/HooksAddress/useAddressManager';
-import { useCreditApplication, useCreateNewCreditApp } from '../../../hooks/HooksCreditApp/useCreditApplication';
+import { useCreditApplication, useCreateNewCreditApp, useUpdateCreditApp } from '../../../hooks/HooksCreditApp/useCreditApplication';
 import { useNotification } from '../../../context/NotificationContext';
 import { fetchWithRetry } from '../../../utils/network';
+import { calculateAge } from '../../../utils/computations';
 
 function ModalCreditApplication({show, handleClose, customerId, applicationId}) {
   const API_URL = import.meta.env.VITE_API_URL;
   const token = sessionStorage.getItem('token');
   const notify = useNotification();
+  const [serverErrors, setServerErrors] = useState({});
   
   const initialValues = {
     customer_id: customerId,
@@ -64,9 +66,35 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
   const { data: appData, isLoading: loadingCreditApp, error: errorCreditApp } = useCreditApplication(applicationId);
 
   const { mutate: createNewCreditApp, isPending: isCreating } = useCreateNewCreditApp();
+  const { mutate: updateCreditApp, isPending: isUpdating } = useUpdateCreditApp();
   const { register, handleSubmit, reset, setValue, setError, control, watch, formState: { errors } } = useForm({
     defaultValues: initialValues
   });
+
+  const birthdateValue = watch("birthdate");
+  useEffect(() => {
+    if (birthdateValue) {
+        const age = calculateAge(birthdateValue);
+        setValue("age", age); // I-set ang value sa age field
+    }
+  }, [birthdateValue, setValue]);
+
+  const spouseBirthdateValue = watch("spouseBirthDate");
+  useEffect(() => {
+    if (spouseBirthdateValue) {
+        setValue("spouseAge", calculateAge(spouseBirthdateValue));
+    }
+  }, [spouseBirthdateValue, setValue]);
+
+  const civilStatus = watch("civilStatus");
+  useEffect(() => {
+    if (civilStatus === 'Single') {
+      // I-reset ang mga fields ng spouse kapag Single
+      setValue("spouseName", "");
+      setValue("spouseBirthDate", "");
+      setValue("spouseAge", 0);
+    }
+  }, [civilStatus, setValue]);
 
   // Setup Control para sa Tables
   const { fields: incomeFields, append: appendIncome, remove: removeIncome } = useFieldArray({
@@ -100,7 +128,10 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
   ]);
 
   const saveCreditApplication = (data) => {
+    setServerErrors({});
+
     const formData = new FormData();
+    const isUpdate = !!applicationId;
 
     // 1. I-filter lang natin ang mga may file para mag-match ang index sa Laravel
     const validAttachments = attachments.filter(att => att.file instanceof File);
@@ -122,33 +153,32 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
       formData.append('attachments[]', att.file);
     });
 
+    const mutation = isUpdate ? updateCreditApp : createNewCreditApp;
+
     // 3. Ito ang isesend mo
-    createNewCreditApp(formData, {
+    const options = {
       onSuccess: (response) => {
         notify.alertMsg(
           response.message || "Credit Application Saved!", 
-          "Credit Application has beed saved successfully.",
+          isUpdate ? "Credit Application has beed updated successfully." : "Credit Application has beed saved successfully.",
           "success",
           "Saving Credit Application."
         );
-        // console.log("Successfully Added Data from Server:", response.message);
         reset(initialValues);
         handleClose();
       },
       onError: (error) => {
-        // Check kung validation error galing sa Laravel (Status 422)
-        if (error.response && error.response.status === 422) {
-          const backendErrors = error.response.data.errors;
-          // I-loop ang errors para mag-pula ang textboxes
-          Object.keys(backendErrors).forEach((field) => {
-            setError(field, {
-              type: "server",
-              message: backendErrors[field][0], // Kunin yung unang error message
-            });
-          });
+        if (error.response?.status === 422) {
+          setServerErrors(error.response.data.errors);
         }
       }
-    });
+    };
+
+    if (isUpdate) {
+        mutation({ appId: applicationId, data: formData }, options);
+    } else {
+        mutation(formData, options);
+    }
   };
 
   const handleChangeAtt = (index, field, value) => {
@@ -449,6 +479,8 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
                             type="text"
                             name="spouseName"
                             {...register("spouseName")}
+                            disabled={civilStatus === 'Single'}
+                            readOnly={civilStatus === 'Single'}
                             required
                           />
                         </Col>
@@ -465,6 +497,8 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
                             name="spouseBirthDate"
                             max={new Date().toISOString().split("T")[0]}
                             {...register("spouseBirthDate")}
+                            disabled={civilStatus === 'Single'}
+                            readOnly={civilStatus === 'Single'}
                             required
                           />
                         </Col>
@@ -997,9 +1031,9 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
             variant='primary' 
             onClick={handleSubmit(saveCreditApplication)}
             className='d-flex align-items-center gap-1'
-            disabled={isCreating || loadingCreditApp}
+            disabled={(isCreating || isUpdating) || loadingCreditApp}
           >
-            {isCreating ? 
+            {(isCreating || isUpdating) ? 
               (<><CircularProgress size={20} color="inherit" /> Saving...</>)
               :
               (loadingCreditApp ? 

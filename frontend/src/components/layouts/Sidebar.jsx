@@ -57,7 +57,9 @@ export default function Sidebar() {
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: '#fff', 
-              flexShrink: 0
+              flexShrink: 0,
+              // Layered ring effect: Gray ring -> White Gap -> Yellow Ring (#ffc107)
+              boxShadow: '0 0 0 1px #343a40, 0 0 0 3px #343a40, 0 0 0 5px #ffc107' 
             }}
           >
             <Image 
@@ -72,7 +74,7 @@ export default function Sidebar() {
                 }} 
             />
           </div>
-          <div className="ms-2">
+          <div className="ms-3">
             <div className="fw-bold text-white" style={{ fontSize: "0.9rem" }}>
               Dealer Management
             </div>

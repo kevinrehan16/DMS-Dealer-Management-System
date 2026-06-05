@@ -23,6 +23,11 @@ export const inquiryService = {
     return res.data;
   },
 
+  updateInquiry: async (id, inquiryData) => {
+    const res = await api.put(`${BASE_ROUTE}/${id}`, inquiryData);
+    return res.data;
+  },
+
   getInquiryById: async (id) => {
     const res = await api.get(`${BASE_ROUTE}/${id}`);
     return res.data;
