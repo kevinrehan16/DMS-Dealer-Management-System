@@ -19,7 +19,23 @@ import Swal from 'sweetalert2'
 
 
 function CreditInvestigation() {
-  const { data: inquiries = [], isLoading: loadingInquiry, isFetching: fetchingInquiry, refetch: refetchInquiry } = useInquiry('')
+  const [filters, setFilters] = useState(
+    { 
+      search: '', 
+      filterBy: '',
+      status: ['CREDIT_APPLICATION', 'CREDIT_INVESTIGATION', 'REASSESS'],
+      page: 1
+    }
+  );
+  const [page, setPage] = useState(1);
+  const { data: response = [], isLoading: loadingInquiry, isFetching: fetchingInquiry, refetch: refetchInquiry } = useInquiry(filters);
+  const inquiries = response?.data || [];
+  const meta = response?.meta;
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    setFilters(prev => ({ ...prev, page: newPage }));
+  };
 
   const [thisInquiryid, setThisInquiryid] = useState(0);
   const [showModalCreditInvestigation, setShowModalCreditInvestigation] = useState(false);
@@ -27,7 +43,7 @@ function CreditInvestigation() {
   const [showModalAllScheduleCi, setShowModalAllScheduleCi] = useState(false);
 
   // const { inquiriesContext, loading, getInquiriesContext } = useInquiry();
-  const [selectedIds, setSelectedIds] = useState([]);
+  const [selectedIds, setSelectedIds] = useState(new Set());
   const [assignSchedule, setAssignSchedule] = useState({
     date_schedule: '',
     time_schedule: ''
@@ -46,17 +62,29 @@ function CreditInvestigation() {
   const handleCloseModalCreditInvestigation = () => setShowModalCreditInvestigation(false);
 
   const toggleSelectAll = (e) => {
-    if (e.target.checked) {
-      setSelectedIds(inquiries.map(user => user.id));
-    } else {
-      setSelectedIds([]);
-    }
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (e.target.checked) {
+        // Idagdag lahat ng ID sa current page sa Set
+        inquiries.forEach(item => newSet.add(item.id));
+      } else {
+        // Alisin lang ang mga ID na nasa current page
+        inquiries.forEach(item => newSet.delete(item.id));
+      }
+      return newSet;
+    });
   };
 
   const toggleRow = (id) => {
-    setSelectedIds(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
   };
 
   // TODO: Remove this commented code later, this is for reference only
@@ -222,7 +250,7 @@ function CreditInvestigation() {
                         <Form.Check
                           type="checkbox"
                           className="custom-check-shadow"
-                          checked={selectedIds.length === inquiries.length}
+                          checked={inquiries.length > 0 && inquiries.every(item => selectedIds.has(item.id))}
                           onChange={toggleSelectAll}
                         />
                       </Form>
@@ -248,7 +276,7 @@ function CreditInvestigation() {
                             <Form.Check
                               type="checkbox"
                               className="custom-check-shadow"
-                              checked={selectedIds.includes(row.id)}
+                              checked={selectedIds.has(row.id)} // Set ang gamit, kaya .has()
                               onChange={() => toggleRow(row.id)}
                             />
                           </Form>
@@ -334,65 +362,54 @@ function CreditInvestigation() {
             </Table>
           </div>
           {/* Ilagay ito sa ilalim ng iyong table container */}
-          <div className="d-flex justify-content-between align-items-center px-3 py-2 bg-white border-top shadow-sm rounded-bottom-4">
-            
-            {/* Left Side: Summary Info */}
-            <div className="text-muted small">
-              Showing <span className="fw-bold text-dark">1</span> to <span className="fw-bold text-dark">10</span> of <span className="fw-bold text-dark">150</span> inquiries
+          {meta && (
+            <div className="d-flex justify-content-between align-items-center px-3 py-2 bg-white border-top">
+              <div className="text-muted small">
+                {meta.total > 0 ? (
+                  <>
+                    Showing <span className="fw-bold text-dark">{meta.from}</span> to 
+                    <span className="fw-bold text-dark"> {meta.to}</span> of 
+                    <span className="fw-bold text-dark"> {meta.total}</span> inquiries
+                  </>
+                ) : (
+                  // Ito ang ipapakita kung walang record
+                  <span>Showing 0 record.</span>
+                )}
+              </div>
+
+              <nav aria-label="Inquiry pagination">
+                <ul className="pagination pagination-sm mb-0 gap-1">
+                  
+                  {/* Previous Button */}
+                  <li className={`page-item ${meta.current_page === 1 ? 'disabled' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(meta.current_page - 1)}>
+                      Previous
+                    </button>
+                  </li>
+
+                  {/* Dynamic Page Numbers */}
+                  {[...Array(meta.last_page)].map((_, i) => {
+                    const pageNumber = i + 1;
+                    return (
+                      <li key={pageNumber} className={`page-item ${meta.current_page === pageNumber ? 'active' : ''}`}>
+                        <button className="page-link" onClick={() => handlePageChange(pageNumber)}>
+                          {pageNumber}
+                        </button>
+                      </li>
+                    );
+                  })}
+
+                  {/* Next Button */}
+                  <li className={`page-item ${meta.current_page === meta.last_page ? 'disabled' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(meta.current_page + 1)}>
+                      Next
+                    </button>
+                  </li>
+
+                </ul>
+              </nav>
             </div>
-
-            {/* Right Side: Pagination Controls */}
-            <nav aria-label="Inquiry pagination">
-              <ul className="pagination pagination-sm mb-0 gap-1">
-                
-                {/* Previous Button */}
-                <li className="page-item disabled">
-                  <button className="page-link rounded-2 border-0 bg-light text-muted px-3" tabIndex="-1">
-                    Previous
-                  </button>
-                </li>
-
-                {/* Page Numbers */}
-                <li className="page-item active shadow-sm" aria-current="page">
-                  <button className="page-link rounded-2 border-0 px-3 fw-bold" 
-                    style={{ background: 'linear-gradient(45deg, #ffc107, #e0a800)', color: '#000' }}>
-                    1
-                  </button>
-                </li>
-                
-                <li className="page-item">
-                  <button className="page-link rounded-2 border-0 text-dark px-3 hover-bg-light">
-                    2
-                  </button>
-                </li>
-                
-                <li className="page-item d-none d-md-block">
-                  <button className="page-link rounded-2 border-0 text-dark px-3 hover-bg-light">
-                    3
-                  </button>
-                </li>
-
-                <li className="page-item disabled">
-                  <span className="page-link border-0 bg-transparent">...</span>
-                </li>
-
-                <li className="page-item">
-                  <button className="page-link rounded-2 border-0 text-dark px-3 hover-bg-light">
-                    15
-                  </button>
-                </li>
-
-                {/* Next Button */}
-                <li className="page-item">
-                  <button className="page-link rounded-2 border-0 bg-light text-dark px-3 fw-medium" 
-                    style={{ border: '1px solid #dee2e6' }}>
-                    Next
-                  </button>
-                </li>
-
-              </ul>
-            </nav>
-          </div>
+          )}
         </div>
       </div>
 

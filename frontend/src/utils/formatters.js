@@ -42,18 +42,34 @@ export const cleanToDouble = (val) => {
 };
 
 export const dateFormat = (isDate) => {
+  // Kung null, undefined, o empty ang date, ibalik ang empty string
+  if (!isDate) return "N/A"; 
+  
   const months = ["Jan.", "Feb.", "Mar.", "Apr.", "May.", "Jun.", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."];
   const [year, month, day] = isDate.split("-");
-  const dayFormatted = day.padStart(2, "0"); // ensures 01, 02, ... 09
-  return `${months[parseInt(month, 10) - 1]} ${dayFormatted}, ${year}`;
+  
+  // Siguraduhin na valid ang month index
+  const monthIndex = parseInt(month, 10) - 1;
+  if (isNaN(monthIndex) || monthIndex < 0 || monthIndex > 11) return isDate;
+
+  const dayFormatted = day.padStart(2, "0");
+  return `${months[monthIndex]} ${dayFormatted}, ${year}`;
 }
 
 export const timeFormat = (isTime) => {
-  let [hour, minute, second] = isTime.split(":").map(Number);
+  // Guard clause para sa null time
+  if (!isTime) return "--:-- --";
+  
+  // Siguraduhin na string ang pinapasa bago i-split
+  const parts = isTime.toString().split(":");
+  let hour = parseInt(parts[0], 10);
+  const minute = parts[1] || "00";
+  
   const ampm = hour >= 12 ? "PM" : "AM";
   hour = hour % 12;
-  hour = hour ? hour : 12; // 0 → 12
-  return `${hour.toString().padStart(2,"0")}:${minute.toString().padStart(2, "0")} ${ampm}`;
+  hour = hour ? hour : 12;
+  
+  return `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")} ${ampm}`;
 }
 
 export const formatMobile = (value) => {

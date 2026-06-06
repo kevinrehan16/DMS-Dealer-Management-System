@@ -19,4 +19,9 @@ export const creditinvService = {
     return res.data;
   },
 
+  assignInvestigator: async (forScheduleInquiries) => {
+    const res = await api.patch(`/inquiries/assignschedule`, forScheduleInquiries);
+    return res.data;
+  },
+
 };

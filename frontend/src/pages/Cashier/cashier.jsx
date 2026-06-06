@@ -132,12 +132,6 @@ function Cashier() {
                   [...Array(5)].map((_, index) => (
                     <SkeletonRowLoading key={index} columns={7} />
                   ))
-                ) : payments.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="text-center text-muted py-4">
-                      No payments found.
-                    </td>
-                  </tr>
                 ) : (
                   /* Dito tinanggal ang extra { } dahil redundant na ito sa loob ng ternary */
                   payments.map((p) => (
@@ -213,6 +207,18 @@ function Cashier() {
                 )}
               </tbody>
             </Table>
+            {!isLoading && payments?.length === 0 && (
+              <div 
+                className="w-100 d-flex flex-column justify-content-center align-items-center" 
+                style={{ minHeight: '350px' }} // Gawin mong mas malaki ang value para mas bumaba sa gitna
+              >
+                <div className="text-center text-muted">
+                  <FaSearch size={80} className="mb-3 opacity-25" />
+                  <h5>No Results Found</h5>
+                  <p className="mb-0">No transactions found matching your filters.</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

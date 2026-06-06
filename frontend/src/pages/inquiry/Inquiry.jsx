@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Row, Col, Form, Button, InputGroup, Table, Badge, Dropdown } from "react-bootstrap";
 import { 
   FaUserPlus, FaSearch, FaEdit, FaEye, FaTrash, FaFilter, 
@@ -30,8 +30,17 @@ export default function Inquiry() {
   const [searchInfo, setSearchInfo] = useState("");
   const [userFilterBy, setUserFilterBy] = useState("");
   const [filters, setFilters] = useState({ 
-    search: '', filterBy: '', status: ['NEW', 'CREDIT_APPLICATION'], from_date: '', to_date: '' 
+    search: '', 
+    filterBy: '', 
+    status: ['NEW', 'CREDIT_APPLICATION'], 
+    from_date: '', to_date: '',
+    page: 1
   });
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    setFilters(prev => ({ ...prev, page: newPage }));
+  };
 
   // --- ORIGINAL FUNCTIONS ---
   const handleCloseInquiry = () => setShowModalInquiry(false);
@@ -63,9 +72,17 @@ export default function Inquiry() {
     setshowModalCreditApplication(true);
   }
 
-  const { data: inquiries = [], isLoading, isFetching } = useInquiry(filters);
+  const [page, setPage] = useState(1);
+  const { data: response = [], isLoading, isFetching } = useInquiry(filters);
+  const inquiries = response?.data || [];
+  const meta = response?.meta;
   
   const [filterType, setFilterType] = useState('ALL');
+
+  useEffect(() => {
+    setPage(1);
+    setFilters(prev => ({ ...prev, page: 1, search: searchInfo }));
+  }, [searchInfo, userFilterBy]);
 
   return (
     <div className="d-flex flex-column" style={{ height: '100vh', width: '100%', backgroundColor: '#f8f9fa', overflow: 'hidden' }}>
@@ -283,67 +300,68 @@ export default function Inquiry() {
                 )}
               </tbody>
             </Table>
+            {!isLoading && inquiries?.length === 0 && (
+              <div 
+                className="w-100 d-flex flex-column justify-content-center align-items-center" 
+                style={{ minHeight: '350px' }} // Gawin mong mas malaki ang value para mas bumaba sa gitna
+              >
+                <div className="text-center text-muted">
+                  <FaSearch size={80} className="mb-3 opacity-25" />
+                  <h5>No Results Found</h5>
+                  <p className="mb-0">No transactions found matching your filters.</p>
+                </div>
+              </div>
+            )}
           </div>
           {/* Ilagay ito sa ilalim ng iyong table container */}
-          <div className="d-flex justify-content-between align-items-center px-3 py-2 bg-white border-top shadow-sm rounded-bottom-4">
-            
-            {/* Left Side: Summary Info */}
-            <div className="text-muted small">
-              Showing <span className="fw-bold text-dark">1</span> to <span className="fw-bold text-dark">10</span> of <span className="fw-bold text-dark">150</span> inquiries
+          {meta && (
+            <div className="d-flex justify-content-between align-items-center px-3 py-2 bg-white border-top">
+              <div className="text-muted small">
+                {meta.total > 0 ? (
+                  <>
+                    Showing <span className="fw-bold text-dark">{meta.from}</span> to 
+                    <span className="fw-bold text-dark"> {meta.to}</span> of 
+                    <span className="fw-bold text-dark"> {meta.total}</span> inquiries
+                  </>
+                ) : (
+                  // Ito ang ipapakita kung walang record
+                  <span>Showing 0 record.</span>
+                )}
+              </div>
+
+              <nav aria-label="Inquiry pagination">
+                <ul className="pagination pagination-sm mb-0 gap-1">
+                  
+                  {/* Previous Button */}
+                  <li className={`page-item ${meta.current_page === 1 ? 'disabled' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(meta.current_page - 1)}>
+                      Previous
+                    </button>
+                  </li>
+
+                  {/* Dynamic Page Numbers */}
+                  {[...Array(meta.last_page)].map((_, i) => {
+                    const pageNumber = i + 1;
+                    return (
+                      <li key={pageNumber} className={`page-item ${meta.current_page === pageNumber ? 'active' : ''}`}>
+                        <button className="page-link" onClick={() => handlePageChange(pageNumber)}>
+                          {pageNumber}
+                        </button>
+                      </li>
+                    );
+                  })}
+
+                  {/* Next Button */}
+                  <li className={`page-item ${meta.current_page === meta.last_page ? 'disabled' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(meta.current_page + 1)}>
+                      Next
+                    </button>
+                  </li>
+
+                </ul>
+              </nav>
             </div>
-
-            {/* Right Side: Pagination Controls */}
-            <nav aria-label="Inquiry pagination">
-              <ul className="pagination pagination-sm mb-0 gap-1">
-                
-                {/* Previous Button */}
-                <li className="page-item disabled">
-                  <button className="page-link rounded-2 border-0 bg-light text-muted px-3" tabIndex="-1">
-                    Previous
-                  </button>
-                </li>
-
-                {/* Page Numbers */}
-                <li className="page-item active shadow-sm" aria-current="page">
-                  <button className="page-link rounded-2 border-0 px-3 fw-bold" 
-                    style={{ background: 'linear-gradient(45deg, #ffc107, #e0a800)', color: '#000' }}>
-                    1
-                  </button>
-                </li>
-                
-                <li className="page-item">
-                  <button className="page-link rounded-2 border-0 text-dark px-3 hover-bg-light">
-                    2
-                  </button>
-                </li>
-                
-                <li className="page-item d-none d-md-block">
-                  <button className="page-link rounded-2 border-0 text-dark px-3 hover-bg-light">
-                    3
-                  </button>
-                </li>
-
-                <li className="page-item disabled">
-                  <span className="page-link border-0 bg-transparent">...</span>
-                </li>
-
-                <li className="page-item">
-                  <button className="page-link rounded-2 border-0 text-dark px-3 hover-bg-light">
-                    15
-                  </button>
-                </li>
-
-                {/* Next Button */}
-                <li className="page-item">
-                  <button className="page-link rounded-2 border-0 bg-light text-dark px-3 fw-medium" 
-                    style={{ border: '1px solid #dee2e6' }}>
-                    Next
-                  </button>
-                </li>
-
-              </ul>
-            </nav>
-          </div>
+          )}
         </div>
       </div>
 

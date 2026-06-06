@@ -5,6 +5,7 @@ import { CircularProgress } from '@mui/material';
 import { useForm, useFieldArray } from 'react-hook-form';
 
 import ModalAddress from '../AddressModals/ModalAddress';
+import GlobalMap from '../GlobalMap';
 import FormTitle from '../FormTitle';
 
 import { useAddressManager } from '../../../hooks/HooksAddress/useAddressManager';
@@ -627,7 +628,7 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
                   <hr />
 
                   <Row className='mb-2'>
-                    <Col md={12}>
+                    <Col md={12} className='mb-1'>
                       <Form.Label className="mb-0">Present Address</Form.Label>
                       <Form.Control
                         as="textarea"
@@ -641,10 +642,11 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
                             setValue("presentAddress", val, { shouldValidate: true, shouldDirty: true });
                           }
                         })}
-                        rows={3}
+                        rows={1}
                         readOnly
                       />
                     </Col>
+                    <GlobalMap />
                   </Row>
 
                 </Card.Body>
@@ -1111,7 +1113,7 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
                                         <FaUpload size={14} />
                                       )}
                                     </label>
-
+                                    {/* TODO: Function for deleting the file. */}
                                     <Button
                                       variant="danger"
                                       size="sm"

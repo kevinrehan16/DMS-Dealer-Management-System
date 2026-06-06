@@ -32,11 +32,13 @@ class InquiryController extends Controller
         $filterBy = $request->input('filterBy');
         $status = $request->input('status');
 
+        // Ang $inquiries dito ay galing sa ->paginate(2)
         $inquiries = $this->inquiryService->listInquiries($search, $filterBy, $status);
 
-        return response()->json([
-            'inquiries' => InquiryResource::collection($inquiries),
-        ], 200);
+        // DITO ANG BAGO: 
+        // Ang InquiryResource::collection ay nagbabalik ng paginated structure 
+        // kung ang $inquiries ay isang LengthAwarePaginator
+        return InquiryResource::collection($inquiries);
     }
 
     public function getInquiriesForDropdown(Request $request)

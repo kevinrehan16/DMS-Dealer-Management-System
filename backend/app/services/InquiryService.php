@@ -54,7 +54,7 @@ class InquiryService
                 return $query->where('inquiry_status', $status);
             })
             ->orderBy('id', 'desc')
-            ->get();
+            ->paginate(2);
     }
 
     public function getInquiriesForDropdown(Request $request)
@@ -167,7 +167,7 @@ class InquiryService
                 'time_creditinvestigation' => $schedule['time_creditinvestigation'],
 
                 // Optional: Kung gusto mo ring baguhin ang status pagka-assign
-                'inquiry_status'           => 'FOR_INVESTIGATION',
+                'inquiry_status'           => 'CREDIT_INVESTIGATION',
             ]);
     }
 

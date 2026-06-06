@@ -14,3 +14,20 @@ export const useCreditInvestigation = (investigationId) => {
   });
 
 };
+
+export const useAssignInvestigator = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (forScheduleInquiries) => creditinvService.assignInvestigator(forScheduleInquiries),
+    
+    onSuccess: () => {
+      // I-refresh ang listahan ng inquiries pagkatapos ng update
+      queryClient.invalidateQueries(['inquiries']); 
+      alert("Successfully set the schedule of investigator.");
+    },
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+    }
+  })
+}

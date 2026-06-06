@@ -8,15 +8,14 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { FaUserSecret, FaCalendarAlt, FaClock, FaUser, FaSave } from 'react-icons/fa';
 
 import { useGetAllScheduleCi } from '../../../hooks/HooksInquiry/useInquiry';
+import { useAssignInvestigator } from '../../../hooks/HooksCreditInv/useCreditInvestigation';
 import { useUsers } from '../../../hooks/HooksUser/useUsers';
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
 
 const AssignScheduleModal = ({ show, handleClose, selectedIds, setSelectedIds, onSuccess }) => {
-  const API_URL = import.meta.env.VITE_API_URL;
-  const token = sessionStorage.getItem('token');
-  const [isAssigning, setIsAssigning] = useState(false);
+  const { mutate: assignInvestigator, isPending: isAssigning } = useAssignInvestigator();
 
   const { data: scheduleci, loading: loadingSchedule, refetch: refetchScheduleci } = useGetAllScheduleCi();
   const { data:  users = [], loading: loadingUsers } = useUsers('');
@@ -39,7 +38,7 @@ const AssignScheduleModal = ({ show, handleClose, selectedIds, setSelectedIds, o
 
   const saveAssignSchedule = async () => {
 
-    if (selectedIds.length === 0) {
+    if (selectedIds.size === 0) {
       alert("Please select (✅) at least one customer inquiry in the table to schedule a Credit Investigation.");
       return;
     }
@@ -55,38 +54,31 @@ const AssignScheduleModal = ({ show, handleClose, selectedIds, setSelectedIds, o
     }
 
     const forScheduleInquiries = {
-      id: selectedIds,
+      id: Array.from(selectedIds),
       investigator_id: assignSchedule.investigator_id,
       date_creditinvestigation: assignSchedule.date_schedule,
       time_creditinvestigation: assignSchedule.time_schedule
     };
 
-    setIsAssigning(true);
-    try {
-      const res = await axios.patch(`${API_URL}/inquiries/assignschedule`, forScheduleInquiries, {
-        headers:{
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
+    assignInvestigator(forScheduleInquiries, {
+      onSuccess: (response) => {
+        Swal.fire({
+          icon: "success",
+          title: "Schedule assigned successfully",
+          text: "Selected customer's schedule has been updated!",
+        });
+        onSuccess();
+        refetchScheduleci();
+        setSelectedIds(new Set());
+        setAssignSchedule({ investigator_id: '', date_schedule: '', time_schedule: '' });
+        handleClose();
+      },
+      onError: (error) => {
+        if (error.response?.status === 422) {
+          console.log("Error in scheduling the Credit Investigation: ", error);
         }
-      });
-      // console.log(res.data);
-      Swal.fire({
-        icon: "success",
-        title: "Schedule assigned successfully",
-        text: "Selected customer's schedule has been updated!",
-      });
-
-      onSuccess();
-      refetchScheduleci();
-      setSelectedIds([]);
-      setAssignSchedule({ investigator_id: '', date_schedule: '', time_schedule: '' });
-      handleClose();
-    } catch (error) {
-      console.error("Error in scheduling the Credit Investigation: ", error);
-    } finally {
-      setIsAssigning(false);
-    }
+      }
+    });
   }
 
   // 1. FRONTEND FILTERING: Kunin lang ang events ng napiling investigator

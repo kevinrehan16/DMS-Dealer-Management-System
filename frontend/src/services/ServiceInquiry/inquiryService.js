@@ -8,7 +8,7 @@ export const inquiryService = {
     const res = await api.get(`${BASE_ROUTE}`, { 
       params: filters
     });
-    return res.data.inquiries;
+    return res.data || { data: [], meta: {} };
   },
 
   getInquiryLookup: async (search = '') => {

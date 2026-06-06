@@ -18,32 +18,49 @@ function AdminEvaluation() {
   const [investigationId, setInvestigationId] = useState(null);
   const [showModalCompare, setShowModalCompare] = useState(false);
 
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedItems, setSelectedItems] = useState(new Set());
   const handleSelectAll = (e) => {
-    if (e.target.checked) {
-      const allIds = inquiries.map(row => row.id);
-      setSelectedItems(allIds);
-    } else {
-      setSelectedItems([]);
-    }
+    setSelectedItems(prev => {
+      const newSet = new Set(prev);
+      if (e.target.checked) {
+        // Idagdag lahat ng ID sa current page sa Set
+        inquiries.forEach(item => newSet.add(item.id));
+      } else {
+        // Alisin lang ang mga ID na nasa current page
+        inquiries.forEach(item => newSet.delete(item.id));
+      }
+      return newSet;
+    });
   };
   const handleSelectItem = (id) => {
-    setSelectedItems(prev => 
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    );
+    setSelectedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
   };
 
+  const [page, setPage] = useState(1);
   const [filters, setFilters] = useState(
     { 
       search: '', 
       filterBy: '',
-      status: ''
+      status: ['FOR_APPROVAL', 'APPROVED', 'DISAPPROVED', 'REASSESS'],
+      page: 1
     }
   );
-  const { data: inquiries = [], isLoading, isError, error, refetch, isFetching } = useInquiry({
-    ...filters,
-    status: filters.status === '' ? ['FOR_APPROVAL', 'APPROVED', 'DISAPPROVED', 'REASSESS'] : filters.status
-  });
+  const { data: response = [], isLoading, isError, error, refetch, isFetching } = useInquiry(filters);
+  const inquiries = response?.data || [];
+  const meta = response?.meta;
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    setFilters(prev => ({ ...prev, page: newPage }));
+  };
 
   const handleShowModalCompare = (appID, invID, inqID) => {
     setApplicationId(appID);
@@ -79,14 +96,15 @@ function AdminEvaluation() {
     // Dito natin ipapasa ang payload
     setStats(newStatus);
     const payload = {
-      ids: selectedItems,
+      ids: Array.from(selectedItems),
       status: newStatus
     };
+
     // TAWAGIN ANG MUTATE
     updateBulkStatus(payload, {
       onSuccess: () => {
         handleCloseModalCompare();
-        setSelectedItems([]);
+        setSelectedItems(new Set());
         setStats("APPROVED");
       },
       onError: (error) => {
@@ -231,8 +249,8 @@ function AdminEvaluation() {
                         <Form.Check
                           type="checkbox"
                           className="custom-check-shadow"
+                          checked={inquiries.length > 0 && inquiries.every(item => selectedItems.has(item.id))}
                           onChange={handleSelectAll}
-                          checked={inquiries.length > 0 && selectedItems.length === inquiries.length}
                         />
                       </Form>
                     </div>
@@ -258,7 +276,7 @@ function AdminEvaluation() {
                           <Form.Check 
                             type="checkbox" 
                             className="custom-check-shadow"
-                            checked={selectedItems.includes(row.id)}
+                            checked={selectedItems.has(row.id)} // Set ang gamit, kaya .has()
                             onChange={() => handleSelectItem(row.id)}
                           />
                         </div>
@@ -347,7 +365,7 @@ function AdminEvaluation() {
             {!isLoading && inquiries?.length === 0 && (
               <div 
                 className="w-100 d-flex flex-column justify-content-center align-items-center" 
-                style={{ minHeight: '400px' }} // Gawin mong mas malaki ang value para mas bumaba sa gitna
+                style={{ minHeight: '350px' }} // Gawin mong mas malaki ang value para mas bumaba sa gitna
               >
                 <div className="text-center text-muted">
                   <FaSearch size={80} className="mb-3 opacity-25" />
@@ -357,6 +375,54 @@ function AdminEvaluation() {
               </div>
             )}
           </div>
+          {meta && (
+            <div className="d-flex justify-content-between align-items-center px-3 py-2 bg-white border-top">
+              <div className="text-muted small">
+                {meta.total > 0 ? (
+                  <>
+                    Showing <span className="fw-bold text-dark">{meta.from}</span> to 
+                    <span className="fw-bold text-dark"> {meta.to}</span> of 
+                    <span className="fw-bold text-dark"> {meta.total}</span> inquiries
+                  </>
+                ) : (
+                  // Ito ang ipapakita kung walang record
+                  <span>Showing 0 record.</span>
+                )}
+              </div>
+
+              <nav aria-label="Inquiry pagination">
+                <ul className="pagination pagination-sm mb-0 gap-1">
+                  
+                  {/* Previous Button */}
+                  <li className={`page-item ${meta.current_page === 1 ? 'disabled' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(meta.current_page - 1)}>
+                      Previous
+                    </button>
+                  </li>
+
+                  {/* Dynamic Page Numbers */}
+                  {[...Array(meta.last_page)].map((_, i) => {
+                    const pageNumber = i + 1;
+                    return (
+                      <li key={pageNumber} className={`page-item ${meta.current_page === pageNumber ? 'active' : ''}`}>
+                        <button className="page-link" onClick={() => handlePageChange(pageNumber)}>
+                          {pageNumber}
+                        </button>
+                      </li>
+                    );
+                  })}
+
+                  {/* Next Button */}
+                  <li className={`page-item ${meta.current_page === meta.last_page ? 'disabled' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(meta.current_page + 1)}>
+                      Next
+                    </button>
+                  </li>
+
+                </ul>
+              </nav>
+            </div>
+          )}
         </div>
       </div>
 
