@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Button, Row, Col, Card, Table, Form } from 'react-bootstrap'
-import { FaTimes, FaPlus, FaTrash, FaSave } from "react-icons/fa";
+import { FaTimes, FaPlus, FaTrash, FaSave, FaDownload, FaUpload, FaPaperclip } from "react-icons/fa";
 import { CircularProgress } from '@mui/material';
 import { useForm, useFieldArray } from 'react-hook-form';
 
@@ -12,12 +12,47 @@ import { useCreditApplication, useCreateNewCreditApp, useUpdateCreditApp } from 
 import { useNotification } from '../../../context/NotificationContext';
 import { fetchWithRetry } from '../../../utils/network';
 import { calculateAge } from '../../../utils/computations';
+import { formatMobile } from '../../../utils/formatters';
+import axios from 'axios';
 
 function ModalCreditApplication({show, handleClose, customerId, applicationId}) {
   const API_URL = import.meta.env.VITE_API_URL;
   const token = sessionStorage.getItem('token');
   const notify = useNotification();
   const [serverErrors, setServerErrors] = useState({});
+
+  const handleDownload = async (filePath, fileName) => {
+      try {
+          const cleanPath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
+          const encodedPath = btoa(cleanPath);
+
+          const response = await axios.get(`http://localhost:8000/api/download-file/${encodedPath}`, {
+              responseType: 'blob', // Important: ito ang nag-receive ng binary data
+              headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          // --- DITO ANG PAGBABAGO ---
+          // 1. I-detect ang mime type (halimbawa: image/png, application/pdf)
+          const contentType = response.headers['content-type'] || 'image/png'; 
+          
+          // 2. I-set ang type sa loob ng Blob
+          const blob = new Blob([response.data], { type: contentType });
+          
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', fileName); 
+          document.body.appendChild(link);
+          link.click();
+          
+          link.remove();
+          window.URL.revokeObjectURL(url);
+          // ---------------------------
+
+      } catch (error) {
+          console.error("Error downloading file:", error);
+      }
+  };
   
   const initialValues = {
     customer_id: customerId,
@@ -36,7 +71,7 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
     numStudying: 0,
     otherDependetn: 0,
     presentAddress: '',
-    mobile: '',
+    mobile: '+63',
     incomeRows: [{ 
       incNature: '', 
       incAddress: '' 
@@ -45,22 +80,22 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
       prefCreditor: '',
       prefAddress: '',
       prefDateGranted: '',
-      prefOrigBal: '',
-      prefPresBal: '',
-      prefMonInstallment: ''
-      }],
-      referenceRows: [{ 
+      prefOrigBal: 0,
+      prefPresBal: 0,
+      prefMonInstallment: 0
+    }],
+    referenceRows: [{ 
       refFullName: '',
       refAddress: '',
       refContact: '',
       refRelation: ''
-      }],
-      propertyRows: [{ 
+    }],
+    propertyRows: [{ 
       propsKind: '',
       propsLocation: '',
       propsValue: '',
       propsImbursement: ''
-      }],
+    }],
   }
 
   const { data: appData, isLoading: loadingCreditApp, error: errorCreditApp } = useCreditApplication(applicationId);
@@ -123,62 +158,62 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
     {
       attModule: '',
       attReq: '',
-      file: null      
+      attShortName: '',
+      file: null,
+      myAttId: null
     }
   ]);
+  const [files, setFiles] = useState({});
 
   const saveCreditApplication = (data) => {
     setServerErrors({});
-
     const formData = new FormData();
     const isUpdate = !!applicationId;
 
-    // 1. I-filter lang natin ang mga may file para mag-match ang index sa Laravel
     const validAttachments = attachments.filter(att => att.file instanceof File);
 
-    const payload = {
-      ...data,
-      attachments_meta: validAttachments.map(att => ({
-        attModule: att.attModule,
-        attReq: att.attReq,
-        customer_id: data.customer_id
-      }))
-    };
-    // I-wrap natin lahat ng non-file fields sa 'primary' key
-    // para makuha mo siya sa Laravel as $request->input('primary')
-    formData.append('primary', JSON.stringify(payload));
+    // I-flat ang data: tanggalin ang 'primary' wrapper
+    // Lahat ng fields sa 'data' ay ilalagay natin sa root ng FormData
+    Object.keys(data).forEach(key => {
+      formData.append(key, data[key]);
+    });
 
-    // 2. I-append ang mismong files (Dapat sunod-sunod din ang index nito)
+    // I-append ang nested arrays bilang JSON strings para ma-parse sa backend
+    formData.append('preferenceRows', JSON.stringify(data.preferenceRows || []));
+    formData.append('referenceRows', JSON.stringify(data.referenceRows || []));
+    formData.append('incomeRows', JSON.stringify(data.incomeRows || []));
+    formData.append('propertyRows', JSON.stringify(data.propertyRows || []));
+
+    // Attachments meta
+    formData.append('attachments_meta', JSON.stringify(validAttachments.map(att => ({
+      attModule: att.attModule,
+      attReq: att.attReq,
+      attShortName: att.attShortName,
+      customer_id: data.customer_id,
+      myAttId: att.myAttId
+    }))));
+
     validAttachments.forEach((att) => {
       formData.append('attachments[]', att.file);
     });
 
     const mutation = isUpdate ? updateCreditApp : createNewCreditApp;
 
-    // 3. Ito ang isesend mo
-    const options = {
-      onSuccess: (response) => {
-        notify.alertMsg(
-          response.message || "Credit Application Saved!", 
-          isUpdate ? "Credit Application has beed updated successfully." : "Credit Application has beed saved successfully.",
-          "success",
-          "Saving Credit Application."
-        );
-        reset(initialValues);
-        handleClose();
-      },
-      onError: (error) => {
-        if (error.response?.status === 422) {
-          setServerErrors(error.response.data.errors);
+    mutation(isUpdate ? { appId: applicationId, data: formData } : formData, {
+        onSuccess: (response) => {
+          notify.alertMsg(response.message, "Credit Application saved successfully.", "success", "Saving...");
+          reset(initialValues);
+          handleClose();
+        },
+        onError: (error) => {
+          if (error.response?.status === 422) {
+            const backendErrors = error.response.data.errors;
+            Object.keys(backendErrors).forEach((field) => {
+              setError(field, { type: "server", message: backendErrors[field][0] });
+            });
+          }
         }
-      }
-    };
-
-    if (isUpdate) {
-        mutation({ appId: applicationId, data: formData }, options);
-    } else {
-        mutation(formData, options);
-    }
+    });
   };
 
   const handleChangeAtt = (index, field, value) => {
@@ -192,6 +227,11 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
     const copy = [...attachments];
     copy[index].file = file;
     setAttachments(copy);
+
+    setFiles(prev => ({
+      ...prev,
+      [index]: file
+    }));
   };
 
   const removeRowAtt = (index) => {
@@ -216,7 +256,8 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
       return rawData.map(r => ({
         attModule: r.module,
         attReq: `${r.reqName} (${r.reqShortName})`,
-        file: null
+        attShortName: r.reqShortName,
+        file: null,
       }));
 
     } catch (error) {
@@ -232,8 +273,10 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
       // 1. ANTAYIN ang Master List (Dito na papasok yung ni-return natin sa taas)
       const masterList = await getRequirements();
 
+      console.log(appData);
       if (applicationId && appData) {
         // --- EDIT MODE ---
+        
         const app = appData;
         const uploaded = app.attachment_information || [];
 
@@ -247,7 +290,8 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
           return {
             ...req,
             isSaved: !!found, // Indicator kung DONE na
-            file: null
+            file: null,
+            myAttId: found?.id || null
           };
         });
 
@@ -452,13 +496,23 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
                     <Col md={4}>
                       <Row>
                         <Col xs={4} className="d-flex align-items-center">
-                          <Form.Label className="mb-0">Mobile #</Form.Label>
+                          <Form.Label className="mb-0">Mobiles #</Form.Label>
                         </Col>
                         <Col xs={8}>
                           <Form.Control
                             type="text"
                             name="mobile"
-                            {...register("mobile")}
+                            {...register("mobile", {
+                              onChange: (e) => {
+                                let val = e.target.value;
+                                if (!val.startsWith('+63')) {
+                                  val = '+63' + val.replace(/^\+?63?|^0/, '');
+                                }
+                                const formatted = formatMobile(val);
+                                setValue("mobile", formatted);
+                              }
+                            })}
+                            placeholder="+63-999-999-9999"
                             required
                           />
                         </Col>
@@ -963,12 +1017,10 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
                           <thead>
                             <tr>
                               <th width='20%' className='d-none'>Module</th>
-                              <th width='75%'>File name</th>
-                              <th width='20%'>Select File</th>
-                              <th width='5%'>
-                                {/* <Button size="sm" className='tbl-btn' onClick={handleAddRowAtt}>
-                                  <FaPlus />
-                                </Button> */}
+                              <th width='60%'>File name</th>
+                              <th width='10%'>Status</th>
+                              <th width='10%' className='text-center'>
+                                Actions
                               </th>
                             </tr>
                           </thead>
@@ -978,39 +1030,104 @@ function ModalCreditApplication({show, handleClose, customerId, applicationId}) 
                                 <td className='d-none'>
                                   <input
                                     className="border p-1 w-100 rounded-lg"
+                                    value={row.myAttId}
+                                    onChange={(e) => handleChangeAtt(index, "myAttId", e.target.value)}
+                                  />
+
+                                  <input
+                                    className="border p-1 w-100 rounded-lg"
                                     value={row.attModule}
                                     onChange={(e) => handleChangeAtt(index, "attModule", e.target.value)}
-                                    />
+                                  />
+
+                                  <input
+                                  className="border p-1 w-100 rounded-lg"
+                                  value={row.attShortName}
+                                  onChange={(e) => handleChangeAtt(index, "attShortName", e.target.value)}
+                                  />
                                 </td>
                                 <td className="border p-2">
                                   <input
-                                    className="border p-1 w-100 rounded-lg"
+                                    className="border-0 p-1 w-100 bg-transparent"
                                     value={row.attReq}
                                     onChange={(e) => handleChangeAtt(index, "attReq", e.target.value)}
+                                    disabled
+                                    readOnly
                                   />
                                 </td>
                                 <td className="align-middle text-center">
                                   {row.isSaved ? (
-                                    <div className="d-flex align-items-center justify-content-center gap-2">
-                                      {/* Visual Indicator */}
-                                      <span className="badge rounded-pill bg-success-subtle text-success border border-success px-3">
-                                        <i className="bi bi-check-circle-fill me-1"></i> ATTACHED
+                                    <div className="attachment-badge">
+                                      {/* FIXME: Hardcoded yung download file ko */}
+                                      <span
+                                          onClick={() => handleDownload("credit_app_attachments/APP-0000006/VID.png", row.attReq)}
+                                          title="Download the File."
+                                          className="download-btn text-decoration-none"
+                                          style={{ cursor: 'pointer', color: 'blue' }} // Para magmukhang link
+                                      >
+                                          <FaDownload size={12} />
+                                      </span>
+
+                                      <span className="badge rounded-pill bg-success-subtle text-success border border-success px-3 shadow-sm">
+                                        <i className="bi bi-check-circle-fill me-1"></i>
+                                        ATTACHED
                                       </span>
                                     </div>
                                   ) : (
-                                    <Form.Control 
-                                      type="file" 
-                                      size="sm" 
-                                      className="form-control-placeholder"
-                                      onChange={(e) => handleFile(index, e.target.files[0])} 
-                                    />
+                                    <div className="d-flex align-items-center justify-content-center gap-2">
+                                      {/* Visual Indicator */}
+                                      <span className="badge rounded-pill bg-danger-subtle text-danger border border-danger px-3 shadow-sm">
+                                        <i className="bi bi-check-circle-fill me-1"></i> NO FILE YET
+                                      </span>
+                                    </div>
                                   )}
                                 </td>
                                 <td className="border p-2 text-center">
-                                  <Button className='mx-auto' variant='danger' size='sm' 
-                                  onClick={() => removeRowAtt(index)}>
-                                    <FaTrash />
-                                  </Button>
+                                  <div className="d-flex align-items-center justify-content-center gap-2">
+                                    
+                                    <input
+                                      type="file"
+                                      id={`file-input-${index}`}
+                                      className="d-none"
+                                      onChange={(e) => handleFile(index, e.target.files[0])}
+                                    />
+
+                                    <label
+                                      htmlFor={`file-input-${index}`}
+                                      role="button"
+                                      title={files?.[index] ? "File attached" : "Attach a file"}
+                                      className={`d-flex align-items-center justify-content-center btn btn-sm shadow-sm ${
+                                        files?.[index] ? "btn-primary" : "btn-secondary"
+                                      }`}
+                                      style={{
+                                        width: "34px",
+                                        height: "34px",
+                                        borderRadius: "6px",
+                                      }}
+                                    >
+                                      {files?.[index] ? (
+                                        <FaPaperclip size={14} />
+                                      ) : (
+                                        <FaUpload size={14} />
+                                      )}
+                                    </label>
+
+                                    <Button
+                                      variant="danger"
+                                      size="sm"
+                                      onClick={() => removeRowAtt(index)}
+                                      title="Remove the file."
+                                      className="d-flex align-items-center justify-content-center"
+                                      style={{
+                                        width: "34px",
+                                        height: "34px",
+                                        padding: 0,
+                                      }}
+                                    >
+                                      <FaTrash size={12} />
+                                    </Button>
+
+                                  </div>
                                 </td>
                               </tr>
                             ))}

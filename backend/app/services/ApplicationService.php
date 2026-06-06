@@ -4,199 +4,182 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use App\Models\{
-    CreditApplicationPrimary,
-    CreditApplicationPreferences,
-    CreditApplicationReferences,
-    CreditApplicationIncome,
-    CreditApplicationProperties,
-    CreditApplicationAttachments
+  CreditApplicationPrimary,
+  CreditApplicationPreferences,
+  CreditApplicationReferences,
+  CreditApplicationIncome,
+  CreditApplicationProperties,
+  CreditApplicationAttachments
 };
 
 class ApplicationService
 {
-    public function getCreditApplicationById($id)
-    {
-        return CreditApplicationPrimary::with([
-            'otherSourceIncome',
-            'creditReferences',
-            'personalReferences',
-            'personalPropertiesOwned',
-            'attachmentInformation'
-        ])->findOrFail($id); // fetch only one record by ID
-    }
+  public function getCreditApplicationById($id)
+  {
+    return CreditApplicationPrimary::with([
+      'otherSourceIncome',
+      'creditReferences',
+      'personalReferences',
+      'personalPropertiesOwned',
+      'attachmentInformation'
+    ])->findOrFail($id);
+  }
 
-    public function store(array $primaryData, ?array $files, array $metaData, $inquiryService)
-    {
-        return DB::transaction(function () use ($primaryData, $files, $metaData, $inquiryService) {
+  public function store(array $data, ?array $files, array $metaData, $inquiryService)
+  {
+    return DB::transaction(function () use ($data, $files, $metaData, $inquiryService) {
+      $sanitizedData = $this->sanitizeData($data);
+      $primary = CreditApplicationPrimary::create($sanitizedData);
 
-            // 1. Sanitize: I-convert ang empty strings sa null para sa DATE fields/DB
-            $sanitizedData = $this->sanitizeData($primaryData);
+      $inquiryService->updateStatus($primary->customer_id, 'CREDIT_APPLICATION');
+      $this->saveNestedRows($primary->id, $primary->creditApp_id, $data);
 
-            // 2. Save Main Application
-            $primary = CreditApplicationPrimary::create($sanitizedData);
-            $primaryId = $primary->id;
-            $creditAppId = $primary->creditApp_id;
-            $customerId = $primary->customer_id;
+      if ($files) {
+        $this->handleAttachments($primary->id, $primary->creditApp_id, $primary->customer_id, $files, $metaData);
+      }
+      return $primary;
+    });
+  }
 
-            // 3. Update Inquiry Status
-            $inquiryService->updateStatus($customerId, 'CREDIT_APPLICATION');
+  public function updateApplication(array $data, $id, $files, array $metaData)
+  {
+    // \Log::info("DEBUG DATA:", $data['referenceRows']);
+    return DB::transaction(function () use ($data, $id, $files, $metaData) {
+      $application = CreditApplicationPrimary::findOrFail($id);
 
-            // 4. Save Nested Arrays
-            $this->saveNestedRows($primaryId, $creditAppId, $primaryData);
+      // Update Primary Data
+      $nestedKeys = ['preferenceRows', 'incomeRows', 'propertyRows', 'attachments_meta'];
+      $primaryData = collect($data)->except($nestedKeys)->toArray();
+      $application->update($primaryData);
 
-            // 5. Handle Attachments
-            if ($files) {
-                try {
-                    $this->handleAttachments($primaryId, $creditAppId, $customerId, $files, $metaData);
-                } catch (\Exception $e) {
-                    // Rollback files if attachment process fails
-                    Storage::deleteDirectory("credit_app_attachments/{$creditAppId}");
-                    throw $e;
-                }
+      // Sync Nested Rows
+      $relationMap = [
+        'preferenceRows' => ['rel' => 'personalReferences', 'fields' => ['prefCreditor', 'prefAddress', 'prefDateGranted', 'prefOrigBal', 'prefPresBal', 'prefMonInstallment']],
+        'referenceRows'  => ['rel' => 'creditReferences', 'fields' => ['refFullName', 'refAddress', 'refContact', 'refRelation']],
+        'incomeRows'     => ['rel' => 'otherSourceIncome', 'fields' => ['incNature', 'incAddress']],
+        'propertyRows'   => ['rel' => 'personalPropertiesOwned', 'fields' => ['propsKind', 'propsLocation', 'propsValue', 'propsImbursement']],
+      ];
+
+      foreach ($relationMap as $key => $config) {
+        // Ngayon ay defined na ang $key dito!
+        if (isset($data[$key]) && is_array($data[$key])) {
+
+          $application->{$config['rel']}()->delete();
+
+          foreach ($data[$key] as $row) {
+            $row = (array)$row;
+
+            // I-remove ang 'id' kung meron man para hindi mag-conflict sa DB
+            if (isset($row['id'])) unset($row['id']);
+
+            if (empty(array_filter($row))) continue;
+
+            $saveData = [
+              'credit_application_primary_id' => $application->id,
+              'customer_id'                   => $application->customer_id,
+              'creditAppPrimary_id'           => $application->creditApp_id,
+            ];
+
+            // \Log::info("DEBUG 2ND DATA:", $row);
+            foreach ($config['fields'] as $f) {
+              $val = $row[$f] ?? null;
+
+              // Numeric handling
+              if (in_array($f, ['prefOrigBal', 'prefPresBal', 'prefMonInstallment', 'propsValue', 'propsImbursement'])) {
+                $saveData[$f] = is_numeric($val) ? $val : 0;
+              } else {
+                $saveData[$f] = $val;
+              }
             }
 
-            return $primary;
-        });
-    }
-
-    private function sanitizeData(array $data)
-    {
-        // I-remove yung nested arrays para hindi ma-insert sa primary table
-        $clean = collect($data)->except([
-            'preferenceRows',
-            'referenceRows',
-            'incomeRows',
-            'propertyRows',
-            'attachments_meta'
-        ])->toArray();
-
-        // Convert empty strings to null
-        return array_map(fn($value) => ($value === '' ? null : $value), $clean);
-    }
-
-    private function saveNestedRows($primaryId, $creditAppId, $data)
-    {
-        $map = [
-            'preferenceRows' => CreditApplicationPreferences::class,
-            'referenceRows'  => CreditApplicationReferences::class,
-            'incomeRows'     => CreditApplicationIncome::class,
-            'propertyRows'   => CreditApplicationProperties::class,
-        ];
-
-        foreach ($map as $key => $modelClass) {
-            foreach ($data[$key] ?? [] as $row) {
-                if (!empty(array_filter($row))) {
-                    $modelClass::create(array_merge($row, [
-                        'credit_application_primary_id' => $primaryId,
-                        'creditAppPrimary_id'           => $creditAppId
-                    ]));
-                }
-            }
+            // \Log::info("DEBUG SAVEDATA:", $saveData);
+            $application->{$config['rel']}()->create($saveData);
+          }
         }
-    }
+      }
 
-    private function handleAttachments($primaryId, $creditAppId, $customerId, $files, $metaData)
-    {
-        foreach ($files as $index => $file) {
-            $meta = $metaData[$index] ?? [];
-            $moduleName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $meta['attReq'] ?? 'Requirement');
-            $filename = "{$moduleName}_" . time() . "_{$index}." . $file->extension();
-            $path = $file->storeAs("credit_app_attachments/{$creditAppId}", $filename, 'public');
+      // FIXME: Kaya nya magdelete ng same file basta same extension, kapag different extension di madedelete yung nasa folder.
+      $idsToDelete = collect($metaData)->where('isDeleted', true)->pluck('myAttId')->filter()->toArray();
 
-            CreditApplicationAttachments::create([
-                'credit_application_primary_id' => $primaryId,
-                'customer_id'                   => $customerId,
-                'creditAppPrimary_id'           => $creditAppId,
-                'attModule'                     => $meta['attModule'] ?? null,
-                'attReq'                        => $meta['attReq'] ?? 'Requirement',
-                'attFileName'                   => $path,
-                'attFileType'                   => $file->getMimeType(),
-                'attFileSize'                   => $file->getSize(),
-            ]);
+      // 2. I-delete ang mga tinanggal sa frontend
+      if (!empty($idsToDelete)) {
+        $toDelete = $application->attachmentInformation()->whereIn('id', $idsToDelete)->get();
+        foreach ($toDelete as $item) {
+          if ($item->attFileName && Storage::disk('public')->exists($item->attFileName)) {
+            Storage::disk('public')->delete($item->attFileName);
+          }
+          $item->delete();
         }
-    }
+      }
 
-    public function updateApplication(array $validatedData, $id, $files = null)
-    {
-        // Ito ang magtatala ng files na na-upload para malinis natin kung mag-fail ang transaction
-        $uploadedPaths = [];
+      if ($files) {
+        $this->handleAttachments($application->id, $application->creditApp_id, $application->customer_id, $files, $metaData);
+      }
+      return $application;
+    });
+  }
 
-        try {
-            return DB::transaction(function () use ($validatedData, $id, $files, &$uploadedPaths) {
+  private function sanitizeData(array $data)
+  {
+    $clean = collect($data)->except(['preferenceRows', 'referenceRows', 'incomeRows', 'propertyRows', 'attachments_meta'])->toArray();
+    return array_map(fn($value) => ($value === '' ? null : $value), $clean);
+  }
 
-                $application = CreditApplicationPrimary::findOrFail($id);
-
-                // 1. Update Primary Data
-                $primary = $validatedData['primary'];
-                $application->update([
-                    'lastName'          => $primary['lastName'] ?? $application->lastName,
-                    'firstName'         => $primary['firstName'] ?? $application->firstName,
-                    'birthdate'         => $primary['birthdate'] ?? $application->birthdate,
-                    'presentAddress'    => $primary['presentAddress'] ?? $application->presentAddress,
-                    'middleName'        => $primary['middleName'] ?? $application->middleName,
-                    'spouseName'        => $primary['spouseName'] ?? $application->spouseName,
-                    'spouseBirthDate'   => $primary['spouseBirthDate'] ?? $application->spouseBirthDate,
-                    'spouseAge'         => $primary['spouseAge'] ?? $application->spouseAge,
-                    'age'               => $primary['age'] ?? $application->age,
-                    'gender'            => $primary['gender'] ?? $application->gender,
-                    'civilStatus'       => $primary['civilStatus'] ?? $application->civilStatus,
-                    'education'         => $primary['education'] ?? $application->education,
-                    'numChildren'       => $primary['numChildren'] ?? $application->numChildren,
-                    'numStudying'       => $primary['numStudying'] ?? $application->numStudying,
-                    'otherDependetn'    => $primary['otherDependetn'] ?? $application->otherDependetn,
-                    'mobile'            => $primary['mobile'] ?? $application->mobile,
-                ]);
-
-                // 2. Explicit Map: [Frontend Key => Model Relationship Function]
-                $relationMap = [
-                    'preferenceRows' => 'creditReferences',
-                    'referenceRows'  => 'personalReferences',
-                    'incomeRows'     => 'otherSourceIncome',
-                    'propertyRows'   => 'personalPropertiesOwned',
-                ];
-
-                // 3. Loop para i-sync ang child tables
-                foreach ($relationMap as $frontendKey => $modelRelation) {
-                    if (isset($primary[$frontendKey]) && is_array($primary[$frontendKey])) {
-
-                        // Burahin ang lumang records
-                        $application->{$modelRelation}()->delete();
-
-                        // I-insert ang bagong records
-                        foreach ($primary[$frontendKey] as $rowData) {
-                            $application->{$modelRelation}()->create(array_merge($rowData, [
-                                'creditAppPrimary_id' => $application->creditApp_id
-                            ]));
-                        }
-                    }
-                }
-
-                // 4. Handle Attachments
-                if ($files && is_array($files)) {
-                    foreach ($files as $file) {
-                        $path = $file->store('attachments', 'public');
-                        $uploadedPaths[] = $path; // I-track ang path
-                        $application->attachments()->create(['file_path' => $path]);
-                    }
-                }
-
-                return $application;
-            });
-        } catch (\Exception $e) {
-            // Kung may error, burahin ang files na na-upload bago mag-fail ang process
-            foreach ($uploadedPaths as $path) {
-                Storage::disk('public')->delete($path);
-            }
-
-            // I-re-throw ang error para makuha ng Controller
-            throw $e;
+  private function saveNestedRows($primaryId, $creditAppId, $data)
+  {
+    $map = [
+      'preferenceRows' => CreditApplicationPreferences::class,
+      'referenceRows'  => CreditApplicationReferences::class,
+      'incomeRows'     => CreditApplicationIncome::class,
+      'propertyRows'   => CreditApplicationProperties::class,
+    ];
+    foreach ($map as $key => $modelClass) {
+      foreach ($data[$key] ?? [] as $row) {
+        if (!empty(array_filter($row))) {
+          $modelClass::create(array_merge($row, ['credit_application_primary_id' => $primaryId, 'creditAppPrimary_id' => $creditAppId]));
         }
+      }
     }
+  }
 
-    private function formatName(?string $value): string
-    {
-        return $value ? ucwords(strtolower($value)) : '';
+  private function handleAttachments($primaryId, $creditAppId, $customerId, $files, $metaData)
+  {
+    foreach ($files as $index => $file) {
+      $meta = $metaData[$index] ?? [];
+      $reqName = $meta['attReq'] ?? 'Requirement';
+
+      // Tignan kung may existing na record para sa reqName na ito
+      $existing = CreditApplicationAttachments::where('creditAppPrimary_id', $creditAppId)
+        ->where('attReq', $reqName)
+        ->first();
+
+      $path = $file->storeAs("credit_app_attachments/{$creditAppId}", $file->getClientOriginalName(), 'public');
+
+      if ($existing) {
+        // REPLACE: Burahin ang luma, i-update ang existing record
+        if ($existing->attFileName && Storage::disk('public')->exists($existing->attFileName)) {
+          Storage::disk('public')->delete($existing->attFileName);
+        }
+
+        $existing->update([
+          'attFileName' => $path,
+          'attFileType' => $file->getMimeType(),
+          'attFileSize' => $file->getSize(),
+        ]);
+      } else {
+        // CREATE: Wala pang file para sa req na ito
+        CreditApplicationAttachments::create([
+          'credit_application_primary_id' => $primaryId,
+          'customer_id' => $customerId,
+          'creditAppPrimary_id' => $creditAppId,
+          'attFileName' => $path,
+          'attModule' => $meta['attModule'],
+          'attReq' => $reqName,
+          'attFileType' => $file->getMimeType(),
+          'attFileSize' => $file->getSize(),
+        ]);
+      }
     }
+  }
 }

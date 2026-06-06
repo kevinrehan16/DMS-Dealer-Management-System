@@ -232,25 +232,25 @@ const ModalCustomerForm = ({show, handleClose, fetchCustomers}) => {
                         type="text"
                         name="mobile"
                         {...register("mobile", {
-                        required: "Mobile number is required",
-                        onChange: (e) => {
-                          let val = e.target.value;
+                          required: "Mobile number is required",
+                          onChange: (e) => {
+                            let val = e.target.value;
 
-                          // 1. Siguraduhin na laging may +63
-                          if (!val.startsWith('+63')) {
-                          // Kung nag-type sila ng "09...", tatanggalin ang "0" at papaltan ng "+639"
-                            val = '+63' + val.replace(/^\+?63?|^0/, '');
+                            // 1. Siguraduhin na laging may +63
+                            if (!val.startsWith('+63')) {
+                            // Kung nag-type sila ng "09...", tatanggalin ang "0" at papaltan ng "+639"
+                              val = '+63' + val.replace(/^\+?63?|^0/, '');
+                            }
+
+                            // 2. I-apply ang formatMobile function mo
+                            const formatted = formatMobile(val);
+
+                            // 3. I-update ang value sa react-hook-form manually para mag-reflect sa UI
+                            setValue("mobile", formatted);
                           }
-
-                          // 2. I-apply ang formatMobile function mo
-                          const formatted = formatMobile(val);
-
-                          // 3. I-update ang value sa react-hook-form manually para mag-reflect sa UI
-                          setValue("mobile", formatted);
-                        }
-                      })}
-                      // Huwag gumamit ng 'value=' dito para hindi mag-error ang React
-                      placeholder="+63-999-999-9999"
+                        })}
+                        // Huwag gumamit ng 'value=' dito para hindi mag-error ang React
+                        placeholder="+63-999-999-9999"
                         className={`${errors.mobile ? 'is-invalid' : ''}`}
                         required
                       />

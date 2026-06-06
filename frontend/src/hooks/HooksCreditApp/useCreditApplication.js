@@ -56,7 +56,7 @@ export const useUpdateCreditApp = () => {
     mutationFn: ({ appId, data }) => creditappService.updateCreditApp(appId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['creditApplication'] });
-      // queryClient.invalidateQueries({ queryKey: ['inquiries'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['inquiries'], exact: false });
       Swal.fire({
         icon: "success",
         title: "Updating Credit Application",

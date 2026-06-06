@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Address\AddressController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Customer\CustomerController;
@@ -183,3 +184,32 @@ Route::prefix('address')->controller(AddressController::class)->group(function (
     // citymunCode naman ang gagamitin natin di,to
     Route::get('/barangays/{citymunCode}', 'getBarangays');
 });
+
+Route::middleware('auth:sanctum')->get('/download-file/{encodedPath}', function ($encodedPath) {
+    $fullPath = base64_decode($encodedPath);
+
+    // Ito ang eksaktong full system path kung saan titingin ang Laravel
+    $absolutePath = storage_path('app/public/' . $fullPath);
+
+    if (file_exists($absolutePath)) {
+        return Storage::disk('public')->download($fullPath);
+    }
+
+    // Dito tayo mag-error para malaman natin ang totoo
+    return response()->json([
+        'message' => 'File not found',
+        'tried_path' => $absolutePath,
+        'exists' => file_exists($absolutePath)
+    ], 404);
+});
+
+// TODO: remove this commented code below, this is public downloading file function. NOT SECURED
+// Route::get('/download-file/{path}', function ($path) {
+//     $fullPath = urldecode($path);
+
+//     if (Storage::disk('public')->exists($fullPath)) {
+//         return Storage::disk('public')->download($fullPath);
+//     }
+
+//     return response()->json(['message' => 'File not found'], 404);
+// })->where('path', '.*');
