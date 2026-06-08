@@ -6,15 +6,16 @@ import { CircularProgress } from '@mui/material';
 import axios from 'axios'
 import Swal from 'sweetalert2'
 
+import { useCreateCreditInvestigation } from '../../../hooks/HooksCreditInv/useCreditInvestigation';
+
 import { calculateAge, computeTotalIncome, computeTotalExpenses } from '../../../utils/computations';
 
 const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
   const API_URL = import.meta.env.VITE_API_URL;
   const token = sessionStorage.getItem('token');
+  const { mutate: createCreditInvestigation, isPending: isCreatingCi } = useCreateCreditInvestigation();
 
-  const [isLoadingSave, setIsLoadingSave] = useState(false);
-
-  const { register, handleSubmit, watch, setValue, control, reset } = useForm({
+  const { register, handleSubmit, watch, setValue, control, reset, setError, formState: { errors } } = useForm({
     defaultValues: {
       creditCustomerInformation: {
         inquiry_id: inquiryId,
@@ -109,37 +110,69 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
   });
 
   const onSubmit = async (data) => {
-    setIsLoadingSave(true);
-    try {
-      const response = await axios.post(`${API_URL}/credit-investigation/save-all`, {
-        contactinfo: data.creditCustomerInformation,
-        sourceofincome: data.otherSourceOfIncome,
-        creditreferences: data.creditReferences,
-        personalreferences: data.personalReferences,
-        personalproperties: data.personalProperties
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-          "Content-Type": "multipart/form-data"
-        }
-      });
+    const formData = {
+      ...data, // Dahil flat na lahat, spread mo lang ang buong 'data'
+      // Siguraduhin na ang mga array keys dito ay match sa backend:
+      otherSourceOfIncome: data.otherSourceOfIncome || [],
+      creditReferences: data.creditReferences || [],
+      personalReferences: data.personalReferences || [],
+      personalProperties: data.personalProperties || []
+    };
 
-      Swal.fire({
-        icon: "success",
-        title: "Saved",
-        text: "Successfully saved.",
-        footer: 'Record has been saved.'
-      });
+    await createCreditInvestigation(formData, {
+        onSuccess: () => {
+            Swal.fire({
+                icon: "success",
+                title: "Saved",
+                text: "Successfully saved.",
+            });
+            closeModalInvestigation();
+        },
+        onError: (error) => {
+          if (error.response && error.response.status === 422) {
+            const backendErrors = error.response.data.errors;
+            // I-loop ang errors para mag-pula ang textboxes
+            Object.keys(backendErrors).forEach((field) => {
+              setError(field, {
+                type: "server",
+                message: backendErrors[field][0], // Kunin yung unang error message
+              });
+            });
+          }
+        }
+    });
+
+    // setIsLoadingSave(true);
+    // try {
+    //   const response = await axios.post(`${API_URL}/credit-investigation/save-all`, {
+    //     contactinfo: data.creditCustomerInformation,
+    //     sourceofincome: data.otherSourceOfIncome,
+    //     creditreferences: data.creditReferences,
+    //     personalreferences: data.personalReferences,
+    //     personalproperties: data.personalProperties
+    //   }, {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //       Accept: "application/json",
+    //       "Content-Type": "multipart/form-data"
+    //     }
+    //   });
+
+    //   Swal.fire({
+    //     icon: "success",
+    //     title: "Saved",
+    //     text: "Successfully saved.",
+    //     footer: 'Record has been saved.'
+    //   });
       
-      // console.log("Saved:", response.data);
-      closeModalInvestigation();
-    } catch (error) {
-      setIsLoadingSave(false);
-      console.error("Error:", error.response?.data || error.message);
-    } finally {
-      setIsLoadingSave(false);
-    }
+    //   // console.log("Saved:", response.data);
+    //   closeModalInvestigation();
+    // } catch (error) {
+    //   setIsLoadingSave(false);
+    //   console.error("Error:", error.response?.data || error.message);
+    // } finally {
+    //   setIsLoadingSave(false);
+    // }
   };
   
   const closeModalInvestigation = () => {
@@ -149,33 +182,33 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
 
   // ALL WATCHES HERE...
   // Codes in birthday and age
-  const cbirthday = watch("creditCustomerInformation.cibirthday");
-  const sbirthday = watch("creditCustomerInformation.cispouseBirthday");
+  const cbirthday = watch("cibirthday");
+  const sbirthday = watch("cispouseBirthday");
   // Kapag nagbago ang birthday, i-calculate ang age
   useEffect(() => {
     // Para sa Customer
     if (cbirthday) {
-      setValue("creditCustomerInformation.cicpage", calculateAge(cbirthday));
+      setValue("cicpage", calculateAge(cbirthday));
     } else {
-      setValue("creditCustomerInformation.cicpage", 0); // O kaya '' kung gusto mong blank pag walang bday
+      setValue("cicpage", 0); // O kaya '' kung gusto mong blank pag walang bday
     }
 
     // Para sa Spouse
     if (sbirthday) {
-      setValue("creditCustomerInformation.cisage", calculateAge(sbirthday));
+      setValue("cisage", calculateAge(sbirthday));
     } else {
-      setValue("creditCustomerInformation.cisage", 0);
+      setValue("cisage", 0);
     }
   }, [cbirthday, sbirthday, setValue]);
   // ENDCodes in birthday and age
 
   // Codes in computing total income
   const incomeFields = watch([
-    "creditCustomerInformation.ciIncomeSalaryNet",
-    "creditCustomerInformation.ciSpouseIncome",
-    "creditCustomerInformation.ciRentalIncome",
-    "creditCustomerInformation.ciBusinessNet",
-    "creditCustomerInformation.ciOthers"
+    "ciIncomeSalaryNet",
+    "ciSpouseIncome",
+    "ciRentalIncome",
+    "ciBusinessNet",
+    "ciOthers"
   ]);
   const currentIncomes = {
     ciIncomeSalaryNet: incomeFields[0],
@@ -186,19 +219,19 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
   };
   const totalIncome = computeTotalIncome(currentIncomes);
   useEffect(() => {
-    setValue("creditCustomerInformation.ciTotalIncome", totalIncome);
+    setValue("ciTotalIncome", totalIncome);
   }, [totalIncome, setValue]);
   // END Codes in computing total income
 
   // Codes in computing total expenses
   const expenseFields = watch([
-    "creditCustomerInformation.ciExpenseLiving",
-    "creditCustomerInformation.ciExpenseRent",
-    "creditCustomerInformation.ciExpenseSchooling",
-    "creditCustomerInformation.ciExpenseInsurance",
-    "creditCustomerInformation.ciExpenseElectWat",
-    "creditCustomerInformation.ciExpenseObligation",
-    "creditCustomerInformation.ciExpenseLoan"
+    "ciExpenseLiving",
+    "ciExpenseRent",
+    "ciExpenseSchooling",
+    "ciExpenseInsurance",
+    "ciExpenseElectWat",
+    "ciExpenseObligation",
+    "ciExpenseLoan"
   ]);
   const currentExpenses = {
     ciExpenseLiving: expenseFields[0],
@@ -211,13 +244,13 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
   };
   const totalExpenses = computeTotalExpenses(currentExpenses);
   useEffect(() => {
-    setValue("creditCustomerInformation.ciExpenseTotal", totalExpenses);
+    setValue("ciExpenseTotal", totalExpenses);
   }, [totalExpenses, setValue]);
   // END Codes in computing total expenses
 
   useEffect(() => {
     if (inquiryId) {
-      setValue("creditCustomerInformation.inquiry_id", inquiryId);
+      setValue("inquiry_id", inquiryId);
     }
   }, [inquiryId, setValue]);
 
@@ -247,7 +280,9 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Control 
                                 name="cicontactPerson" 
-                                {...register("creditCustomerInformation.cicontactPerson")}
+                                {...register("cicontactPerson")}
+                                required
+                                className={`capitalize_text ${errors.cicontactPerson ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -259,7 +294,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Select 
                                 name="cigender" 
-                                {...register("creditCustomerInformation.cigender")}
+                                {...register("cigender")}
                             >
                               <option value="">--Select Gender--</option>
                               <option value="Male">Male</option>
@@ -276,14 +311,14 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <InputGroup>
                               <Form.Control 
                                   name="cibirthday" 
-                                  {...register("creditCustomerInformation.cibirthday")}
+                                  {...register("cibirthday")}
                                   type="date" 
                                   max={new Date().toISOString().split("T")[0]}
                               />
                               <InputGroup.Text>Age</InputGroup.Text>
                               <Form.Control 
                                   name="cicpage"
-                                  {...register("creditCustomerInformation.cicpage")}
+                                  {...register("cicpage")}
                                   readOnly 
                                   disabled
                               />
@@ -300,7 +335,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Control 
                                 name="cispouseName" 
-                                {...register("creditCustomerInformation.cispouseName")}
+                                {...register("cispouseName")}
                             />
                           </Col>
                         </Form.Group>
@@ -312,7 +347,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Select 
                                 name="cispouseGender" 
-                                {...register("creditCustomerInformation.cispouseGender")}
+                                {...register("cispouseGender")}
                             >
                               <option value="">--Select Gender--</option>
                               <option value="Male">Male</option>
@@ -329,14 +364,14 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <InputGroup>
                               <Form.Control 
                                   name="cispouseBirthday" 
-                                  {...register("creditCustomerInformation.cispouseBirthday")}
+                                  {...register("cispouseBirthday")}
                                   type="date" 
                                   max={new Date().toISOString().split("T")[0]}
                               />
                               <InputGroup.Text>Age</InputGroup.Text>
                               <Form.Control 
                                   name="cisage"
-                                  {...register("creditCustomerInformation.cisage")}
+                                  {...register("cisage")}
                                   readOnly 
                                   disabled
                               />
@@ -358,7 +393,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Select  
                                 name="cicivilStatus" 
-                                {...register("creditCustomerInformation.cicivilStatus")}
+                                {...register("cicivilStatus")}
                             >
                               <option value="Single">Single</option>
                               <option value="Married">Married</option>
@@ -374,7 +409,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Select
                                 name="cieducation" 
-                                {...register("creditCustomerInformation.cieducation")}
+                                {...register("cieducation")}
                             >
                               <option>Elementary</option>
                               <option>High School</option>
@@ -390,7 +425,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Control 
                                 name="citinNumber" 
-                                {...register("creditCustomerInformation.citinNumber")}
+                                {...register("citinNumber")}
                             />
                           </Col>
                         </Form.Group>
@@ -402,7 +437,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Control
                                 name="cimobile" 
-                                {...register("creditCustomerInformation.cimobile")}
+                                {...register("cimobile")}
                             />
                           </Col>
                         </Form.Group>
@@ -416,7 +451,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={6}>
                             <Form.Control
                                 name="cidependentChildren" 
-                                {...register("creditCustomerInformation.cidependentChildren")}
+                                {...register("cidependentChildren")}
                                 type="number" 
                             />
                           </Col>
@@ -429,7 +464,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={6}>
                             <Form.Control 
                                 name="cistudyingChildren" 
-                                {...register("creditCustomerInformation.cistudyingChildren")}
+                                {...register("cistudyingChildren")}
                                 type="number" 
                             />
                           </Col>
@@ -442,7 +477,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={6}>
                             <Form.Control
                                 name="ciotherDependents" 
-                                {...register("creditCustomerInformation.ciotherDependents")}
+                                {...register("ciotherDependents")}
                                 type="number" 
                             />
                           </Col>
@@ -472,7 +507,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               as="textarea"
                               rows={3}
                               name="ciPresAddress"
-                              {...register("creditCustomerInformation.ciPresAddress")}
+                              {...register("ciPresAddress")}
                             />
                           </Col>
                         </Form.Group>
@@ -486,12 +521,12 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               <Form.Control 
                                   type="number" 
                                   name="ciPresAddrLenStay"
-                                  {...register("creditCustomerInformation.ciPresAddrLenStay")}
+                                  {...register("ciPresAddrLenStay")}
                               />
                               <InputGroup.Text>Year/s</InputGroup.Text>
                               <Form.Select
                                   name="ciPresAddrMonStay"
-                                  {...register("creditCustomerInformation.ciPresAddrMonStay")}
+                                  {...register("ciPresAddrMonStay")}
                               >
                                 <option value="">Month</option>
                                 <option value="1 Month">1 Month</option>
@@ -519,7 +554,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                 label="Own" 
                                 name="ciPresAddrType"
                                 id='own'
-                                {...register("creditCustomerInformation.ciPresAddrType")}
+                                {...register("ciPresAddrType")}
                                 value="Own"
                             />
                             <Form.Check 
@@ -528,7 +563,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                 label="Rented" 
                                 name="ciPresAddrType"
                                 id='rented'
-                                {...register("creditCustomerInformation.ciPresAddrType")}
+                                {...register("ciPresAddrType")}
                                 value="Rented"
                             />
                             <Form.Check 
@@ -537,7 +572,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                 label="Free House" 
                                 name="ciPresAddrType"
                                 id='freehouse'
-                                {...register("creditCustomerInformation.ciPresAddrType")}
+                                {...register("ciPresAddrType")}
                                 value="Free House"
                             />
                           </Col>
@@ -552,7 +587,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               type="number"
                               placeholder="0.00"
                               name="ciPresAddrRentFee"
-                              {...register("creditCustomerInformation.ciPresAddrRentFee")}
+                              {...register("ciPresAddrRentFee")}
                             />
                           </Col>
                         </Form.Group>
@@ -569,7 +604,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               as="textarea"
                               rows={3}
                               name="ciPrevAddress"
-                              {...register("creditCustomerInformation.ciPrevAddress")}
+                              {...register("ciPrevAddress")}
                             />
                           </Col>
                         </Form.Group>
@@ -583,12 +618,12 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               <Form.Control 
                                   type="number" 
                                   name="ciPrevAddrLenStay"
-                                  {...register("creditCustomerInformation.ciPrevAddrLenStay")}
+                                  {...register("ciPrevAddrLenStay")}
                               />
                               <InputGroup.Text>Year/s</InputGroup.Text>
                               <Form.Select
                                   name="ciPrevAddrMonStay"
-                                  {...register("creditCustomerInformation.ciPrevAddrMonStay")}
+                                  {...register("ciPrevAddrMonStay")}
                               >
                                 <option value="">Month</option>
                                 <option value="1 Month">1 Month</option>
@@ -616,7 +651,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               as="textarea"
                               rows={3}
                               name="ciProvAddress"
-                              {...register("creditCustomerInformation.ciProvAddress")}
+                              {...register("ciProvAddress")}
                             />
                           </Col>
                         </Form.Group>
@@ -644,7 +679,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Control 
                                 name="ciEmployedBy"
-                                {...register("creditCustomerInformation.ciEmployedBy")}
+                                {...register("ciEmployedBy")}
                             />
                           </Col>
                         </Form.Group>
@@ -656,7 +691,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Control
                                 name="ciEmpAddrEmp"
-                                {...register("creditCustomerInformation.ciEmpAddrEmp")}
+                                {...register("ciEmpAddrEmp")}
                             />
                           </Col>
                         </Form.Group>
@@ -670,12 +705,12 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               <Form.Control 
                                   type="number" 
                                   name="ciEmpAddrLenStay"
-                                  {...register("creditCustomerInformation.ciEmpAddrLenStay")}
+                                  {...register("ciEmpAddrLenStay")}
                               />
                               <InputGroup.Text>Year/s</InputGroup.Text>
                               <Form.Select
                                   name="ciEmpAddrMonStay"
-                                  {...register("creditCustomerInformation.ciEmpAddrMonStay")}
+                                  {...register("ciEmpAddrMonStay")}
                               >
                                 <option value="">Month</option>
                                 <option value="1 Month">1 Month</option>
@@ -704,7 +739,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Control 
                                 name="ciEmpStatus"
-                                {...register("creditCustomerInformation.ciEmpStatus")}
+                                {...register("ciEmpStatus")}
                             />
                           </Col>
                         </Form.Group>
@@ -716,7 +751,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Control
                                 name="ciEmpDesignation"
-                                {...register("creditCustomerInformation.ciEmpDesignation")}
+                                {...register("ciEmpDesignation")}
                             />
                           </Col>
                         </Form.Group>
@@ -728,7 +763,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Control 
                                 name="ciEmpTelNo"
-                                {...register("creditCustomerInformation.ciEmpTelNo")}
+                                {...register("ciEmpTelNo")}
                             />
                           </Col>
                         </Form.Group>
@@ -748,7 +783,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Control 
                                 name="ciEmpPrevEmp"
-                                {...register("creditCustomerInformation.ciEmpPrevEmp")}
+                                {...register("ciEmpPrevEmp")}
                             />
                           </Col>
                         </Form.Group>
@@ -762,7 +797,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                 as="textarea" 
                                 rows={2}
                                 name="ciEmpPrevAddrEmp"
-                                {...register("creditCustomerInformation.ciEmpPrevAddrEmp")}
+                                {...register("ciEmpPrevAddrEmp")}
                             />
                           </Col>
                         </Form.Group>
@@ -774,7 +809,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Control 
                                 name="ciEmpSpouseEmp"
-                                {...register("creditCustomerInformation.ciEmpSpouseEmp")}
+                                {...register("ciEmpSpouseEmp")}
                             />
                           </Col>
                         </Form.Group>
@@ -788,7 +823,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                 as="textarea"
                                 rows={2}
                                 name="ciEmpSpouseEmpAddr"
-                                {...register("creditCustomerInformation.ciEmpSpouseEmpAddr")}
+                                {...register("ciEmpSpouseEmpAddr")}
                             />
                           </Col>
                         </Form.Group>
@@ -800,7 +835,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Control 
                                 name="ciEmpSpousePosition"
-                                {...register("creditCustomerInformation.ciEmpSpousePosition")}
+                                {...register("ciEmpSpousePosition")}
                             />
                           </Col>
                         </Form.Group>
@@ -812,7 +847,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                           <Col sm={8}>
                             <Form.Control
                                 name="ciEmpPrevTelNo"
-                                {...register("creditCustomerInformation.ciEmpPrevTelNo")}
+                                {...register("ciEmpPrevTelNo")}
                             />
                           </Col>
                         </Form.Group>
@@ -828,7 +863,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 type="number" 
                                 name="ciIncomeSalaryNet"
-                                {...register("creditCustomerInformation.ciIncomeSalaryNet")}
+                                {...register("ciIncomeSalaryNet")}
                                 placeholder="0.00"
                             />
                           </Col>
@@ -842,7 +877,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 type="number"
                                 name="ciSpouseIncome"
-                                {...register("creditCustomerInformation.ciSpouseIncome")}
+                                {...register("ciSpouseIncome")}
                                 placeholder="0.00"
                             />
                           </Col>
@@ -856,7 +891,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 type="number" 
                                 name="ciRentalIncome"
-                                {...register("creditCustomerInformation.ciRentalIncome")}
+                                {...register("ciRentalIncome")}
                                 placeholder="0.00"
                             />
                           </Col>
@@ -870,7 +905,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 type="number"
                                 name="ciBusinessNet"
-                                {...register("creditCustomerInformation.ciBusinessNet")}
+                                {...register("ciBusinessNet")}
                                 placeholder="0.00"
                             />
                           </Col>
@@ -884,7 +919,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 type="number" 
                                 name="ciOthers"
-                                {...register("creditCustomerInformation.ciOthers")}
+                                {...register("ciOthers")}
                                 placeholder="0.00"
                             />
                           </Col>
@@ -900,7 +935,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                 readOnly
                                 disabled
                                 name="ciTotalIncome"
-                                {...register("creditCustomerInformation.ciTotalIncome")}
+                                {...register("ciTotalIncome")}
                                 placeholder='0.00'
                             />
                           </Col>
@@ -978,7 +1013,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 placeholder="Name of Bank"
                                 name="ciCheckingAccount"
-                                {...register("creditCustomerInformation.ciCheckingAccount")}
+                                {...register("ciCheckingAccount")}
                             />
                           </Col>
                         </Form.Group>
@@ -991,7 +1026,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 placeholder="Bank address" 
                                 name="ciCAAddrr"
-                                {...register("creditCustomerInformation.ciCAAddrr")}
+                                {...register("ciCAAddrr")}
                             />
                           </Col>
                         </Form.Group>
@@ -1004,7 +1039,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 placeholder="Name of Bank"
                                 name="ciSavingsAccount"
-                                {...register("creditCustomerInformation.ciSavingsAccount")}
+                                {...register("ciSavingsAccount")}
                             />
                           </Col>
                         </Form.Group>
@@ -1017,7 +1052,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 placeholder="Bank address" 
                                 name="ciSAAddrr"
-                                {...register("creditCustomerInformation.ciSAAddrr")}
+                                {...register("ciSAAddrr")}
                             />
                           </Col>
                         </Form.Group>
@@ -1036,7 +1071,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   type="number" 
                                   placeholder="0.00" 
                                   name="ciExpenseLiving"
-                                  {...register("creditCustomerInformation.ciExpenseLiving")}
+                                  {...register("ciExpenseLiving")}
                               />
                             </InputGroup>
                           </Col>
@@ -1051,7 +1086,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   type="number" 
                                   placeholder="0.00" 
                                   name="ciExpenseRent"
-                                  {...register("creditCustomerInformation.ciExpenseRent")}
+                                  {...register("ciExpenseRent")}
                               />
                             </InputGroup>
                           </Col>
@@ -1066,7 +1101,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   type="number" 
                                   placeholder="0.00"
                                   name="ciExpenseSchooling"
-                                  {...register("creditCustomerInformation.ciExpenseSchooling")}
+                                  {...register("ciExpenseSchooling")}
                               />
                             </InputGroup>
                           </Col>
@@ -1081,7 +1116,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   type="number" 
                                   placeholder="0.00"
                                   name="ciExpenseInsurance"
-                                  {...register("creditCustomerInformation.ciExpenseInsurance")}
+                                  {...register("ciExpenseInsurance")}
                               />
                             </InputGroup>
                           </Col>
@@ -1096,7 +1131,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   type="number" 
                                   placeholder="0.00"
                                   name="ciExpenseElectWat"
-                                  {...register("creditCustomerInformation.ciExpenseElectWat")}
+                                  {...register("ciExpenseElectWat")}
                               />
                             </InputGroup>
                           </Col>
@@ -1111,7 +1146,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   type="number" 
                                   placeholder="0.00" 
                                   name="ciExpenseObligation"
-                                  {...register("creditCustomerInformation.ciExpenseObligation")}
+                                  {...register("ciExpenseObligation")}
                               />
                             </InputGroup>
                           </Col>
@@ -1126,7 +1161,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   type="number" 
                                   placeholder="0.00" 
                                   name="ciExpenseLoan"
-                                  {...register("creditCustomerInformation.ciExpenseLoan")}
+                                  {...register("ciExpenseLoan")}
                               />
                             </InputGroup>
                           </Col>
@@ -1145,7 +1180,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                 readOnly
                                 disabled
                                 name="ciExpenseTotal"
-                                {...register("creditCustomerInformation.ciExpenseTotal")}
+                                {...register("ciExpenseTotal")}
                                 placeholder="0.00" 
                               />
                             </InputGroup>
@@ -1392,9 +1427,9 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
           <button 
             className="btn btn-primary d-flex align-items-center justify-content-center gap-2" 
             onClick={handleSubmit(onSubmit)}
-            disabled={isLoadingSave}
+            disabled={isCreatingCi}
           >
-            {isLoadingSave ? 
+            {isCreatingCi ? 
               (<><CircularProgress size={20} color="inherit" /> Saving...</>)
               :
               (<><FaSave /> Save</>)

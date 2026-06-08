@@ -15,6 +15,22 @@ export const useCreditInvestigation = (investigationId) => {
 
 };
 
+export const useCreateCreditInvestigation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (ciData) => creditinvService.createNewCreditInv(ciData),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries(['inquiries']); 
+      alert("Credit Investigation has been created successfully.");
+    },
+    onError: (error) => {
+      console.error("Server Message:", error.response?.data);
+    }
+  })
+}
+
 export const useAssignInvestigator = () => {
   const queryClient = useQueryClient();
   

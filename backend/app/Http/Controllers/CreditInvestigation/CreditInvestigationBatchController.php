@@ -46,7 +46,8 @@ class CreditInvestigationBatchController extends Controller
 
             // Tawagin ang service
             $contactInfo = $investigationService->StoreCreditInvestigationAll($data);
-            $inquiryId = $data['contactinfo']['inquiry_id'] ?? 'UNKNOWN';
+            $inquiryId = $data['inquiry_id'];
+
             $this->logInfo(
                 'CreditInvestigationBatchController_SUCCESS',
                 'Credit investigation record successfully created for Inquiry ID: ' . $inquiryId,
@@ -55,8 +56,8 @@ class CreditInvestigationBatchController extends Controller
 
             return response()->json(['ContactInformations' => $contactInfo], 201);
         } catch (\Exception $e) {
-            // I-log ang error kung kailangan
-            $inquiryId = $data['contactinfo']['inquiry_id'] ?? 'UNKNOWN';
+            $inquiryId = $data['inquiry_id'] ?? 'UNKNOWN';
+
             $this->logError(
                 'CreditInvestigationBatchController_FAILED',
                 'Failed to save credit investigation for Inquiry ID: ' . $inquiryId,

@@ -34,15 +34,21 @@ class InvestigationService
     public function StoreCreditInvestigationAll(array $data)
     {
         return DB::transaction(function () use ($data) {
+            $primaryData = array_diff_key($data, array_flip([
+                'otherSourceOfIncome',
+                'creditReferences',
+                'personalReferences',
+                'personalProperties'
+            ]));
             // 1. Create Primary
-            $contactInfo = CreditInvestigationPrimary::create($data['contactinfo']);
+            $contactInfo = CreditInvestigationPrimary::create($primaryData);
             $inquiryID = $contactInfo->inquiry_id;
 
             // 2. Create Others (Reusable function loop)
-            $this->createRelatedRecords($inquiryID, $data['sourceofincome'] ?? [], CreditInvestigationOtherSourceIncome::class);
-            $this->createRelatedRecords($inquiryID, $data['creditreferences'] ?? [], CreditInvestigationCreditReferences::class);
-            $this->createRelatedRecords($inquiryID, $data['personalreferences'] ?? [], CreditInvestigationPersonalReference::class);
-            $this->createRelatedRecords($inquiryID, $data['personalproperties'] ?? [], CreditInvestigationPersonalProperty::class);
+            $this->createRelatedRecords($inquiryID, $data['otherSourceOfIncome'] ?? [], CreditInvestigationOtherSourceIncome::class);
+            $this->createRelatedRecords($inquiryID, $data['creditReferences'] ?? [], CreditInvestigationCreditReferences::class);
+            $this->createRelatedRecords($inquiryID, $data['personalReferences'] ?? [], CreditInvestigationPersonalReference::class);
+            $this->createRelatedRecords($inquiryID, $data['personalProperties'] ?? [], CreditInvestigationPersonalProperty::class);
 
             // 3. Update Status
             $customerId = Inquiry::where('id', $inquiryID)->value('customer_id');

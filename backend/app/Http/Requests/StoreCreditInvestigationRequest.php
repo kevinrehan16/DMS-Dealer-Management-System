@@ -22,77 +22,80 @@ class StoreCreditInvestigationRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'contactinfo.inquiry_id' => 'required|exists:inquiries,id',
-            'contactinfo.creditInv_id' => 'nullable|string|max:30',
-            'contactinfo.cicontactPerson' => 'required|string|max:150',
-            'contactinfo.cigender' => 'required|string|max:6',
-            'contactinfo.cibirthday' => 'required|date',
-            'contactinfo.cicpage' => 'required|integer|min:0',
-            'contactinfo.cispouseName' => 'nullable|required_unless:contactinfo.cicivilStatus,Single|string|max:150',
-            'contactinfo.cispouseGender' => 'nullable|required_unless:contactinfo.cicivilStatus,Single|string|max:6',
-            'contactinfo.cispouseBirthday' => 'nullable|required_unless:contactinfo.cicivilStatus,Single|date',
-            'contactinfo.cisage' => 'required|integer|min:0',
-            'contactinfo.cicivilStatus' => 'required|string|max:20',
-            'contactinfo.cieducation' => 'required|string|max:60',
-            'contactinfo.citinNumber' => 'required|string|max:15',
-            'contactinfo.cimobile' => 'required|string|max:20',
-            'contactinfo.cidependentChildren' => 'nullable|integer|min:0',
-            'contactinfo.cistudyingChildren' => 'nullable|integer|min:0',
-            'contactinfo.ciotherDependents' => 'nullable|integer|min:0',
+            'inquiry_id' => 'required|exists:inquiries,id',
+            'creditInv_id' => 'nullable|string|max:30',
+            'cicontactPerson' => 'required|string|max:150',
+            'cigender' => 'required|string|max:6',
+            'cibirthday' => 'required|date',
+            'cicpage' => 'required|integer|min:0',
+            'cispouseName' => 'nullable|required_unless:cicivilStatus,Single|string|max:150',
+            'cispouseGender' => 'nullable|required_unless:cicivilStatus,Single|string|max:6',
+            'cispouseBirthday' => 'nullable|required_unless:cicivilStatus,Single|date',
+            'cisage' => 'required|integer|min:0',
+            'cicivilStatus' => 'required|string|max:20',
+            'cieducation' => 'required|string|max:60',
+            'citinNumber' => 'required|string|max:15',
+            'cimobile' => 'required|string|max:20',
+            'cidependentChildren' => 'nullable|integer|min:0',
+            'cistudyingChildren' => 'nullable|integer|min:0',
+            'ciotherDependents' => 'nullable|integer|min:0',
 
-            'contactinfo.ciPresAddress' => 'required|string|max:255',
-            'contactinfo.ciPresAddrLenStay' => 'required|integer|min:0',
-            'contactinfo.ciPresAddrMonStay' => 'required|string|max:10',
-            'contactinfo.ciPresAddrType' => 'required|string|max:15',
+            'ciPresAddress' => 'required|string|max:255',
+            'ciPresAddrLenStay' => 'required|integer|min:0',
+            'ciPresAddrMonStay' => 'required|string|max:10',
+            'ciPresAddrType' => 'required|string|max:15',
             // Only force GT:0 if it is Rented. If it is NOT Rented, use GTE:0 (Greater Than or Equal to 0)
-            'contactinfo.ciPresAddrRentFee' => [
+            'ciPresAddrRentFee' => [
                 'nullable',
                 'numeric',
-                'required_if:contactinfo.ciPresAddrType,Rented',
+                'required_if:ciPresAddrType,Rented',
                 'gte:0',
                 function ($attribute, $value, $fail) {
                     // Only if it IS Rented, check if it is > 0
-                    if (request()->input('contactinfo.ciPresAddrType') === 'Rented' && $value <= 0) {
+                    if (request()->input('ciPresAddrType') === 'Rented' && $value <= 0) {
                         $fail('The Rent Fee must be greater than zero when Rented.');
                     }
                 },
             ],
-            'contactinfo.ciPrevAddress' => 'required|string|max:255',
-            'contactinfo.ciPrevAddrLenStay' => 'required|integer|min:0',
-            'contactinfo.ciPrevAddrMonStay' => 'required|string|max:10',
-            'contactinfo.ciProvAddress' => 'nullable|string|max:255',
+            'ciPrevAddress' => 'required|string|max:255',
+            'ciPrevAddrLenStay' => 'required|integer|min:0',
+            'ciPrevAddrMonStay' => 'required|string|max:10',
+            'ciProvAddress' => 'nullable|string|max:255',
 
-            'contactinfo.ciEmployedBy' => 'required|string|max:150',
-            'contactinfo.ciEmpAddrEmp' => 'required|string|max:255',
-            'contactinfo.ciEmpAddrLenStay' => 'required|integer|min:0',
-            'contactinfo.ciEmpAddrMonStay' => 'required|string|max:10',
-            'contactinfo.ciEmpStatus' => 'required|string|max:30',
-            'contactinfo.ciEmpDesignation' => 'required|string|max:30',
-            'contactinfo.ciEmpTelNo' => 'nullable|string|max:15',
-            'contactinfo.ciEmpPrevEmp' => 'required|string|max:150',
-            'contactinfo.ciEmpPrevAddrEmp' => 'required|string|max:255',
-            'contactinfo.ciEmpSpouseEmp' => 'nullable|string|max:150',
-            'contactinfo.ciEmpSpouseEmpAddr' => 'nullable|string|max:255',
-            'contactinfo.ciEmpSpousePosition' => 'nullable|string|max:100',
-            'contactinfo.ciEmpPrevTelNo' => 'required|string|max:15',
-            'contactinfo.ciIncomeSalaryNet' => 'required|numeric|min:0',
-            'contactinfo.ciSpouseIncome' => 'nullable|numeric|min:0',
-            'contactinfo.ciRentalIncome' => 'nullable|numeric|min:0',
-            'contactinfo.ciBusinessNet' => 'nullable|numeric|min:0',
-            'contactinfo.ciOthers' => 'nullable|numeric|min:0',
-            'contactinfo.ciTotalIncome' => 'required|numeric|min:0',
-            'contactinfo.ciExpenseLiving' => 'required|numeric|min:0',
-            'contactinfo.ciExpenseRent' => 'nullable|numeric|min:0',
-            'contactinfo.ciExpenseSchooling' => 'nullable|numeric|min:0',
-            'contactinfo.ciExpenseInsurance' => 'nullable|numeric|min:0',
-            'contactinfo.ciExpenseElectWat' => 'required|numeric|min:0',
-            'contactinfo.ciExpenseObligation' => 'nullable|numeric|min:0',
-            'contactinfo.ciExpenseLoan' => 'nullable|numeric|min:0',
-            'contactinfo.ciExpenseTotal' => 'required|numeric|min:0',
-            'contactinfo.ciCheckingAccount' => 'required|string|max:150',
-            'contactinfo.ciCAAddrr' => 'required|string|max:255',
-            'contactinfo.ciSavingsAccount' => 'required|string|max:150',
-            'contactinfo.ciSAAddrr' => 'required|string|max:255',
+            'ciEmployedBy' => 'required|string|max:150',
+            'ciEmpAddrEmp' => 'required|string|max:255',
+            'ciEmpAddrLenStay' => 'required|integer|min:0',
+            'ciEmpAddrMonStay' => 'required|string|max:10',
+            'ciEmpStatus' => 'required|string|max:30',
+            'ciEmpDesignation' => 'required|string|max:30',
+            'ciEmpTelNo' => 'nullable|string|max:15',
+            'ciEmpPrevEmp' => 'required|string|max:150',
+            'ciEmpPrevAddrEmp' => 'required|string|max:255',
+            'ciEmpSpouseEmp' => 'nullable|string|max:150',
+            'ciEmpSpouseEmpAddr' => 'nullable|string|max:255',
+            'ciEmpSpousePosition' => 'nullable|string|max:100',
+            'ciEmpPrevTelNo' => 'required|string|max:15',
+            'ciIncomeSalaryNet' => 'required|numeric|min:0',
+            'ciSpouseIncome' => 'nullable|numeric|min:0',
+            'ciRentalIncome' => 'nullable|numeric|min:0',
+            'ciBusinessNet' => 'nullable|numeric|min:0',
+            'ciOthers' => 'nullable|numeric|min:0',
+            'ciTotalIncome' => 'required|numeric|min:0',
+            'ciExpenseLiving' => 'required|numeric|min:0',
+            'ciExpenseRent' => 'nullable|numeric|min:0',
+            'ciExpenseSchooling' => 'nullable|numeric|min:0',
+            'ciExpenseInsurance' => 'nullable|numeric|min:0',
+            'ciExpenseElectWat' => 'required|numeric|min:0',
+            'ciExpenseObligation' => 'nullable|numeric|min:0',
+            'ciExpenseLoan' => 'nullable|numeric|min:0',
+            'ciExpenseTotal' => 'required|numeric|min:0',
+            'ciCheckingAccount' => 'required|string|max:150',
+            'ciCAAddrr' => 'required|string|max:255',
+            'ciSavingsAccount' => 'required|string|max:150',
+            'ciSAAddrr' => 'required|string|max:255',
+
+            'otherSourceOfIncome' => 'nullable|array',
+            'creditReferences' => 'nullable|array',
         ];
 
         return $rules;
@@ -102,31 +105,31 @@ class StoreCreditInvestigationRequest extends FormRequest
     {
         return [
             // Basic Info
-            'contactinfo.cicontactPerson.required' => 'Please enter the name of the contact person.',
-            'contactinfo.cibirthday.required' => 'Please enter the birthday.',
-            'contactinfo.cicpage.required' => 'Please enter the age.',
+            'cicontactPerson.required' => 'Please enter the name of the contact person.',
+            'cibirthday.required' => 'Please enter the birthday.',
+            'cicpage.required' => 'Please enter the age.',
 
             // Spouse Info (Conditional)
-            'contactinfo.cispouseName.required_unless' => 'Since you are not Single, the spouse name is required.',
-            'contactinfo.cispouseGender.required_unless' => 'Please enter your spouse\'s gender.',
-            'contactinfo.cispouseBirthday.required_unless' => 'Please enter your spouse\'s birthday.',
+            'cispouseName.required_unless' => 'Since you are not Single, the spouse name is required.',
+            'cispouseGender.required_unless' => 'Please enter your spouse\'s gender.',
+            'cispouseBirthday.required_unless' => 'Please enter your spouse\'s birthday.',
 
             // Address
-            'contactinfo.ciPresAddress.required' => 'Please enter the current address.',
-            'contactinfo.ciPresAddrRentFee.required_if' => 'Since the address is Rented, the rent fee is required.',
-            'contactinfo.ciPresAddrRentFee.gt' => 'The rent fee must be greater than zero.',
+            'ciPresAddress.required' => 'Please enter the current address.',
+            'ciPresAddrRentFee.required_if' => 'Since the address is Rented, the rent fee is required.',
+            'ciPresAddrRentFee.gt' => 'The rent fee must be greater than zero.',
 
             // Employment
-            'contactinfo.ciEmployedBy.required' => 'Please enter your employer.',
-            'contactinfo.ciEmpAddrEmp.required' => 'Please enter the employment address.',
-            'contactinfo.ciEmpStatus.required' => 'Please enter your employment status.',
-            'contactinfo.ciEmpDesignation.required' => 'Please enter your job position.',
+            'ciEmployedBy.required' => 'Please enter your employer.',
+            'ciEmpAddrEmp.required' => 'Please enter the employment address.',
+            'ciEmpStatus.required' => 'Please enter your employment status.',
+            'ciEmpDesignation.required' => 'Please enter your job position.',
 
             // Income/Expenses
             '*.numeric' => 'The :attribute must be a number.',
             '*.min' => 'The :attribute cannot be negative.',
-            'contactinfo.ciTotalIncome.required' => 'Total income is required.',
-            'contactinfo.ciExpenseTotal.required' => 'Total expenses are required.',
+            'ciTotalIncome.required' => 'Total income is required.',
+            'ciExpenseTotal.required' => 'Total expenses are required.',
 
             // Default requirement
             'required' => 'The :attribute field is required.',
@@ -136,9 +139,9 @@ class StoreCreditInvestigationRequest extends FormRequest
     public function attributes()
     {
         return [
-            'contactinfo.ciTotalIncome' => 'Total Income',
-            'contactinfo.ciPresAddrRentFee' => 'Rent Fee',
-            'contactinfo.cicontactPerson' => 'Contact Person',
+            'ciTotalIncome' => 'Total Income',
+            'ciPresAddrRentFee' => 'Rent Fee',
+            'cicontactPerson' => 'Contact Person',
             // Add other fields here as needed
         ];
     }
