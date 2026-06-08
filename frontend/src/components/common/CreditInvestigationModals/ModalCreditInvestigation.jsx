@@ -30,14 +30,14 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
         cieducation: '',
         citinNumber: '',
         cimobile: '',
-        cidependentChildren: '',
-        cistudyingChildren: '',
-        ciotherDependents: '',
+        cidependentChildren: 0,
+        cistudyingChildren: 0,
+        ciotherDependents: 0,
         ciPresAddress: '',
         ciPresAddrLenStay: '',
         ciPresAddrMonStay: '',
         ciPresAddrType: '',
-        ciPresAddrRentFee: '',
+        ciPresAddrRentFee: 0,
         ciPrevAddress: '',
         ciPrevAddrLenStay: '',
         ciPrevAddrMonStay: '',
@@ -135,9 +135,10 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
       // console.log("Saved:", response.data);
       closeModalInvestigation();
     } catch (error) {
+      setIsLoadingSave(false);
       console.error("Error:", error.response?.data || error.message);
     } finally {
-      setIsLoadingSave(true);
+      setIsLoadingSave(false);
     }
   };
   
@@ -359,9 +360,9 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                 name="cicivilStatus" 
                                 {...register("creditCustomerInformation.cicivilStatus")}
                             >
-                              <option>Single</option>
-                              <option>Married</option>
-                              <option>Widowed</option>
+                              <option value="Single">Single</option>
+                              <option value="Married">Married</option>
+                              <option value="Widowed">Widowed</option>
                             </Form.Select>
                           </Col>
                         </Form.Group>

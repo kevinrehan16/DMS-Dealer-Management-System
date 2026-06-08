@@ -48,7 +48,7 @@ class StoreCreditApplicationRequest extends FormRequest
 
       'age'               => 'nullable|integer|min:0',
       'spouseAge'         => 'nullable|integer|min:0',
-      'gender'            => 'nullable|string|max:20',
+      'gender'            => 'nullable|string|max:6',
       'civilStatus'       => 'nullable|string|max:20',
       'education'         => 'nullable|string|max:50',
       'numChildren'       => 'nullable|integer|min:0',

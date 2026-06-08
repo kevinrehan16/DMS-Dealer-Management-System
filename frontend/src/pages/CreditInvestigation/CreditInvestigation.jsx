@@ -23,7 +23,7 @@ function CreditInvestigation() {
     { 
       search: '', 
       filterBy: '',
-      status: ['CREDIT_APPLICATION', 'CREDIT_INVESTIGATION', 'REASSESS'],
+      status: ['CREDIT_APPLICATION', 'FOR_APPROVAL', 'REASSESS'],
       page: 1
     }
   );

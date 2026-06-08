@@ -68,21 +68,17 @@ function AdminEvaluation() {
     setShowModalCompare(true);
 
     setSelectedItems((prev) => {
-    // RULE 1: Kung may isang ID na at same ID ang pinindot, hayaan lang (stay as is)
-    if (prev.length === 1 && prev[0] === inqID) {
-      return prev; 
-    }
-
-    // RULE 2 & 3: 
-    // - Kung may isang ID pero different (Replace)
-    // - Kung more than 1 ang laman (Clear all then Add new)
-    // Sa parehong senaryo, ang kailangan lang ay gawing [inqID] ang array.
-    return [inqID];
-  });
+      // RULE 1: Kung may isang ID na at same ID ang pinindot, hayaan lang (stay as is)
+      if (prev.has(inqID)) {
+        return prev; 
+      }
+      // Para maging Set na may iisang item lang
+      return new Set([inqID]);
+    });
   }
 
   const handleCloseModalCompare = () => {
-    setSelectedItems([]);
+    setSelectedItems(new Set());
     setShowModalCompare(false);
   }
 
