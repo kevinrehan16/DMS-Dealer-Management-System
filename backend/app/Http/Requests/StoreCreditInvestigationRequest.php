@@ -22,7 +22,7 @@ class StoreCreditInvestigationRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'inquiry_id' => 'nullable|exists:inquiries,id',
+            'inquiry_id' => 'required|exists:inquiries,id',
             'creditInv_id' => 'nullable|string|max:30',
             'cicontactPerson' => 'required|string|max:150',
             'cigender' => 'required|string|max:6',
@@ -110,6 +110,8 @@ class StoreCreditInvestigationRequest extends FormRequest
 
             'otherSourceOfIncome' => 'nullable|array',
             'creditReferences' => 'nullable|array',
+            'personalReferences' => 'nullable|array',
+            'personalProperties' => 'nullable|array',
         ];
 
         return $rules;

@@ -6,86 +6,17 @@ import { CircularProgress } from '@mui/material';
 import axios from 'axios'
 import Swal from 'sweetalert2'
 
-import { useCreateCreditInvestigation } from '../../../hooks/HooksCreditInv/useCreditInvestigation';
+import { useCreditInvestigation, useCreateCreditInvestigation } from '../../../hooks/HooksCreditInv/useCreditInvestigation';
 
 import { calculateAge, computeTotalIncome, computeTotalExpenses } from '../../../utils/computations';
 
-const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
+const ModalCreditInvestigation = ({show, handleClose, inquiryId, creditinvestId}) => {
   const API_URL = import.meta.env.VITE_API_URL;
   const token = sessionStorage.getItem('token');
   const { mutate: createCreditInvestigation, isPending: isCreatingCi } = useCreateCreditInvestigation();
-
-  const { register, handleSubmit, watch, setValue, control, reset, setError, formState: { errors } } = useForm({
-    defaultValues: {
-        inquiry_id: inquiryId,
-        cicontactPerson: '',
-        cigender: '',
-        cibirthday: '',
-        cicpage: 0,
-        cispouseName: '',
-        cispouseGender: '',
-        cispouseBirthday: '',
-        cisage: 0,
-        cicivilStatus: 'Single',
-        cieducation: 'Elementary',
-        citinNumber: '',
-        cimobile: '',
-        cidependentChildren: 0,
-        cistudyingChildren: 0,
-        ciotherDependents: 0,
-        ciPresAddress: '',
-        ciPresAddrLenStay: '',
-        ciPresAddrMonStay: '0 Month',
-        ciPresAddrType: 'Own',
-        ciPresAddrRentFee: 0,
-        ciPrevAddress: '',
-        ciPrevAddrLenStay: '',
-        ciPrevAddrMonStay: '0 Month',
-        ciProvAddress: '',
-        ciEmployedBy: '',
-        ciEmpAddrEmp: '',
-        ciEmpAddrLenStay: '',
-        ciEmpAddrMonStay: '0 Month',
-        ciEmpStatus: '',
-        ciEmpDesignation: '',
-        ciEmpTelNo: '',
-        ciEmpPrevEmp: '',
-        ciEmpPrevAddrEmp: '',
-        ciEmpSpouseEmp: '',
-        ciEmpSpouseEmpAddr: '',
-        ciEmpSpousePosition: '',
-        ciEmpPrevTelNo: '',
-        ciIncomeSalaryNet: '',
-        ciSpouseIncome: 0,
-        ciRentalIncome: 0,
-        ciBusinessNet: 0,
-        ciOthers: 0,
-        ciTotalIncome: 0,
-        ciExpenseLiving: 0,
-        ciExpenseRent: 0,
-        ciExpenseSchooling: 0,
-        ciExpenseInsurance: 0,
-        ciExpenseElectWat: 0,
-        ciExpenseObligation: 0,
-        ciExpenseLoan: 0,
-        ciExpenseTotal: 0,
-        ciCheckingAccount: '',
-        ciCAAddrr: '',
-        ciSavingsAccount: '',
-        ciSAAddrr: '',
-
-      otherSourceOfIncome: [{ osisource: '', osiamount: '' }],
-      creditReferences: [
-        { crcreditor: '', craddress: '', crdategranted: '', crorigbalance: '', crpresbalance: '', crmoinstallment: '' }
-      ],
-      personalReferences: [
-        { prname: '', praddress: '', prcontact: '', prrelation: '' }
-      ],
-      personalProperties: [
-        { ppkind: '', pplocation: '', ppvalue: '', ppimbursement: '' }
-      ],
-    }
-  });
+  const { data, isLoading, isError, error } = useCreditInvestigation(creditinvestId);
+  
+  const { register, handleSubmit, watch, setValue, control, reset, setError, formState: { errors } } = useForm();
 
   const { fields: fieldsSi, append: appendSi, remove: removeSi } = useFieldArray({
     control,
@@ -247,10 +178,143 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
   // END Codes in computing total expenses
 
   useEffect(() => {
-    if (inquiryId) {
-      setValue("inquiry_id", inquiryId);
+    if (inquiryId && data) {
+      reset({
+        inquiry_id: data.inquiry_id,
+        cicontactPerson: data.cicontactPerson,
+        cigender: data.cigender,
+        cibirthday: data.cibirthday,
+        cicpage: data.cicpage,
+        cispouseName: data.cispouseName,
+        cispouseGender: data.cispouseGender,
+        cispouseBirthday: data.cispouseBirthday,
+        cisage: data.cisage,
+        cicivilStatus: data.cicivilStatus,
+        cieducation: data.cieducation,
+        citinNumber: data.citinNumber,
+        cimobile: data.cimobile,
+        cidependentChildren: data.cidependentChildren,
+        cistudyingChildren: data.cistudyingChildren,
+        ciotherDependents: data.ciotherDependents,
+        ciPresAddress: data.ciPresAddress,
+        ciPresAddrLenStay: data.ciPresAddrLenStay,
+        ciPresAddrMonStay: data.ciPresAddrMonStay,
+        ciPresAddrType: data.ciPresAddrType,
+        ciPresAddrRentFee: data.ciPresAddrRentFee,
+        ciPrevAddress: data.ciPrevAddress,
+        ciPrevAddrLenStay: data.ciPrevAddrLenStay,
+        ciPrevAddrMonStay: data.ciPrevAddrMonStay,
+        ciProvAddress: data.ciProvAddress,
+        ciEmployedBy: data.ciEmployedBy,
+        ciEmpAddrEmp: data.ciEmpAddrEmp,
+        ciEmpAddrLenStay: data.ciEmpAddrLenStay,
+        ciEmpAddrMonStay: data.ciEmpAddrMonStay,
+        ciEmpStatus: data.ciEmpStatus,
+        ciEmpDesignation: data.ciEmpDesignation,
+        ciEmpTelNo: data.ciEmpTelNo,
+        ciEmpPrevEmp: data.ciEmpPrevEmp,
+        ciEmpPrevAddrEmp: data.ciEmpPrevAddrEmp,
+        ciEmpSpouseEmp: data.ciEmpSpouseEmp,
+        ciEmpSpouseEmpAddr: data.ciEmpSpouseEmpAddr,
+        ciEmpSpousePosition: data.ciEmpSpousePosition,
+        ciEmpPrevTelNo: data.ciEmpPrevTelNo,
+        ciIncomeSalaryNet: data.ciIncomeSalaryNet,
+        ciSpouseIncome: data.ciSpouseIncome,
+        ciRentalIncome: data.ciRentalIncome,
+        ciBusinessNet: data.ciBusinessNet,
+        ciOthers: data.ciOthers,
+        ciTotalIncome: data.ciTotalIncome,
+        ciExpenseLiving: data.ciExpenseLiving,
+        ciExpenseRent: data.ciExpenseRent,
+        ciExpenseSchooling: data.ciExpenseSchooling,
+        ciExpenseInsurance: data.ciExpenseInsurance,
+        ciExpenseElectWat: data.ciExpenseElectWat,
+        ciExpenseObligation: data.ciExpenseObligation,
+        ciExpenseLoan: data.ciExpenseLoan,
+        ciExpenseTotal: data.ciExpenseTotal,
+        ciCheckingAccount: data.ciCheckingAccount,
+        ciCAAddrr: data.ciCAAddrr,
+        ciSavingsAccount: data.ciSavingsAccount,
+        ciSAAddrr: data.ciSAAddrr,
+        
+        // Para sa Nested Data (Relationships)
+        otherSourceOfIncome: data.otherSourceOfIncome || [{ osisource: '', osiamount: '' }],
+        creditReferences: data.creditReferences || [{ crcreditor: '', craddress: '', crdategranted: '', crorigbalance: '', crpresbalance: '', crmoinstallment: '' }],
+        personalReferences: data.personalReferences || [{ prname: '', praddress: '', prcontact: '', prrelation: '' }],
+        personalProperties: data.personalProperties || [{ ppkind: '', pplocation: '', ppvalue: '', ppimbursement: '' }],
+      });
+    }else{
+      reset({
+        inquiry_id: inquiryId,
+        cicontactPerson: '',
+        cigender: '',
+        cibirthday: '',
+        cicpage: 0,
+        cispouseName: '',
+        cispouseGender: '',
+        cispouseBirthday: '',
+        cisage: 0,
+        cicivilStatus: 'Single',
+        cieducation: 'Elementary',
+        citinNumber: '',
+        cimobile: '',
+        cidependentChildren: 0,
+        cistudyingChildren: 0,
+        ciotherDependents: 0,
+        ciPresAddress: '',
+        ciPresAddrLenStay: '',
+        ciPresAddrMonStay: '0 Month',
+        ciPresAddrType: 'Own',
+        ciPresAddrRentFee: 0,
+        ciPrevAddress: '',
+        ciPrevAddrLenStay: '',
+        ciPrevAddrMonStay: '0 Month',
+        ciProvAddress: '',
+        ciEmployedBy: '',
+        ciEmpAddrEmp: '',
+        ciEmpAddrLenStay: '',
+        ciEmpAddrMonStay: '0 Month',
+        ciEmpStatus: '',
+        ciEmpDesignation: '',
+        ciEmpTelNo: '',
+        ciEmpPrevEmp: '',
+        ciEmpPrevAddrEmp: '',
+        ciEmpSpouseEmp: '',
+        ciEmpSpouseEmpAddr: '',
+        ciEmpSpousePosition: '',
+        ciEmpPrevTelNo: '',
+        ciIncomeSalaryNet: '',
+        ciSpouseIncome: 0,
+        ciRentalIncome: 0,
+        ciBusinessNet: 0,
+        ciOthers: 0,
+        ciTotalIncome: 0,
+        ciExpenseLiving: 0,
+        ciExpenseRent: 0,
+        ciExpenseSchooling: 0,
+        ciExpenseInsurance: 0,
+        ciExpenseElectWat: 0,
+        ciExpenseObligation: 0,
+        ciExpenseLoan: 0,
+        ciExpenseTotal: 0,
+        ciCheckingAccount: '',
+        ciCAAddrr: '',
+        ciSavingsAccount: '',
+        ciSAAddrr: '',
+
+        otherSourceOfIncome: [{ osisource: '', osiamount: '' }],
+        creditReferences: [
+          { crcreditor: '', craddress: '', crdategranted: '', crorigbalance: '', crpresbalance: '', crmoinstallment: '' }
+        ],
+        personalReferences: [
+          { prname: '', praddress: '', prcontact: '', prrelation: '' }
+        ],
+        personalProperties: [
+          { ppkind: '', pplocation: '', ppvalue: '', ppimbursement: '' }
+        ],
+      })
     }
-  }, [inquiryId, setValue]);
+  }, [inquiryId, data, reset, setValue]);
 
   return (
     <div>
@@ -826,7 +890,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
 
                         <Form.Group as={Row} className="mb-3">
                           <Form.Label column sm={4} className="text-end">
-                            Spouse's Emp. <span className="text-danger">*</span>
+                            Spouse&apos;s Emp. <span className="text-danger">*</span>
                           </Form.Label>
                           <Col sm={8}>
                             <Form.Control 

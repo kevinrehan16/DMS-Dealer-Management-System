@@ -6,8 +6,8 @@ import { api } from '../../utils/api'
 export const useCreditInvestigation = (investigationId) => {
 
   return useQuery({
-    queryKey: ['creditInvestigation', investigationId],
-    queryFn: () => creditinvService.getAllCreditInvestigation(investigationId),
+    queryKey: ['creditInvestigationById', investigationId],
+    queryFn: () => creditinvService.getCIbyId(investigationId),
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 3,
     enabled: !!investigationId,

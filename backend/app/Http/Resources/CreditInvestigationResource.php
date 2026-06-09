@@ -15,15 +15,15 @@ class CreditInvestigationResource extends JsonResource
     public function toArray(Request $request): array
     {
         return array_merge(
-            $this->attributesToArray(),//! IF YOU STILL WANT TO GET COMPLETE DATA IN ARRAY
+            $this->attributesToArray(), //! IF YOU STILL WANT TO GET COMPLETE DATA IN ARRAY
             [
-                'other_source_incomes' => $this->whenLoaded('otherSourceIncome', function () {
-                return $this->otherSourceIncome->map(fn($income) => $income->only(['id','osisource','osiamount']));
+                'otherSourceOfIncome' => $this->whenLoaded('otherSourceIncome', function () {
+                    return $this->otherSourceIncome->map(fn($income) => $income->only(['id', 'osisource', 'osiamount']));
                 }),
-                'credit_references' => $this->whenLoaded('creditReferences', function () {
-                    return $this->creditReferences->map(fn($ref) => $ref->only(['id','crcreditor','craddress','crdategranted','crorigbalance','crpresbalance','crmoinstallment']));
+                'creditReferences' => $this->whenLoaded('creditReferences', function () {
+                    return $this->creditReferences->map(fn($ref) => $ref->only(['id', 'crcreditor', 'craddress', 'crdategranted', 'crorigbalance', 'crpresbalance', 'crmoinstallment']));
                 }),
-                'personal_references' => $this->whenLoaded('personalReferences', function () {
+                'personalReferences' => $this->whenLoaded('personalReferences', function () {
                     return $this->personalReferences->map(fn($pref) => [
                         'id' => $pref->id,
                         'prname' => $pref->prname,
@@ -32,7 +32,7 @@ class CreditInvestigationResource extends JsonResource
                         'prrelation' => $pref->prrelation,
                     ]);
                 }),
-                'personal_properties_owned' => $this->whenLoaded('personalPropertiesOwned', function () {
+                'personalProperties' => $this->whenLoaded('personalPropertiesOwned', function () {
                     return $this->personalPropertiesOwned->map(fn($props) => [
                         'id' => $props->id,
                         'ppkind' => $props->ppkind,

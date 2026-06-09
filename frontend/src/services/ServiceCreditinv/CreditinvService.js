@@ -4,7 +4,7 @@ const BASE_ROUTE = '/evaluation';
 
 export const creditinvService = {
 
-  getAllCreditInvestigation: async (investigationId) => {
+  getCIbyId: async (investigationId) => {
     const res = await api.get(`${BASE_ROUTE}/creditinvestigation/${investigationId}`);
     return res.data.creditinvestigations;
   },

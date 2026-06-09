@@ -120,8 +120,9 @@ Route::prefix('credit-application')->middleware('auth:sanctum')->group(function 
 
 Route::prefix('credit-investigation')->middleware('auth:sanctum')->group(function () {
     // Credit Investigation Primary
-    Route::get('/contactinfo', [CreditInvestigationPrimaryController::class, 'index']);
-    Route::post('/contactinfo', [CreditInvestigationPrimaryController::class, 'store']);
+    Route::get('/', [CreditInvestigationPrimaryController::class, 'index']);
+    Route::post('/', [CreditInvestigationPrimaryController::class, 'store']);
+    Route::get('/{id}', [CreditInvestigationPrimaryController::class, 'show']);
 
     // Batch save
     Route::post('/save-all', [CreditInvestigationBatchController::class, 'store']);

@@ -38,6 +38,7 @@ function CreditInvestigation() {
   };
 
   const [thisInquiryid, setThisInquiryid] = useState(0);
+  const [thisCreditInvestid, sethisCreditInvestid] = useState(0);
   const [showModalCreditInvestigation, setShowModalCreditInvestigation] = useState(false);
   const [showModalScheduleCi, setShowModalScheduleCi] = useState(false);
   const [showModalAllScheduleCi, setShowModalAllScheduleCi] = useState(false);
@@ -54,8 +55,9 @@ function CreditInvestigation() {
   const handleShowScheduleCi = () => setScheduleCi(true);
   const handleCloseScheduleCi = () => setScheduleCi(false);
 
-  const handleShowModalCreditInvestigation = (inquiryid) => {
+  const handleShowModalCreditInvestigation = (inquiryid, creditinvestid) => {
     setThisInquiryid(inquiryid);
+    sethisCreditInvestid(creditinvestid);
     setShowModalCreditInvestigation(true); 
   }
 
@@ -345,7 +347,7 @@ function CreditInvestigation() {
                       </td>
                       <td className='text-center'>
                         <Button 
-                          onClick={()=> handleShowModalCreditInvestigation(row.id)}
+                          onClick={()=> handleShowModalCreditInvestigation(row.id, row?.credit_investigation?.id)}
                           variant="warning" 
                           size="sm" 
                           className="d-inline-block me-1 text-white">
@@ -482,6 +484,7 @@ function CreditInvestigation() {
 
       <ModalCreditInvestigation 
         inquiryId = {thisInquiryid}
+        creditinvestId = {thisCreditInvestid}
         show={showModalCreditInvestigation} 
         handleClose={handleCloseModalCreditInvestigation} 
       />

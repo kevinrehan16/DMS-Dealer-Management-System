@@ -107,6 +107,8 @@ class InvestigationService
             // Ito ang pinaka-safe na paraan para sa collection fields
             CreditInvestigationOtherSourceIncome::where('inquiry_id', $contactInfo->inquiry_id)->delete();
             CreditInvestigationCreditReferences::where('inquiry_id', $contactInfo->inquiry_id)->delete();
+            CreditInvestigationPersonalReference::where('inquiry_id', $contactInfo->inquiry_id)->delete();
+            CreditInvestigationPersonalProperty::where('inquiry_id', $contactInfo->inquiry_id)->delete();
             // Dagdagan kung may iba pa
 
             // 4. Re-insert ang mga bagong data (Gamit ang ating logic dati)
@@ -116,6 +118,14 @@ class InvestigationService
 
             if (!empty($data['creditReferences'])) {
                 $this->createRelatedRecords($contactInfo->inquiry_id, $data['creditReferences'], CreditInvestigationCreditReferences::class);
+            }
+
+            if (!empty($data['personalReferences'])) {
+                $this->createRelatedRecords($contactInfo->inquiry_id, $data['personalReferences'], CreditInvestigationPersonalReference::class);
+            }
+
+            if (!empty($data['personalProperties'])) {
+                $this->createRelatedRecords($contactInfo->inquiry_id, $data['personalProperties'], CreditInvestigationPersonalProperty::class);
             }
 
             return $contactInfo;

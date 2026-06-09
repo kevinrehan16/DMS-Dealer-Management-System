@@ -169,7 +169,7 @@ const CreditInvestigation = ({ investigationId }) => {
               </tr>
             </thead>
             <tbody>
-              {invData?.other_source_incomes.map((row, index) => (
+              {invData?.otherSourceOfIncome?.map((row, index) => (
                 <tr key={index}>
                   <td>{row.osiamount}</td>
                   <td>{row.osisource}</td>
@@ -202,7 +202,7 @@ const CreditInvestigation = ({ investigationId }) => {
               </tr>
             </thead>
             <tbody>
-              {invData?.personal_references.map((row, index) => (
+              {invData?.personalReferences.map((row, index) => (
                 <tr key={index}>
                   <td>{row.prname}</td>
                   <td>{row.praddress}</td>
@@ -234,7 +234,7 @@ const CreditInvestigation = ({ investigationId }) => {
               </tr>
             </thead>
             <tbody>
-              {invData?.credit_references.map((row, index) => (
+              {invData?.creditReferences.map((row, index) => (
                 <tr key={index}>
                   <td>{row.crcreditor}</td>
                   <td>{row.craddress}</td>
@@ -265,8 +265,8 @@ const CreditInvestigation = ({ investigationId }) => {
               </tr>
             </thead>
             <tbody>
-              {invData?.personal_properties_owned?.length > 0 ? (
-                invData.personal_properties_owned.map((row, index) => (
+              {invData?.personalProperties?.length > 0 ? (
+                invData.personalProperties.map((row, index) => (
                   <tr key={index}>
                     <td>{row.ppkind}</td>
                     <td>{row.pplocation}</td>
