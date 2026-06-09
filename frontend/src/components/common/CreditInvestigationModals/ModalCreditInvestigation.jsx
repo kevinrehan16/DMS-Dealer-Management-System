@@ -17,7 +17,6 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
 
   const { register, handleSubmit, watch, setValue, control, reset, setError, formState: { errors } } = useForm({
     defaultValues: {
-      creditCustomerInformation: {
         inquiry_id: inquiryId,
         cicontactPerson: '',
         cigender: '',
@@ -27,8 +26,8 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
         cispouseGender: '',
         cispouseBirthday: '',
         cisage: 0,
-        cicivilStatus: '',
-        cieducation: '',
+        cicivilStatus: 'Single',
+        cieducation: 'Elementary',
         citinNumber: '',
         cimobile: '',
         cidependentChildren: 0,
@@ -36,17 +35,17 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
         ciotherDependents: 0,
         ciPresAddress: '',
         ciPresAddrLenStay: '',
-        ciPresAddrMonStay: '',
-        ciPresAddrType: '',
+        ciPresAddrMonStay: '0 Month',
+        ciPresAddrType: 'Own',
         ciPresAddrRentFee: 0,
         ciPrevAddress: '',
         ciPrevAddrLenStay: '',
-        ciPrevAddrMonStay: '',
+        ciPrevAddrMonStay: '0 Month',
         ciProvAddress: '',
         ciEmployedBy: '',
         ciEmpAddrEmp: '',
         ciEmpAddrLenStay: '',
-        ciEmpAddrMonStay: '',
+        ciEmpAddrMonStay: '0 Month',
         ciEmpStatus: '',
         ciEmpDesignation: '',
         ciEmpTelNo: '',
@@ -57,24 +56,23 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
         ciEmpSpousePosition: '',
         ciEmpPrevTelNo: '',
         ciIncomeSalaryNet: '',
-        ciSpouseIncome: '',
-        ciRentalIncome: '',
-        ciBusinessNet: '',
-        ciOthers: '',
-        ciTotalIncome: '',
-        ciExpenseLiving: '',
-        ciExpenseRent: '',
-        ciExpenseSchooling: '',
-        ciExpenseInsurance: '',
-        ciExpenseElectWat: '',
-        ciExpenseObligation: '',
-        ciExpenseLoan: '',
-        ciExpenseTotal: '',
+        ciSpouseIncome: 0,
+        ciRentalIncome: 0,
+        ciBusinessNet: 0,
+        ciOthers: 0,
+        ciTotalIncome: 0,
+        ciExpenseLiving: 0,
+        ciExpenseRent: 0,
+        ciExpenseSchooling: 0,
+        ciExpenseInsurance: 0,
+        ciExpenseElectWat: 0,
+        ciExpenseObligation: 0,
+        ciExpenseLoan: 0,
+        ciExpenseTotal: 0,
         ciCheckingAccount: '',
         ciCAAddrr: '',
         ciSavingsAccount: '',
         ciSAAddrr: '',
-      },
 
       otherSourceOfIncome: [{ osisource: '', osiamount: '' }],
       creditReferences: [
@@ -295,6 +293,8 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Select 
                                 name="cigender" 
                                 {...register("cigender")}
+                                required
+                                className={`capitalize_text ${errors.cigender ? 'is-invalid' : ''}`}
                             >
                               <option value="">--Select Gender--</option>
                               <option value="Male">Male</option>
@@ -314,6 +314,8 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   {...register("cibirthday")}
                                   type="date" 
                                   max={new Date().toISOString().split("T")[0]}
+                                  required
+                                  className={`${errors.cibirthday ? 'is-invalid' : ''}`}
                               />
                               <InputGroup.Text>Age</InputGroup.Text>
                               <Form.Control 
@@ -321,6 +323,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   {...register("cicpage")}
                                   readOnly 
                                   disabled
+                                  className={`${errors.cibirthday ? 'is-invalid' : ''}`}
                               />
                             </InputGroup>
                           </Col>
@@ -336,6 +339,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 name="cispouseName" 
                                 {...register("cispouseName")}
+                                className={`${errors.cispouseName ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -348,6 +352,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Select 
                                 name="cispouseGender" 
                                 {...register("cispouseGender")}
+                                className={`${errors.cispouseGender ? 'is-invalid' : ''}`}
                             >
                               <option value="">--Select Gender--</option>
                               <option value="Male">Male</option>
@@ -367,6 +372,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   {...register("cispouseBirthday")}
                                   type="date" 
                                   max={new Date().toISOString().split("T")[0]}
+                                  className={`${errors.cispouseBirthday ? 'is-invalid' : ''}`}
                               />
                               <InputGroup.Text>Age</InputGroup.Text>
                               <Form.Control 
@@ -374,6 +380,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   {...register("cisage")}
                                   readOnly 
                                   disabled
+                                  className={`${errors.cispouseBirthday ? 'is-invalid' : ''}`}
                               />
                             </InputGroup>
                           </Col>
@@ -426,6 +433,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 name="citinNumber" 
                                 {...register("citinNumber")}
+                                className={`${errors.citinNumber ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -438,6 +446,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control
                                 name="cimobile" 
                                 {...register("cimobile")}
+                                className={`${errors.cimobile ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -508,6 +517,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               rows={3}
                               name="ciPresAddress"
                               {...register("ciPresAddress")}
+                              className={`${errors.ciPresAddress ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -522,13 +532,15 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   type="number" 
                                   name="ciPresAddrLenStay"
                                   {...register("ciPresAddrLenStay")}
+                                  className={`${errors.ciPresAddrLenStay ? 'is-invalid' : ''}`}
                               />
                               <InputGroup.Text>Year/s</InputGroup.Text>
                               <Form.Select
                                   name="ciPresAddrMonStay"
                                   {...register("ciPresAddrMonStay")}
+                                  className={`${errors.ciPresAddrMonStay ? 'is-invalid' : ''}`}
                               >
-                                <option value="">Month</option>
+                                <option value="0 Month">Month</option>
                                 <option value="1 Month">1 Month</option>
                                 <option value="2 Months">2 Months</option>
                                 <option value="3 Months">3 Months</option>
@@ -588,6 +600,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               placeholder="0.00"
                               name="ciPresAddrRentFee"
                               {...register("ciPresAddrRentFee")}
+                              className={`${errors.ciPresAddrRentFee ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -605,6 +618,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                               rows={3}
                               name="ciPrevAddress"
                               {...register("ciPrevAddress")}
+                              className={`${errors.ciPrevAddress ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -619,13 +633,14 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   type="number" 
                                   name="ciPrevAddrLenStay"
                                   {...register("ciPrevAddrLenStay")}
+                                  className={`${errors.ciPrevAddrLenStay ? 'is-invalid' : ''}`}
                               />
                               <InputGroup.Text>Year/s</InputGroup.Text>
                               <Form.Select
                                   name="ciPrevAddrMonStay"
                                   {...register("ciPrevAddrMonStay")}
                               >
-                                <option value="">Month</option>
+                                <option value="0 Month">Month</option>
                                 <option value="1 Month">1 Month</option>
                                 <option value="2 Months">2 Months</option>
                                 <option value="3 Months">3 Months</option>
@@ -680,6 +695,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 name="ciEmployedBy"
                                 {...register("ciEmployedBy")}
+                                className={`${errors.ciEmployedBy ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -692,6 +708,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control
                                 name="ciEmpAddrEmp"
                                 {...register("ciEmpAddrEmp")}
+                                className={`${errors.ciEmpAddrEmp ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -706,13 +723,14 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   type="number" 
                                   name="ciEmpAddrLenStay"
                                   {...register("ciEmpAddrLenStay")}
+                                  className={`${errors.ciEmpAddrLenStay ? 'is-invalid' : ''}`}
                               />
                               <InputGroup.Text>Year/s</InputGroup.Text>
                               <Form.Select
                                   name="ciEmpAddrMonStay"
                                   {...register("ciEmpAddrMonStay")}
                               >
-                                <option value="">Month</option>
+                                <option value="0 Month">Month</option>
                                 <option value="1 Month">1 Month</option>
                                 <option value="2 Months">2 Months</option>
                                 <option value="3 Months">3 Months</option>
@@ -740,6 +758,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 name="ciEmpStatus"
                                 {...register("ciEmpStatus")}
+                                className={`${errors.ciEmpStatus ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -752,6 +771,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control
                                 name="ciEmpDesignation"
                                 {...register("ciEmpDesignation")}
+                                className={`${errors.ciEmpDesignation ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -784,6 +804,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 name="ciEmpPrevEmp"
                                 {...register("ciEmpPrevEmp")}
+                                className={`${errors.ciEmpPrevEmp ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -798,6 +819,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                 rows={2}
                                 name="ciEmpPrevAddrEmp"
                                 {...register("ciEmpPrevAddrEmp")}
+                                className={`${errors.ciEmpPrevAddrEmp ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -810,6 +832,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 name="ciEmpSpouseEmp"
                                 {...register("ciEmpSpouseEmp")}
+                                className={`${errors.ciEmpSpouseEmp ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -824,6 +847,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                 rows={2}
                                 name="ciEmpSpouseEmpAddr"
                                 {...register("ciEmpSpouseEmpAddr")}
+                                className={`${errors.ciEmpSpouseEmpAddr ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -836,6 +860,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                             <Form.Control 
                                 name="ciEmpSpousePosition"
                                 {...register("ciEmpSpousePosition")}
+                                className={`${errors.ciEmpSpousePosition ? 'is-invalid' : ''}`}
                             />
                           </Col>
                         </Form.Group>
@@ -864,6 +889,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                 type="number" 
                                 name="ciIncomeSalaryNet"
                                 {...register("ciIncomeSalaryNet")}
+                                className={`${errors.ciEmployedBy ? 'is-invalid' : ''}`}
                                 placeholder="0.00"
                             />
                           </Col>
@@ -878,6 +904,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                 type="number"
                                 name="ciSpouseIncome"
                                 {...register("ciSpouseIncome")}
+                                className={`${errors.ciSpouseIncome ? 'is-invalid' : ''}`}
                                 placeholder="0.00"
                             />
                           </Col>
@@ -892,6 +919,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                 type="number" 
                                 name="ciRentalIncome"
                                 {...register("ciRentalIncome")}
+                                className={`${errors.ciRentalIncome ? 'is-invalid' : ''}`}
                                 placeholder="0.00"
                             />
                           </Col>
@@ -1072,6 +1100,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   placeholder="0.00" 
                                   name="ciExpenseLiving"
                                   {...register("ciExpenseLiving")}
+                                  className={`${errors.ciExpenseLiving ? 'is-invalid' : ''}`}
                               />
                             </InputGroup>
                           </Col>
@@ -1087,6 +1116,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   placeholder="0.00" 
                                   name="ciExpenseRent"
                                   {...register("ciExpenseRent")}
+                                  className={`${errors.ciExpenseRent ? 'is-invalid' : ''}`}
                               />
                             </InputGroup>
                           </Col>
@@ -1132,6 +1162,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId}) => {
                                   placeholder="0.00"
                                   name="ciExpenseElectWat"
                                   {...register("ciExpenseElectWat")}
+                                  className={`${errors.ciExpenseElectWat ? 'is-invalid' : ''}`}
                               />
                             </InputGroup>
                           </Col>

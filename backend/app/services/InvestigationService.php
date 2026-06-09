@@ -40,15 +40,27 @@ class InvestigationService
                 'personalReferences',
                 'personalProperties'
             ]));
+
             // 1. Create Primary
             $contactInfo = CreditInvestigationPrimary::create($primaryData);
             $inquiryID = $contactInfo->inquiry_id;
 
-            // 2. Create Others (Reusable function loop)
-            $this->createRelatedRecords($inquiryID, $data['otherSourceOfIncome'] ?? [], CreditInvestigationOtherSourceIncome::class);
-            $this->createRelatedRecords($inquiryID, $data['creditReferences'] ?? [], CreditInvestigationCreditReferences::class);
-            $this->createRelatedRecords($inquiryID, $data['personalReferences'] ?? [], CreditInvestigationPersonalReference::class);
-            $this->createRelatedRecords($inquiryID, $data['personalProperties'] ?? [], CreditInvestigationPersonalProperty::class);
+            // 2. Create Others (Conditional: I-save lang kung may laman ang array)
+            if (!empty($data['otherSourceOfIncome'])) {
+                $this->createRelatedRecords($inquiryID, $data['otherSourceOfIncome'], CreditInvestigationOtherSourceIncome::class);
+            }
+
+            if (!empty($data['creditReferences'])) {
+                $this->createRelatedRecords($inquiryID, $data['creditReferences'], CreditInvestigationCreditReferences::class);
+            }
+
+            if (!empty($data['personalReferences'])) {
+                $this->createRelatedRecords($inquiryID, $data['personalReferences'], CreditInvestigationPersonalReference::class);
+            }
+
+            if (!empty($data['personalProperties'])) {
+                $this->createRelatedRecords($inquiryID, $data['personalProperties'], CreditInvestigationPersonalProperty::class);
+            }
 
             // 3. Update Status
             $customerId = Inquiry::where('id', $inquiryID)->value('customer_id');
@@ -61,7 +73,18 @@ class InvestigationService
     private function createRelatedRecords($inquiryID, array $items, string $modelClass)
     {
         foreach ($items as $item) {
-            $modelClass::create(array_merge($item, ['inquiry_id' => $inquiryID]));
+            // 1. I-filter ang $item para alisin ang mga null o empty values.
+            // Ang 'array_filter' ay tatanggalin ang mga values na empty, null, o false.
+            $filteredItem = array_filter($item, function ($value) {
+                return $value !== null && $value !== '';
+            });
+
+            // 2. I-check kung ang array ay may laman pa pagkatapos i-filter.
+            // Kung ang $filteredItem ay may laman, ituloy ang pag-save.
+            // Dito, ginagawa nating requirement na dapat may laman ang array para ma-create ang record.
+            if (!empty($filteredItem)) {
+                $modelClass::create(array_merge($item, ['inquiry_id' => $inquiryID]));
+            }
         }
     }
 

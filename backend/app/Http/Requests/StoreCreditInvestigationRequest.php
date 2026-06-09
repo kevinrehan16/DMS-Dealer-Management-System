@@ -22,7 +22,7 @@ class StoreCreditInvestigationRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'inquiry_id' => 'required|exists:inquiries,id',
+            'inquiry_id' => 'nullable|exists:inquiries,id',
             'creditInv_id' => 'nullable|string|max:30',
             'cicontactPerson' => 'required|string|max:150',
             'cigender' => 'required|string|max:6',
@@ -71,28 +71,42 @@ class StoreCreditInvestigationRequest extends FormRequest
             'ciEmpTelNo' => 'nullable|string|max:15',
             'ciEmpPrevEmp' => 'required|string|max:150',
             'ciEmpPrevAddrEmp' => 'required|string|max:255',
-            'ciEmpSpouseEmp' => 'nullable|string|max:150',
-            'ciEmpSpouseEmpAddr' => 'nullable|string|max:255',
-            'ciEmpSpousePosition' => 'nullable|string|max:100',
-            'ciEmpPrevTelNo' => 'required|string|max:15',
-            'ciIncomeSalaryNet' => 'required|numeric|min:0',
-            'ciSpouseIncome' => 'nullable|numeric|min:0',
+            'ciEmpSpouseEmp' => 'nullable|required_unless:cicivilStatus,Single|string|max:150',
+            'ciEmpSpouseEmpAddr' => 'nullable|required_unless:cicivilStatus,Single|string|max:255',
+            'ciEmpSpousePosition' => 'nullable|required_unless:cicivilStatus,Single|string|max:100',
+            'ciEmpPrevTelNo' => 'nullable|string|max:15',
+
+            'ciIncomeSalaryNet' => 'required|numeric|gt:0',
+            'ciSpouseIncome' => 'nullable|required_unless:cicivilStatus,Single|numeric|gt:0',
             'ciRentalIncome' => 'nullable|numeric|min:0',
             'ciBusinessNet' => 'nullable|numeric|min:0',
             'ciOthers' => 'nullable|numeric|min:0',
-            'ciTotalIncome' => 'required|numeric|min:0',
-            'ciExpenseLiving' => 'required|numeric|min:0',
-            'ciExpenseRent' => 'nullable|numeric|min:0',
+            'ciTotalIncome' => 'required|numeric|gt:0',
+
+            'ciExpenseLiving' => 'required|numeric|gt:0',
+            'ciExpenseRent' => [
+                'nullable',
+                'numeric',
+                'required_if:ciPresAddrType,Rented',
+                'gte:0',
+                function ($attribute, $value, $fail) {
+                    // Only if it IS Rented, check if it is > 0
+                    if (request()->input('ciPresAddrType') === 'Rented' && $value <= 0) {
+                        $fail('The Rent Fee must be greater than zero when Rented.');
+                    }
+                },
+            ],
             'ciExpenseSchooling' => 'nullable|numeric|min:0',
             'ciExpenseInsurance' => 'nullable|numeric|min:0',
-            'ciExpenseElectWat' => 'required|numeric|min:0',
+            'ciExpenseElectWat' => 'required|numeric|gt:0',
             'ciExpenseObligation' => 'nullable|numeric|min:0',
             'ciExpenseLoan' => 'nullable|numeric|min:0',
-            'ciExpenseTotal' => 'required|numeric|min:0',
-            'ciCheckingAccount' => 'required|string|max:150',
-            'ciCAAddrr' => 'required|string|max:255',
-            'ciSavingsAccount' => 'required|string|max:150',
-            'ciSAAddrr' => 'required|string|max:255',
+            'ciExpenseTotal' => 'required|numeric|gt:0',
+
+            'ciCheckingAccount' => 'nullable|string|max:150',
+            'ciCAAddrr' => 'nullable|string|max:255',
+            'ciSavingsAccount' => 'nullable|string|max:150',
+            'ciSAAddrr' => 'nullable|string|max:255',
 
             'otherSourceOfIncome' => 'nullable|array',
             'creditReferences' => 'nullable|array',
