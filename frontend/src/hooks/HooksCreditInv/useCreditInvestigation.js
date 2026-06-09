@@ -31,6 +31,21 @@ export const useCreateCreditInvestigation = () => {
   })
 }
 
+export const useUpdateCreditInvestigation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ creditinvestId, formData }) => creditinvService.updateCreditInv(creditinvestId, formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['creditInvestigationById']);
+      queryClient.invalidateQueries(['inquiries']);
+    },
+    onError: (error) => {
+      console.error("Server Message:", error.response?.data);
+    }
+  })
+}
+
 export const useAssignInvestigator = () => {
   const queryClient = useQueryClient();
   

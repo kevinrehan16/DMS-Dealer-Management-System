@@ -19,6 +19,11 @@ export const creditinvService = {
     return res.data;
   },
 
+  updateCreditInv: async (creditInvId, creditInvData) => {
+    const res = await api.put(`/credit-investigation/update-all/${creditInvId}`, creditInvData);
+    return res.data;
+  },
+
   assignInvestigator: async (forScheduleInquiries) => {
     const res = await api.patch(`/inquiries/assignschedule`, forScheduleInquiries);
     return res.data;

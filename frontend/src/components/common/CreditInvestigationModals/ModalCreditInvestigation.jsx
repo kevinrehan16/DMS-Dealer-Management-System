@@ -6,7 +6,7 @@ import { CircularProgress } from '@mui/material';
 import axios from 'axios'
 import Swal from 'sweetalert2'
 
-import { useCreditInvestigation, useCreateCreditInvestigation } from '../../../hooks/HooksCreditInv/useCreditInvestigation';
+import { useCreditInvestigation, useCreateCreditInvestigation, useUpdateCreditInvestigation } from '../../../hooks/HooksCreditInv/useCreditInvestigation';
 
 import { calculateAge, computeTotalIncome, computeTotalExpenses } from '../../../utils/computations';
 
@@ -14,6 +14,7 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId, creditinvestId}
   const API_URL = import.meta.env.VITE_API_URL;
   const token = sessionStorage.getItem('token');
   const { mutate: createCreditInvestigation, isPending: isCreatingCi } = useCreateCreditInvestigation();
+  const { mutate: updateCreditInvestigation, isPending: isUpdatingCi } = useUpdateCreditInvestigation();
   const { data, isLoading, isError, error } = useCreditInvestigation(creditinvestId);
   
   const { register, handleSubmit, watch, setValue, control, reset, setError, formState: { errors } } = useForm();
@@ -39,6 +40,8 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId, creditinvestId}
   });
 
   const onSubmit = async (data) => {
+    const isUpdate = !!creditinvestId;
+    
     const formData = {
       ...data, // Dahil flat na lahat, spread mo lang ang buong 'data'
       // Siguraduhin na ang mga array keys dito ay match sa backend:
@@ -48,12 +51,14 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId, creditinvestId}
       personalProperties: data.personalProperties || []
     };
 
-    await createCreditInvestigation(formData, {
+    const mutation = isUpdate ? updateCreditInvestigation : createCreditInvestigation;
+
+    await mutation(isUpdate ? { creditinvestId, formData } : formData, {
         onSuccess: () => {
             Swal.fire({
                 icon: "success",
                 title: "Saved",
-                text: "Successfully saved.",
+                text: "Credit Investigation successfully saved.",
             });
             closeModalInvestigation();
         },
@@ -70,38 +75,6 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId, creditinvestId}
           }
         }
     });
-
-    // setIsLoadingSave(true);
-    // try {
-    //   const response = await axios.post(`${API_URL}/credit-investigation/save-all`, {
-    //     contactinfo: data.creditCustomerInformation,
-    //     sourceofincome: data.otherSourceOfIncome,
-    //     creditreferences: data.creditReferences,
-    //     personalreferences: data.personalReferences,
-    //     personalproperties: data.personalProperties
-    //   }, {
-    //     headers: {
-    //       Authorization: `Bearer ${token}`,
-    //       Accept: "application/json",
-    //       "Content-Type": "multipart/form-data"
-    //     }
-    //   });
-
-    //   Swal.fire({
-    //     icon: "success",
-    //     title: "Saved",
-    //     text: "Successfully saved.",
-    //     footer: 'Record has been saved.'
-    //   });
-      
-    //   // console.log("Saved:", response.data);
-    //   closeModalInvestigation();
-    // } catch (error) {
-    //   setIsLoadingSave(false);
-    //   console.error("Error:", error.response?.data || error.message);
-    // } finally {
-    //   setIsLoadingSave(false);
-    // }
   };
   
   const closeModalInvestigation = () => {
@@ -1522,12 +1495,16 @@ const ModalCreditInvestigation = ({show, handleClose, inquiryId, creditinvestId}
           <button 
             className="btn btn-primary d-flex align-items-center justify-content-center gap-2" 
             onClick={handleSubmit(onSubmit)}
-            disabled={isCreatingCi}
+            disabled={(isCreatingCi || isUpdatingCi) || isLoading}
           >
-            {isCreatingCi ? 
+            {(isCreatingCi || isUpdatingCi) ? 
               (<><CircularProgress size={20} color="inherit" /> Saving...</>)
               :
-              (<><FaSave /> Save</>)
+              (isLoading ? 
+                <><CircularProgress size={20} color="inherit" /> Fetching...</>
+                :
+                <><FaSave /> Save</>
+              )
             }
           </button>
           <button className="btn btn-danger d-flex align-items-center justify-content-center gap-2" onClick={closeModalInvestigation}><FaTimes /> Close</button>
