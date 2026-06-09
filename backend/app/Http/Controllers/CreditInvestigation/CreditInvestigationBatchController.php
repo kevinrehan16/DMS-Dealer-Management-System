@@ -88,9 +88,24 @@ class CreditInvestigationBatchController extends Controller
     /**
      * Update the resource in storage.
      */
-    public function update(Request $request)
+    public function update(StoreCreditInvestigationRequest $request, $inquiryId)
     {
-        //
+        try {
+            // Validations here
+            $data = $request->validated();
+
+            $result = $this->investigationService->updateCreditInvestigation($inquiryId, $data);
+
+            return response()->json([
+                'message' => 'Credit Investigation updated successfully.',
+                'data' => $result
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to update.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

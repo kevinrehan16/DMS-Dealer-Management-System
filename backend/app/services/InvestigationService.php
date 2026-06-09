@@ -88,6 +88,40 @@ class InvestigationService
         }
     }
 
+    public function updateCreditInvestigation($id, array $data)
+    {
+        return DB::transaction(function () use ($id, $data) {
+            // 1. I-filter ang primary data
+            $primaryData = array_diff_key($data, array_flip([
+                'otherSourceOfIncome',
+                'creditReferences',
+                'personalReferences',
+                'personalProperties'
+            ]));
+
+            // 2. Update Primary Record
+            $contactInfo = CreditInvestigationPrimary::where('id', $id)->firstOrFail();
+            $contactInfo->update($primaryData);
+
+            // 3. I-replace ang related records (Delete luma, insert bago)
+            // Ito ang pinaka-safe na paraan para sa collection fields
+            CreditInvestigationOtherSourceIncome::where('inquiry_id', $contactInfo->inquiry_id)->delete();
+            CreditInvestigationCreditReferences::where('inquiry_id', $contactInfo->inquiry_id)->delete();
+            // Dagdagan kung may iba pa
+
+            // 4. Re-insert ang mga bagong data (Gamit ang ating logic dati)
+            if (!empty($data['otherSourceOfIncome'])) {
+                $this->createRelatedRecords($contactInfo->inquiry_id, $data['otherSourceOfIncome'], CreditInvestigationOtherSourceIncome::class);
+            }
+
+            if (!empty($data['creditReferences'])) {
+                $this->createRelatedRecords($contactInfo->inquiry_id, $data['creditReferences'], CreditInvestigationCreditReferences::class);
+            }
+
+            return $contactInfo;
+        });
+    }
+
     private function formatName(?string $value): string
     {
         return $value ? ucwords(strtolower($value)) : '';

@@ -125,6 +125,7 @@ Route::prefix('credit-investigation')->middleware('auth:sanctum')->group(functio
 
     // Batch save
     Route::post('/save-all', [CreditInvestigationBatchController::class, 'store']);
+    Route::put('/update-all/{id}', [CreditInvestigationBatchController::class, 'update']);
 });
 
 Route::prefix('requirements')->controller(RequirementController::class)->group(function () {
