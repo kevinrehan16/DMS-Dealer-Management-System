@@ -35,7 +35,7 @@ const ModalUnitCatalog = ({ show, handleClose, motorcycleId }) => {
     mutation(mutationArgs, {
       onSuccess: (response) => {
         notify.alertMsg(
-          response.data || (motorcycleId ? "Unit Catalog Updated!" : "New Unit Catalog Saved!"),
+          response.data.message || (motorcycleId ? "Unit Catalog Updated!" : "New Unit Catalog Saved!"),
           (motorcycleId ? "Unit Catalog has been updated successfully." : "New Unit Catalog has been saved successfully."),
           "success",
           (motorcycleId ? "Updating Unit Catalog." : "Saving Unit Catalog.")
@@ -58,10 +58,20 @@ const ModalUnitCatalog = ({ show, handleClose, motorcycleId }) => {
   }
 
   useEffect(() => {
-    if (unitCatalog) {
+    if (motorcycleId && unitCatalog) {
         reset(unitCatalog); // Awtomatikong i-pa-populate nito lahat ng fields
     }else{
-        reset();
+        reset({
+            brand: '',
+            model_name: '',
+            color: '',
+            cash_price: '',
+            original_price: '',
+            unit_cost: '',
+            srp_value: '',
+            installment_price: '',
+            interest: ''
+        });
     }
   }, [unitCatalog, reset]);
 
@@ -260,10 +270,10 @@ const ModalUnitCatalog = ({ show, handleClose, motorcycleId }) => {
           <Button 
             variant='primary' 
             onClick={handleSubmit(saveNewUnitCatalog)}
-            disabled={isCreating}
+            disabled={isCreating || isUpdating}
             className='d-flex align-items-center gap-1'
           >
-            {(isCreating) ? 
+            {(isCreating || isUpdating) ? 
               (<><CircularProgress size={20} color="inherit" /> Saving...</>)
               :
               (<><FaSave /> Save</>)
