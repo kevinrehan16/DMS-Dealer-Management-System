@@ -80,7 +80,7 @@ class MotorController extends Controller
             'interest' => 'required|numeric',
         ]);
 
-        try{
+        try {
             $motor = ItemList::create([
                 'item_number' => $validated['item_number'],
                 'itemName' => $validated['itemName'],

@@ -175,7 +175,10 @@ Route::prefix('inventory')->controller(InventoryController::class)->group(functi
 Route::prefix('motorcycle')->controller(MotorcycleController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         // ROLE'S END POINTS
+        Route::get('/', 'index');
+        Route::get('/{motorcycle}', 'show');
         Route::post('/', 'store');
+        Route::put('/{motorcycle}', 'update');
     });
 });
 

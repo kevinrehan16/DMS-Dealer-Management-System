@@ -71,7 +71,7 @@
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease, padding 0.3s ease;
-  margin-left: 1rem;
+  /* margin-left: 1rem; */
   display: flex;
   flex-direction: column;
   background-color: #3f464f;
@@ -87,11 +87,11 @@
 
 /* Submenu Individual Link */
 .submenu-link {
-  padding: 8px 15px !important;
-  margin: 2px 5px !important;
+  padding: 8px 8px !important;
+  margin: 2px 8px !important;
   border-radius: 4px;
   color: #cfd4da !important;
-  font-size: 0.85rem;
+  font-size: 0.85rem !important;
   font-weight: 500;
   background: transparent !important;
 }

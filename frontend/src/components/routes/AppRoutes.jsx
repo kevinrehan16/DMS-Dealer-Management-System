@@ -15,7 +15,10 @@ import Inquiry from "../../pages/Inquiry/Inquiry";
 import CreditInvestigation from "../../pages/CreditInvestigation/CreditInvestigation";
 import AdminEvaluation from "../../pages/AdminEvaluation/AdminEvaluation";
 import Cashier from "../../pages/Cashier/cashier";
-import Inventory from "../../pages/Inventory/inventory";
+
+import StockUnits from "../../pages/Inventory/StockUnits";
+import UnitCatalog from "../../pages/Inventory/UnitCatalog";
+
 import Users from "../../pages/Users/Users";
 import Roles from "../../pages/Settings/Roles";
 
@@ -72,7 +75,8 @@ export default function AppRoutes() {
                           </InquiryProvider>
                         } />
               <Route path="/cashier" element={<Cashier />} />
-              <Route path="/inventory" element={<Inventory />} />
+              <Route path="/inventory/stock-units" element={<StockUnits />} />
+              <Route path="/inventory/unit-catalog" element={<UnitCatalog />} />
               <Route path="/users" element={<Users />} />
               <Route path="/settings/roles" element={<Roles />} />
             </Route>

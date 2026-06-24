@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import "../../assets/css/Cashier.css"
 
 import { Row, Col, Form, InputGroup, Button, Table, Badge, Dropdown } from 'react-bootstrap';
-import { FaSearch, FaWarehouse, FaCalendarAlt, FaFileExport,FaPlus, FaEllipsisV, FaMotorcycle, FaEye,
+import { FaSearch, FaMotorcycle, FaCalendarAlt, FaFileExport,FaPlus, FaEllipsisV, FaEye,
           FaEdit, FaTrash, FaFileInvoiceDollar } from 'react-icons/fa';
 
 import { useInventory } from '../../hooks/HooksInventory/useInventory';
@@ -11,7 +11,7 @@ import { formatAmount } from '../../utils/formatters'
 
 import SkeletonRowLoading from '../../components/common/Loading/SkeletonRowLoading'
 
-function Inventory() {
+function StockUnits() {
   const { data: inventories, isLoading, isError } = useInventory();
 
   const [actionInventoryId, setActionInventoryId] = useState(null);
@@ -26,10 +26,10 @@ function Inventory() {
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center gap-3">
             <div className="icon-box-float text-dark">
-              <FaWarehouse size={20}/>
+              <FaMotorcycle size={20}/>
             </div>
             <div>
-              <h5 className="fw-bold mb-0 text-dark">INVENTORY</h5>
+              <h5 className="fw-bold mb-0 text-dark">STOCK UNITS</h5>
               <small className="text-muted" style={{ fontSize: '11px' }}>Manage and monitor unit stock availability</small>
             </div>
           </div>
@@ -281,4 +281,4 @@ function Inventory() {
   )
 }
 
-export default Inventory;
+export default StockUnits;

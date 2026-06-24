@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Nav, Image } from "react-bootstrap";
-import { FaAppStore, 
-          FaChartPie, 
-          FaUser, 
-          FaFileAlt, 
-          FaCog, 
-          FaUserSecret, 
-          FaUserTie, 
-          FaChevronDown, 
-          FaRegDotCircle, 
-          FaCashRegister,
-          FaWarehouse 
-        } from "react-icons/fa";
+import { 
+  FaAppStore, 
+  FaChartPie, 
+  FaUser, 
+  FaFileAlt, 
+  FaCog, 
+  FaUserSecret, 
+  FaUserTie, 
+  FaChevronDown, 
+  FaRegDotCircle, 
+  FaCashRegister,
+  FaWarehouse 
+} from "react-icons/fa";
 import { FaUsersGear } from "react-icons/fa6";
 import { useLocation, Link } from "react-router-dom";
 import "../../assets/css/Sidebar.css";
@@ -19,28 +20,39 @@ import { can } from "../../utils/permission";
 
 export default function Sidebar() {
   const location = useLocation();
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
-  // Determine active submenu from URL
-  const activeSubMenu = location.pathname.includes("/settings/roles")
-    ? "roles"
-    : location.pathname.includes("/settings/permissions")
-    ? "permissions"
-    : "";
+  // 1. Gagamit tayo ng iisang string state ('inventory', 'settings', o '' kapag sarado lahat)
+  // Nakadepende ang initial state sa kung anong URL ang unang ni-load
+  const [openMenu, setOpenMenu] = useState(() => {
+    if (location.pathname.startsWith("/inventory")) return "inventory";
+    if (location.pathname.startsWith("/settings")) return "settings";
+    return "";
+  });
 
-  // Open Settings if a submenu is active
+  // 2. I-sync ang menu kapag nagbago ang URL (halimbawa: nag-back button ang user)
   useEffect(() => {
-    if (activeSubMenu) {
-      setSettingsOpen(true);
+    if (location.pathname.startsWith("/inventory")) {
+      setOpenMenu("inventory");
+    } else if (location.pathname.startsWith("/settings")) {
+      setOpenMenu("settings");
     } else {
-      setSettingsOpen(false);
+      setOpenMenu(""); // Isara lahat kung nasa ibang page (e.g., Dashboard)
     }
-  }, [activeSubMenu]);
+  }, [location.pathname]);
 
-  const toggleSettings = () => setSettingsOpen(!settingsOpen);
+  // 3. Toggle Function (Accordion Style)
+  const toggleMenu = (menu) => {
+    // Kung ang kinlick ay bukas na, isara (''). Kung iba, buksan yung bago.
+    setOpenMenu((prev) => (prev === menu ? "" : menu));
+  };
 
-  const isSettingsActive =
-    location.pathname.startsWith("/settings") || activeSubMenu !== "";
+  // Check kung sino ang "Active" (Para kulay yellow/highlighted ang parent menu)
+  const isInventoryActive = location.pathname.startsWith("/inventory");
+  const isSettingsActive = location.pathname.startsWith("/settings");
+
+  // Check kung sino ang "Open" (Para makita ang submenu dropdown)
+  const isInventoryOpen = openMenu === "inventory";
+  const isSettingsOpen = openMenu === "settings";
 
   return (
     <div className="sidebar">
@@ -58,7 +70,6 @@ export default function Sidebar() {
               justifyContent: 'center',
               backgroundColor: '#fff', 
               flexShrink: 0,
-              // Layered ring effect: Gray ring -> White Gap -> Yellow Ring (#ffc107)
               boxShadow: '0 0 0 1px #343a40, 0 0 0 3px #343a40, 0 0 0 5px #ffc107' 
             }}
           >
@@ -68,9 +79,9 @@ export default function Sidebar() {
                 height={35} 
                 alt="Logo" 
                 style={{ 
-                    width: '80%',      // Ginawa nating 80% para may space sa paligid
+                    width: '80%',      
                     height: '80%', 
-                    objectFit: 'contain' // Ito ang sikreto para hindi maputol ang image
+                    objectFit: 'contain' 
                 }} 
             />
           </div>
@@ -85,6 +96,7 @@ export default function Sidebar() {
           </div>
         </div>
       </h3>
+
       <Nav className="flex-column">
         {can('view dashboard') && (
           <Nav.Link
@@ -134,13 +146,45 @@ export default function Sidebar() {
           <FaCashRegister /> Cashier
         </Nav.Link>
 
-        <Nav.Link
-          as={Link}
-          to="/inventory"
-          className={`d-flex align-items-center gap-2 ${location.pathname === "/inventory" ? "active" : ""}`}
-        >
-          <FaWarehouse /> Inventory
-        </Nav.Link>
+        {/* --- INVENTORY MENU (Parent + Dropdown) --- */}
+        <div>
+          <Nav.Link
+            as={Link}
+            to="#"
+            onClick={() => toggleMenu('inventory')}
+            className={`d-flex align-items-center justify-content-between ${isInventoryActive ? "active" : ""}`}
+          >
+            <span className="d-flex align-items-center gap-2"><FaWarehouse /> Inventory</span>
+            <FaChevronDown className={`settings-arrow ${isInventoryOpen ? "rotate" : ""}`} />
+          </Nav.Link>
+
+          {/* Inventory Submenu */}
+          <div className={`submenu ${isInventoryOpen ? "open" : ""}`}>
+            <Nav.Link
+              as={Link}
+              to="/inventory/unit-catalog"
+              className={`submenu-link ${location.pathname === "/inventory/unit-catalog" ? "submenu-active" : ""} d-flex align-items-center gap-2`}
+            >
+              <FaRegDotCircle /> Unit Catalog
+            </Nav.Link>
+
+            <Nav.Link
+              as={Link}
+              to="/inventory/stock-units"
+              className={`submenu-link ${location.pathname === "/inventory/stock-units" ? "submenu-active" : ""} d-flex align-items-center gap-2`}
+            >
+              <FaRegDotCircle /> Stock Units
+            </Nav.Link>
+
+            <Nav.Link
+              as={Link}
+              to="/inventory/stock-history"
+              className={`submenu-link ${location.pathname === "/inventory/stock-history" ? "submenu-active" : ""} d-flex align-items-center gap-2`}
+            >
+              <FaRegDotCircle /> Stock History
+            </Nav.Link>
+          </div>
+        </div>
 
         <Nav.Link
           as={Link}
@@ -152,30 +196,30 @@ export default function Sidebar() {
 
         <Nav.Link
           as={Link}
-          to="#"
+          to="/reports"
           className={`d-flex align-items-center gap-2 ${location.pathname === "/reports" ? "active" : ""}`}
         >
           <FaFileAlt /> Reports
         </Nav.Link>
 
-        {/* Settings Menu */}
+        {/* --- SETTINGS MENU (Parent + Dropdown) --- */}
         <div>
           <Nav.Link
             as={Link}
             to="#"
-            onClick={toggleSettings}
+            onClick={() => toggleMenu('settings')}
             className={`d-flex align-items-center justify-content-between ${isSettingsActive ? "active" : ""}`}
           >
             <span className="d-flex align-items-center gap-2"><FaCog /> Settings</span>
-            <FaChevronDown className={`settings-arrow ${settingsOpen ? "rotate" : ""}`} />
+            <FaChevronDown className={`settings-arrow ${isSettingsOpen ? "rotate" : ""}`} />
           </Nav.Link>
 
-          {/* Submenu */}
-          <div className={`submenu ${settingsOpen ? "open" : ""}`}>
+          {/* Settings Submenu */}
+          <div className={`submenu ${isSettingsOpen ? "open" : ""}`}>
             <Nav.Link
               as={Link}
               to="/settings/roles"
-              className={`submenu-link ${activeSubMenu === "roles" ? "submenu-active" : ""} d-flex align-items-center gap-2`}
+              className={`submenu-link ${location.pathname === "/settings/roles" ? "submenu-active" : ""} d-flex align-items-center gap-2`}
             >
               <FaRegDotCircle />  Roles
             </Nav.Link>
@@ -183,12 +227,13 @@ export default function Sidebar() {
             <Nav.Link
               as={Link}
               to="/settings/permissions"
-              className={`submenu-link ${activeSubMenu === "permissions" ? "submenu-active" : ""} d-flex align-items-center gap-2`}
+              className={`submenu-link ${location.pathname === "/settings/permissions" ? "submenu-active" : ""} d-flex align-items-center gap-2`}
             >
               <FaRegDotCircle /> Permissions
             </Nav.Link>
           </div>
         </div>
+
       </Nav>
     </div>
   );
