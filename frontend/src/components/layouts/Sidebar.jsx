@@ -10,6 +10,7 @@ import {
   FaUserTie, 
   FaChevronDown, 
   FaRegDotCircle, 
+  FaRegCircle,
   FaCashRegister,
   FaWarehouse 
 } from "react-icons/fa";
@@ -165,7 +166,7 @@ export default function Sidebar() {
               to="/inventory/unit-catalog"
               className={`submenu-link ${location.pathname === "/inventory/unit-catalog" ? "submenu-active" : ""} d-flex align-items-center gap-2`}
             >
-              <FaRegDotCircle /> Unit Catalog
+              {location.pathname === "/inventory/unit-catalog" ? <FaRegDotCircle /> : <FaRegCircle />} Unit Catalog
             </Nav.Link>
 
             <Nav.Link
@@ -173,7 +174,7 @@ export default function Sidebar() {
               to="/inventory/stock-units"
               className={`submenu-link ${location.pathname === "/inventory/stock-units" ? "submenu-active" : ""} d-flex align-items-center gap-2`}
             >
-              <FaRegDotCircle /> Stock Units
+              {location.pathname === "/inventory/stock-units" ? <FaRegDotCircle /> : <FaRegCircle />} Stock Units
             </Nav.Link>
 
             <Nav.Link
@@ -181,7 +182,7 @@ export default function Sidebar() {
               to="/inventory/stock-history"
               className={`submenu-link ${location.pathname === "/inventory/stock-history" ? "submenu-active" : ""} d-flex align-items-center gap-2`}
             >
-              <FaRegDotCircle /> Stock History
+              {location.pathname === "/inventory/stock-history" ? <FaRegDotCircle /> : <FaRegCircle />} Stock History
             </Nav.Link>
           </div>
         </div>
@@ -221,7 +222,7 @@ export default function Sidebar() {
               to="/settings/roles"
               className={`submenu-link ${location.pathname === "/settings/roles" ? "submenu-active" : ""} d-flex align-items-center gap-2`}
             >
-              <FaRegDotCircle />  Roles
+              {location.pathname === "/settings/roles" ? <FaRegDotCircle /> : <FaRegCircle />}  Roles
             </Nav.Link>
 
             <Nav.Link
@@ -229,7 +230,7 @@ export default function Sidebar() {
               to="/settings/permissions"
               className={`submenu-link ${location.pathname === "/settings/permissions" ? "submenu-active" : ""} d-flex align-items-center gap-2`}
             >
-              <FaRegDotCircle /> Permissions
+              {location.pathname === "/settings/permissions" ? <FaRegDotCircle /> : <FaRegCircle />} Permissions
             </Nav.Link>
           </div>
         </div>
